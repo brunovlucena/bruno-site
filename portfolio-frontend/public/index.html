@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Site</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="header-brand">
+                <a href="/" class="logo">
+                    <span class="logo-text">Bruno Lucena</span>
+                </a>
+            </div>
+            
+            <nav class="header-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item dropdown">
+                        <button class="nav-button dropdown-toggle" aria-expanded="false">
+                            Projects
+                            <svg class="dropdown-icon" width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                                <path d="M6 8.825L1.175 4 2.238 2.938 6 6.7l3.763-3.762L10.825 4z"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu">
+                                                    <div class="dropdown-content">
+                            <div class="dropdown-section">
+                                <h3>Infrastructure & DevOps</h3>
+                                <div id="infrastructure-projects" class="dropdown-grid">
+                                    <!-- Infrastructure projects will be loaded dynamically -->
+                                </div>
+                            </div>
+                            
+                            <div class="dropdown-section">
+                                <h3>AI & Applications</h3>
+                                <div id="ai-projects" class="dropdown-grid">
+                                    <!-- AI projects will be loaded dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </li>
+
+
+                </ul>
+            </nav>
+            
+            <div class="header-actions">
+                <button class="search-toggle" aria-label="Search">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                    </svg>
+                </button>
+                <a href="resume.html" class="header-link">
+                    <div class="header-link-icon">📚</div>
+                    <span>Resume</span>
+                </a>
+                <a href="https://www.linkedin.com/in/bvlucena" class="header-link" target="_blank" rel="noopener noreferrer">
+                    <div class="header-link-icon">🔗</div>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="https://github.com/brunovlucena" class="header-link" target="_blank" rel="noopener noreferrer">
+                    <div class="header-link-icon">🐙</div>
+                    <span>GitHub</span>
+                </a>
+                <a href="#contact" class="contact-link">Contact</a>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>SRE/DevSecOps/AI Engineer</h1>
+            </div>
+        </section>
+        
+        <section id="about" class="section">
+            <div class="container">
+                <div class="about-header">
+                    <div class="about-intro">
+                        <h2>About Me</h2>
+                        <p>Senior Cloud Native Infrastructure Engineer with 12+ years of experience architecting and maintaining robust cloud-native solutions on AWS, GCP, and bare-metal environments. Expert in Kubernetes orchestration, observability systems, and automation using Terraform, Pulumi, and CI/CD pipelines. Proven track record in SRE practices, security analysis, and leading infrastructure teams. Passionate about solving complex infrastructure challenges and driving innovation in Agentic DevOps and LLMOps. Delivers high-availability, scalable solutions that minimize downtime and optimize system performance.</p>
+                        <div class="about-highlights">
+                            <div class="highlight-item">
+                                <span class="highlight-icon">🔒</span>
+                                <span class="highlight-text">IT Security</span>
+                            </div>
+                            <div class="highlight-item">
+                                <span class="highlight-icon">📊</span>
+                                <span class="highlight-text">Project Management</span>
+                            </div>
+                            <div class="highlight-item">
+                                <span class="highlight-icon">☸️</span>
+                                <span class="highlight-text">Kubernetes</span>
+                            </div>
+                            <div class="highlight-item">
+                                <span class="highlight-icon">☁️</span>
+                                <span class="highlight-text">AWS & GCP</span>
+                            </div>
+                            <div class="highlight-item">
+                                <span class="highlight-icon">📊</span>
+                                <span class="highlight-text">Observability</span>
+                            </div>
+                            <div class="highlight-item">
+                                <span class="highlight-icon">🤖</span>
+                                <span class="highlight-text">AI/LLMOps</span>
+                            </div>
+                            <div class="highlight-item">
+                                <span class="highlight-icon">🔒</span>
+                                <span class="highlight-text">Security</span>
+                            </div>
+                            <div class="highlight-item">
+                                <span class="highlight-icon">🚀</span>
+                                <span class="highlight-text">Automation</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="projects" class="section">
+            <div class="container">
+                <div class="projects-header">
+                    <div class="projects-intro">
+                        <h2>Projects</h2>
+                    </div>
+                </div>
+                
+                <div class="projects-grid">
+                    <!-- Projects will be loaded dynamically from API -->
+                    <div class="loading-projects">
+                        <p>Loading projects from database...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+
+        
+        <section id="contact" class="section">
+            <div class="container">
+                <div class="contact-header">
+                    <h2>Contact</h2>
+                    <p>Get in touch with me to discuss opportunities or collaborations.</p>
+                </div>
+                
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <div class="contact-icon">📧</div>
+                            <div class="contact-details">
+                                <h3>Email</h3>
+                                <a href="mailto:bruno.lucena@example.com" class="contact-link">bruno.lucena@example.com</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">📍</div>
+                            <div class="contact-details">
+                                <h3>Location</h3>
+                                <p>Brazil</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">🌐</div>
+                            <div class="contact-details">
+                                <h3>LinkedIn</h3>
+                                <a href="https://www.linkedin.com/in/bvlucena" class="contact-link" target="_blank" rel="noopener noreferrer">linkedin.com/in/bvlucena</a>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">🐙</div>
+                            <div class="contact-details">
+                                <h3>GitHub</h3>
+                                <a href="https://github.com/brunovlucena" class="contact-link" target="_blank" rel="noopener noreferrer">github.com/brunovlucena</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-availability">
+                        <h3>Availability</h3>
+                        <p>Open to new opportunities in SRE, DevSecOps, and AI Engineering roles.</p>
+                        <div class="availability-status">
+                            <span class="status-indicator available"></span>
+                            <span class="status-text">Available for opportunities</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Chatbot Overlay -->
+    <div id="chatbot-container" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;">
+        <!-- Chatbot Toggle Button -->
+        <button id="chatbot-toggle" style="background: var(--secondary-color); color: var(--text-primary); width: 56px; height: 56px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(10px);">
+            💬
+        </button>
+        
+        <!-- Chatbot Panel -->
+        <div id="chatbot-panel" style="position: absolute; bottom: 70px; right: 0; width: 400px; height: 500px; background: var(--card-background); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); display: none; flex-direction: column; overflow: hidden; backdrop-filter: blur(10px);">
+            <!-- Chatbot Header -->
+            <div style="background: var(--background-primary); color: var(--text-primary); padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color);">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: var(--text-primary);">Bruno's AI Assistant</h3>
+                <button id="chatbot-close" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; transition: color 0.2s ease;">×</button>
+            </div>
+            
+            <!-- Chat Messages -->
+            <div id="chat-messages" style="flex: 1; padding: 16px; overflow-y: auto; background: var(--background-secondary);">
+                <!-- Messages will be loaded from localStorage or show welcome message -->
+            </div>
+            
+            <!-- Chat Input -->
+            <div style="padding: 16px; border-top: 1px solid var(--border-color); background: var(--background-primary);">
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="chat-input" placeholder="Ask me anything about Bruno..." style="flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; background: var(--background-secondary); color: var(--text-primary); transition: border-color 0.2s ease;">
+                    <button id="chat-send" style="background: var(--secondary-color); color: var(--text-primary); border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s ease;">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="components/header.js"></script>
+    
+    <script>
+        // Load projects from API
+        async function loadProjects() {
+            try {
+                console.log('🔄 Loading projects from API...');
+                const response = await fetch('http://localhost:8080/api/v1/projects');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const projects = await response.json();
+                console.log('✅ Projects loaded:', projects.length);
+                
+                // Update the projects section with dynamic data
+                updateProjectsSection(projects);
+            } catch (error) {
+                console.error('❌ Failed to load projects:', error);
+                // Keep the existing hardcoded projects as fallback
+            }
+        }
+        
+        function updateProjectsSection(projects) {
+            const projectsContainer = document.querySelector('.projects-grid');
+            if (!projectsContainer) return;
+            
+            // Clear existing projects
+            projectsContainer.innerHTML = '';
+            
+            // Add each project
+            projects.forEach(project => {
+                if (project.active) { // Only show active projects
+                    const projectCard = createProjectCard(project);
+                    projectsContainer.appendChild(projectCard);
+                }
+            });
+        }
+        
+        function createProjectCard(project) {
+            const card = document.createElement('div');
+            card.className = 'project-card';
+            
+            // Map projects to their actual technology stack icons
+            function getProjectIcons(project) {
+                const icons = [];
+                const lowerTitle = project.title.toLowerCase();
+                const lowerDescription = project.description.toLowerCase();
+                
+                // Technology-specific icon mapping with reliable, recognizable icons
+                const techIcons = {
+                    // Monitoring & Observability
+                    'prometheus': '<span style="font-size: 20px; color: #e6522c;">📊</span>',
+                    'grafana': '<span style="font-size: 20px; color: #f46800;">📈</span>',
+                    'loki': '<span style="font-size: 20px; color: #0052cc;">📝</span>',
+                    'tempo': '<span style="font-size: 20px; color: #ff6b6b;">⏱️</span>',
+                    'opentelemetry': '<span style="font-size: 20px; color: #3655b3;">🔍</span>',
+                    'thanos': '<span style="font-size: 20px; color: #ff6b35;">⚡</span>',
+                    
+                    // Cloud & Infrastructure
+                    'kubernetes': '<span style="font-size: 20px; color: #326ce5;">☸️</span>',
+                    'docker': '<span style="font-size: 20px; color: #2496ed;">🐳</span>',
+                    'aws': '<span style="font-size: 20px; color: #ff9900;">☁️</span>',
+                    'gcp': '<span style="font-size: 20px; color: #4285f4;">☁️</span>',
+                    'terraform': '<span style="font-size: 20px; color: #7b42bc;">🏗️</span>',
+                    'pulumi': '<span style="font-size: 20px; color: #8a3391;">🚀</span>',
+                    
+                    // Programming Languages
+                    'golang': '<span style="font-size: 20px; color: #00add8;">🐹</span>',
+                    'python': '<span style="font-size: 20px; color: #3776ab;">🐍</span>',
+                    'javascript': '<span style="font-size: 20px; color: #f7df1e;">🟨</span>',
+                    'typescript': '<span style="font-size: 20px; color: #3178c6;">🔷</span>',
+                    'react': '<span style="font-size: 20px; color: #61dafb;">⚛️</span>',
+                    'nodejs': '<span style="font-size: 20px; color: #339933;">🟢</span>',
+                    
+                    // CI/CD & Tools
+                    'git': '<span style="font-size: 20px; color: #f05032;">📚</span>',
+                    'github': '<span style="font-size: 20px; color: #181717;">🐙</span>',
+                    'gitlab': '<span style="font-size: 20px; color: #fc6d26;">🦊</span>',
+                    'jenkins': '<span style="font-size: 20px; color: #d33833;">🔴</span>',
+                    'ansible': '<span style="font-size: 20px; color: #ee0000;">🔵</span>',
+                    'helm': '<span style="font-size: 20px; color: #0f1689;">⛵</span>',
+                    
+                    // Databases
+                    'postgresql': '<span style="font-size: 20px; color: #336791;">🐘</span>',
+                    'redis': '<span style="font-size: 20px; color: #dc382d;">🔴</span>',
+                    'mongodb': '<span style="font-size: 20px; color: #47a248;">🍃</span>',
+                    
+                    // AI & ML
+                    'tensorflow': '<span style="font-size: 20px; color: #ff6f00;">🧠</span>',
+                    'pytorch': '<span style="font-size: 20px; color: #ee4c2c;">🔥</span>',
+                    'vertex': '<span style="font-size: 20px; color: #4285f4;">🤖</span>',
+                    
+                    // Serverless & Event-Driven
+                    'knative': '<span style="font-size: 20px; color: #0865ad;">⚡</span>',
+                    'lambda': '<span style="font-size: 20px; color: #ff9900;">⚡</span>',
+                    'kafka': '<span style="font-size: 20px; color: #231f20;">📨</span>',
+                    'rabbitmq': '<span style="font-size: 20px; color: #ff6600;">🐰</span>'
+                };
+                
+                // Check project title and description for technology keywords
+                const allText = `${lowerTitle} ${lowerDescription}`;
+                
+                // Add technology icons based on detected technologies
+                Object.keys(techIcons).forEach(tech => {
+                    if (allText.includes(tech.toLowerCase())) {
+                        icons.push(techIcons[tech]);
+                    }
+                });
+                
+                // If no specific technology icons found, add a fallback
+                if (icons.length === 0) {
+                    icons.push('<span style="font-size: 20px;">🚀</span>'); // Fallback rocket
+                }
+                
+                return icons;
+            }
+            
+            const projectIcons = getProjectIcons(project);
+            
+            card.innerHTML = `
+                <div class="project-card-header">
+                    <span class="project-type">${project.type} • ${project.modules} ${project.modules === 1 ? 'module' : 'modules'}</span>
+                </div>
+                <h3 class="project-card-title">${project.title}</h3>
+                <p class="project-card-description">${project.description}</p>
+                <div class="project-card-footer">
+                    <div class="project-card-icons">
+                        ${projectIcons.map(icon => `<span class="project-icon">${icon}</span>`).join('')}
+                    </div>
+                    <a href="${project.url}" class="project-card-link" target="_blank" rel="noopener noreferrer">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                    </a>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Load projects for header dropdown
+        async function loadHeaderProjects() {
+            try {
+                console.log('🔄 Loading header projects from API...');
+                const response = await fetch('http://localhost:8080/api/v1/projects');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const projects = await response.json();
+                console.log('✅ Header projects loaded:', projects.length);
+                updateHeaderDropdown(projects);
+            } catch (error) {
+                console.error('❌ Failed to load header projects:', error);
+            }
+        }
+        
+        function updateHeaderDropdown(projects) {
+            const infrastructureContainer = document.getElementById('infrastructure-projects');
+            const aiContainer = document.getElementById('ai-projects');
+            
+            // Clear existing content
+            infrastructureContainer.innerHTML = '';
+            aiContainer.innerHTML = '';
+            
+            // Technology icon mapping for header (simplified version)
+            const headerTechIcons = {
+                'prometheus': '📊',
+                'grafana': '📈',
+                'loki': '📝',
+                'tempo': '⏱️',
+                'opentelemetry': '🔍',
+                'kubernetes': '☸️',
+                'docker': '🐳',
+                'aws': '☁️',
+                'gcp': '☁️',
+                'terraform': '🏗️',
+                'pulumi': '🚀',
+                'golang': '🐹',
+                'python': '🐍',
+                'javascript': '🟨',
+                'typescript': '🔷',
+                'react': '⚛️',
+                'nodejs': '🟢',
+                'git': '📚',
+                'github': '🐙',
+                'gitlab': '🦊',
+                'jenkins': '🔴',
+                'ansible': '🔵',
+                'helm': '⛵',
+                'postgresql': '🐘',
+                'redis': '🔴',
+                'mongodb': '🍃',
+                'tensorflow': '🧠',
+                'pytorch': '🔥',
+                'vertex': '🤖',
+                'knative': '⚡',
+                'lambda': '⚡',
+                'kafka': '📨',
+                'rabbitmq': '🐰'
+            };
+            
+            // Categorize projects
+            const infrastructureProjects = [];
+            const aiProjects = [];
+            
+            projects.forEach(project => {
+                const lowerTitle = project.title.toLowerCase();
+                const lowerDescription = project.description.toLowerCase();
+                const allText = `${lowerTitle} ${lowerDescription}`;
+                
+                // Determine project category
+                const isAI = allText.includes('ai') || allText.includes('chatbot') || 
+                           allText.includes('machine learning') || allText.includes('ml') ||
+                           allText.includes('tensorflow') || allText.includes('pytorch') ||
+                           allText.includes('vertex') || allText.includes('financial') ||
+                           allText.includes('music') || allText.includes('dj');
+                
+                if (isAI) {
+                    aiProjects.push(project);
+                } else {
+                    infrastructureProjects.push(project);
+                }
+            });
+            
+            // Populate infrastructure projects
+            infrastructureProjects.forEach(project => {
+                const icon = getHeaderProjectIcon(project, headerTechIcons);
+                const projectElement = createHeaderProjectElement(project, icon);
+                infrastructureContainer.appendChild(projectElement);
+            });
+            
+            // Populate AI projects
+            aiProjects.forEach(project => {
+                const icon = getHeaderProjectIcon(project, headerTechIcons);
+                const projectElement = createHeaderProjectElement(project, icon);
+                aiContainer.appendChild(projectElement);
+            });
+        }
+        
+        function getHeaderProjectIcon(project, iconMap) {
+            const lowerTitle = project.title.toLowerCase();
+            const lowerDescription = project.description.toLowerCase();
+            const allText = `${lowerTitle} ${lowerDescription}`;
+            
+            // Find the first matching technology
+            for (const [tech, icon] of Object.entries(iconMap)) {
+                if (allText.includes(tech.toLowerCase())) {
+                    return icon;
+                }
+            }
+            
+            // Fallback icons based on project type
+            if (allText.includes('cli') || allText.includes('devops') || allText.includes('sre')) {
+                return '🛠️';
+            } else if (allText.includes('monitoring') || allText.includes('observability')) {
+                return '📊';
+            } else if (allText.includes('kubernetes') || allText.includes('k8s')) {
+                return '☸️';
+            } else if (allText.includes('serverless') || allText.includes('lambda')) {
+                return '⚡';
+            } else if (allText.includes('chatbot') || allText.includes('ai')) {
+                return '🤖';
+            } else if (allText.includes('music') || allText.includes('dj')) {
+                return '🎵';
+            } else if (allText.includes('financial')) {
+                return '💰';
+            } else {
+                return '🚀';
+            }
+        }
+        
+        function createHeaderProjectElement(project, icon) {
+            const link = document.createElement('a');
+            link.href = project.url;
+            link.className = 'dropdown-item';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            
+            link.innerHTML = `
+                <div class="dropdown-item-icon">${icon}</div>
+                <div class="dropdown-item-content">
+                    <h4>${project.title}</h4>
+                    <p>${project.description}</p>
+                </div>
+            `;
+            
+            return link;
+        }
+        
+        // Load projects when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProjects();
+            loadHeaderProjects();
+            
+            // Chatbot functionality with conversation tracking
+            let conversationHistory = [];
+            
+            // Load conversation from localStorage
+            function loadConversation() {
+                const saved = localStorage.getItem('bruno-chatbot-conversation');
+                if (saved) {
+                    conversationHistory = JSON.parse(saved);
+                    displayConversation();
+                } else {
+                    // Show welcome message for new conversation
+                    addMessage('assistant', 'Hello! I\'m Bruno\'s AI assistant. I can help you learn more about his experience, projects, skills, and how to get in touch. What would you like to know?');
+                    addQuickSuggestions();
+                }
+            }
+            
+            // Save conversation to localStorage
+            function saveConversation() {
+                localStorage.setItem('bruno-chatbot-conversation', JSON.stringify(conversationHistory));
+            }
+            
+            // Add message to conversation
+            function addMessage(sender, text) {
+                const message = {
+                    sender: sender,
+                    text: text,
+                    timestamp: new Date().toISOString()
+                };
+                conversationHistory.push(message);
+                saveConversation();
+            }
+            
+            // Display all messages in chat
+            function displayConversation() {
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = '';
+                
+                conversationHistory.forEach(message => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.style.cssText = message.sender === 'user' 
+                        ? 'background: var(--secondary-color); color: var(--text-primary); padding: 12px; border-radius: 8px; margin-bottom: 12px; margin-left: 20px; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2); border: 1px solid var(--border-color);'
+                        : 'background: var(--background-primary); color: var(--text-primary); padding: 12px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color);';
+                    
+                    messageDiv.innerHTML = `<p style="margin: 0; color: var(--text-primary);">${message.text}</p>`;
+                    chatMessages.appendChild(messageDiv);
+                });
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Add quick suggestions
+            function addQuickSuggestions() {
+                const chatMessages = document.getElementById('chat-messages');
+                const suggestionsDiv = document.createElement('div');
+                suggestionsDiv.style.cssText = 'display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;';
+                suggestionsDiv.innerHTML = `
+                    <button class="suggestion-btn" style="background: var(--background-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 6px 12px; border-radius: 16px; font-size: 12px; cursor: pointer; transition: all 0.2s ease; font-weight: 500;">Tell me about his experience</button>
+                    <button class="suggestion-btn" style="background: var(--background-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 6px 12px; border-radius: 16px; font-size: 12px; cursor: pointer; transition: all 0.2s ease; font-weight: 500;">Show me his projects</button>
+                    <button class="suggestion-btn" style="background: var(--background-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 6px 12px; border-radius: 16px; font-size: 12px; cursor: pointer; transition: all 0.2s ease; font-weight: 500;">What are his skills?</button>
+                    <button class="suggestion-btn" style="background: var(--background-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 6px 12px; border-radius: 16px; font-size: 12px; cursor: pointer; transition: all 0.2s ease; font-weight: 500;">How can I contact him?</button>
+                `;
+                chatMessages.appendChild(suggestionsDiv);
+                
+                // Add event listeners to suggestion buttons
+                document.querySelectorAll('.suggestion-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const question = this.textContent;
+                        handleUserMessage(question);
+                    });
+                });
+            }
+            
+            // Handle user message
+            function handleUserMessage(message) {
+                addMessage('user', message);
+                displayConversation();
+                
+                // Simulate AI response based on message content
+                setTimeout(() => {
+                    let response = '';
+                    const lowerMessage = message.toLowerCase();
+                    
+                    if (lowerMessage.includes('experience') || lowerMessage.includes('work')) {
+                        response = 'Bruno has over 12 years of experience in cloud-native infrastructure engineering. He\'s worked as a Senior Cloud Native Infrastructure Engineer at various companies, specializing in Kubernetes, AWS, GCP, and observability systems. He has extensive experience with SRE practices, security analysis, and leading infrastructure teams.';
+                    } else if (lowerMessage.includes('project') || lowerMessage.includes('work')) {
+                        response = 'Bruno has worked on several key projects including DevSecOps/SRE CLI tools, observability systems with Prometheus/Grafana/Loki, Knative Lambda serverless functions, and AI-powered medical chatbots. He\'s passionate about automation and solving complex infrastructure challenges.';
+                    } else if (lowerMessage.includes('skill') || lowerMessage.includes('technology')) {
+                        response = 'Bruno\'s technical skills include Kubernetes, AWS EKS, GCP, Terraform, Pulumi, Prometheus, Grafana, Loki, OpenTelemetry, Golang, Python, Bash, Ruby, Vertex AI, RAG, and many more. He\'s an expert in cloud-native technologies, observability, automation, and AI/ML integration.';
+                    } else if (lowerMessage.includes('contact') || lowerMessage.includes('reach')) {
+                        response = 'You can contact Bruno through LinkedIn at https://www.linkedin.com/in/bvlucena or check out his GitHub projects at https://github.com/brunovlucena. He\'s always interested in discussing cloud-native solutions, infrastructure challenges, and innovative projects.';
+                    } else {
+                        response = 'I\'m here to help you learn more about Bruno\'s experience, projects, and skills. You can ask me about his work experience, technical skills, projects, or how to get in touch with him.';
+                    }
+                    
+                    addMessage('assistant', response);
+                    displayConversation();
+                }, 500);
+            }
+            
+            // Initialize chatbot
+            loadConversation();
+            
+            // Toggle chatbot
+            const toggleBtn = document.getElementById('chatbot-toggle');
+            const panel = document.getElementById('chatbot-panel');
+            const closeBtn = document.getElementById('chatbot-close');
+            
+            toggleBtn.addEventListener('click', function() {
+                panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+            });
+            
+            closeBtn.addEventListener('click', function() {
+                panel.style.display = 'none';
+            });
+            
+            // Send message
+            const sendBtn = document.getElementById('chat-send');
+            const input = document.getElementById('chat-input');
+            
+            function sendMessage() {
+                const message = input.value.trim();
+                if (message) {
+                    handleUserMessage(message);
+                    input.value = '';
+                }
+            }
+            
+            sendBtn.addEventListener('click', sendMessage);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
