@@ -1,6 +1,0 @@
-🚀 Mock API server running on http://localhost:8080
-📊 Health check: http://localhost:8080/health
-📁 Projects: http://localhost:8080/api/v1/projects
-🎯 Skills: http://localhost:8080/api/v1/content/skills
-💼 Experience: http://localhost:8080/api/v1/content/experience
-ℹ️  About: http://localhost:8080/api/v1/content/about
