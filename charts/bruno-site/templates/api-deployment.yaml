@@ -1,0 +1,126 @@
+{{- if .Values.api.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portfolio-api
+  namespace: {{ .Values.namespaces.portfolio.name }}
+  labels:
+    app: portfolio-api
+    version: v1
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app: portfolio-api
+  template:
+    metadata:
+      labels:
+        app: portfolio-api
+        version: v1
+    spec:
+      containers:
+      - name: portfolio-api
+        image: {{ .Values.global.imageRegistry }}/{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}
+        imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.config.api.port | int }}
+          name: http
+        env:
+        - name: PORT
+          value: {{ .Values.config.api.port | quote }}
+        - name: DEBUG
+          value: {{ .Values.config.api.debug | quote }}
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: portfolio-config
+              key: db_host
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: portfolio-config
+              key: db_port
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: portfolio-secrets
+              key: db_user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: portfolio-secrets
+              key: db_password
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: portfolio-config
+              key: db_name
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: portfolio-config
+              key: redis_host
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: portfolio-config
+              key: redis_port
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: portfolio-secrets
+              key: jwt_secret
+        resources:
+          {{- toYaml .Values.api.resources | nindent 10 }}
+        livenessProbe:
+          {{- toYaml .Values.api.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml .Values.api.readinessProbe | nindent 10 }}
+        securityContext:
+          {{- toYaml .Values.api.securityContext | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portfolio-api-service
+  namespace: {{ .Values.namespaces.portfolio.name }}
+  labels:
+    app: portfolio-api
+spec:
+  selector:
+    app: portfolio-api
+  ports:
+  - port: {{ .Values.api.service.port }}
+    targetPort: {{ .Values.api.service.targetPort }}
+    protocol: TCP
+    name: http
+  type: {{ .Values.api.service.type }}
+{{- if .Values.api.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: portfolio-api-hpa
+  namespace: {{ .Values.namespaces.portfolio.name }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: portfolio-api
+  minReplicas: {{ .Values.api.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.api.autoscaling.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.api.autoscaling.targetCPUUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.api.autoscaling.targetMemoryUtilizationPercentage }}
+{{- end }}
+{{- end }}
