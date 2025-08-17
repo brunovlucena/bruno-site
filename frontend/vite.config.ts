@@ -1,18 +1,15 @@
 import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // Remove React plugin to serve static files only
+  plugins: [react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
-  // Serve static files from public directory as the main entry point
-  publicDir: 'public',
-  // Configure as static file server
-  appType: 'mpa',
   server: {
     port: 3000,
     host: '0.0.0.0',

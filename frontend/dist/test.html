@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Portfolio API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .project { border: 1px solid #ccc; margin: 10px 0; padding: 10px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Portfolio API Test</h1>
+    <div id="status">Loading...</div>
+    <div id="projects"></div>
+
+    <script>
+        async function testAPI() {
+            const statusDiv = document.getElementById('status');
+            const projectsDiv = document.getElementById('projects');
+            
+            try {
+                statusDiv.innerHTML = '<span class="success">Testing API connection...</span>';
+                
+                const response = await fetch('/api/v1/projects');
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const projects = await response.json();
+                console.log('Projects loaded:', projects.length);
+                
+                statusDiv.innerHTML = `<span class="success">✅ API working! Loaded ${projects.length} projects from PostgreSQL</span>`;
+                
+                projectsDiv.innerHTML = projects.map(project => `
+                    <div class="project">
+                        <h3>${project.title}</h3>
+                        <p><strong>Type:</strong> ${project.type}</p>
+                        <p><strong>Modules:</strong> ${project.modules}</p>
+                        <p>${project.description}</p>
+                        <a href="${project.url}" target="_blank">View Project</a>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+                projectsDiv.innerHTML = '<p class="error">Failed to load projects</p>';
+            }
+        }
+        
+        // Test immediately when page loads
+        testAPI();
+    </script>
+</body>
+</html> 
