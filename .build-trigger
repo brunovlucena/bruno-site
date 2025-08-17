@@ -1,0 +1,7 @@
+# Build Trigger
+# This file triggers the CI/CD pipeline
+# Created: $(date)
+# Trigger: Manual build request
+
+BUILD_ID=$(date +%Y%m%d-%H%M%S)
+echo "Build triggered at: $BUILD_ID"
