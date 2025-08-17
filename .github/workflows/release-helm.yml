@@ -33,19 +33,22 @@ jobs:
         with:
           version: v3.12.0
 
-      - name: Add Helm repos
-        run: |
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo update
-
       - name: Package Helm chart
         run: |
           cd helm
           helm package .
 
+      - name: Create charts directory
+        run: |
+          mkdir -p charts
+
+      - name: Move packaged chart
+        run: |
+          mv helm/*.tgz charts/
+
       - name: Generate index
         run: |
-          cd helm
+          cd charts
           helm repo index . --url https://brunovlucena.github.io/bruno-site
 
       - name: Setup Pages
@@ -54,7 +57,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './helm'
+          path: './charts'
 
       - name: Deploy to GitHub Pages
         id: deployment
