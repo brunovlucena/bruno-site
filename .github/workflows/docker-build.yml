@@ -3,6 +3,23 @@ name: Build and Push Docker Images
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: 'Force rebuild (skip cache)'
+        required: false
+        default: 'false'
+        type: boolean
+      build_api:
+        description: 'Build API image'
+        required: false
+        default: 'true'
+        type: boolean
+      build_frontend:
+        description: 'Build Frontend image'
+        required: false
+        default: 'true'
+        type: boolean
 
 env:
   REGISTRY: ghcr.io
@@ -12,6 +29,7 @@ env:
 jobs:
   build-api:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.build_api == 'true'
     permissions:
       contents: read
       packages: write
@@ -36,6 +54,7 @@ jobs:
           context: ./api
           file: ./api/Dockerfile
           push: true
+          no-cache: ${{ github.event.inputs.force_rebuild == 'true' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:dev
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:prd
@@ -50,6 +69,7 @@ jobs:
 
   build-frontend:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.build_frontend == 'true'
     permissions:
       contents: read
       packages: write
@@ -74,6 +94,7 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
+          no-cache: ${{ github.event.inputs.force_rebuild == 'true' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:dev
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:prd
