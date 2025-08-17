@@ -33,18 +33,8 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Create non-root user for security (nginx user already exists in alpine-slim)
-RUN addgroup -g 1001 -S nginx-user && \
-    adduser -S -D -H -u 1001 -h /var/cache/nginx -s /sbin/nologin -G nginx-user -g nginx-user nginx-user
-
-# Change ownership of nginx directories
-RUN chown -R nginx-user:nginx-user /var/cache/nginx /var/log/nginx /etc/nginx/conf.d /usr/share/nginx/html
-
 # Expose port
 EXPOSE 80
 
-# Switch to non-root user
-USER nginx-user
-
-# Start nginx
+# Start nginx as root (required for binding to port 80 and writing pid file)
 CMD ["nginx", "-g", "daemon off;"] 
