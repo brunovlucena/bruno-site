@@ -20,8 +20,9 @@ RUN npm run build
 FROM nginx:alpine-slim
 
 # Create necessary directories and set permissions
-RUN mkdir -p /tmp/nginx_proxy /tmp/nginx_fastcgi /tmp/nginx_uwsgi /tmp/nginx_scgi /var/cache/nginx && \
-    chmod 755 /tmp/nginx_proxy /tmp/nginx_fastcgi /tmp/nginx_uwsgi /tmp/nginx_scgi /var/cache/nginx && \
+RUN mkdir -p /tmp/nginx_proxy /tmp/nginx_fastcgi /tmp/nginx_uwsgi /tmp/nginx_scgi /var/cache/nginx /run && \
+    chmod 755 /tmp/nginx_proxy /tmp/nginx_fastcgi /tmp/nginx_uwsgi /tmp/nginx_scgi /var/cache/nginx /run && \
+    chown -R nginx:nginx /run && \
     # Remove default nginx files to save space
     rm -rf /usr/share/nginx/html/* && \
     # Remove unnecessary nginx modules and files
@@ -36,5 +37,6 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Expose port
 EXPOSE 80
 
-# Start nginx as root (required for binding to port 80 and writing pid file)
+# Start nginx as nginx user
+USER nginx
 CMD ["nginx", "-g", "daemon off;"] 
