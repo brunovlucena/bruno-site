@@ -19,9 +19,17 @@ RUN npm run build
 # Production stage - use regular nginx but configure for non-root
 FROM nginx:alpine
 
-# Create nginx user and group if they don't exist
-RUN addgroup -g 101 -S nginx && \
-    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
+# Create nginx user and group if they don't exist, or modify existing ones
+RUN if ! getent group nginx > /dev/null 2>&1; then \
+        addgroup -g 101 -S nginx; \
+    else \
+        groupmod -g 101 nginx; \
+    fi && \
+    if ! getent passwd nginx > /dev/null 2>&1; then \
+        adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx; \
+    else \
+        usermod -u 101 -g 101 nginx; \
+    fi
 
 # Create necessary directories with correct permissions
 RUN mkdir -p /var/cache/nginx/client_temp \
