@@ -20,7 +20,7 @@ RUN npm run build
 FROM nginx:stable-alpine
 
 # Switch to root user
-USER root # TODO: FIX THIS!
+USER root
 
 # Create nginx cache directories in /tmp (writable by any user)
 RUN mkdir -p /tmp/cache/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp} && \
