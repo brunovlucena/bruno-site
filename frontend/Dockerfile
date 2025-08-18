@@ -22,6 +22,10 @@ FROM nginx:stable-alpine
 # Switch to root user
 USER root
 
+# Create nginx cache directories with proper permissions
+RUN mkdir -p /tmp/cache/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp} && \
+    chmod -R 755 /tmp/cache/nginx
+
 # Copy nginx configuration first
 COPY nginx.conf /etc/nginx/nginx.conf
 
