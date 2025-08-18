@@ -57,8 +57,8 @@ api.interceptors.response.use(
 export const projectsApi = {
   getAll: async (): Promise<Project[]> => {
     try {
-      console.log('📡 API: Calling /v1/projects...');
-      const response = await api.get('/v1/projects');
+      console.log('📡 API: Calling /api/v1/projects...');
+      const response = await api.get('/api/v1/projects');
       console.log('✅ API: Projects response received:', {
         status: response.status,
         dataLength: response.data?.length || 0,
@@ -72,21 +72,21 @@ export const projectsApi = {
   },
 
   getById: async (id: number): Promise<Project> => {
-    const response = await api.get(`/v1/projects/${id}`);
+    const response = await api.get(`/api/v1/projects/${id}`);
     return response.data;
   },
 
   create: async (project: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<Project> => {
-    const response = await api.post('/v1/projects', project);
+    const response = await api.post('/api/v1/projects', project);
     return response.data;
   },
 
   update: async (id: number, updates: Partial<Project>): Promise<void> => {
-    await api.put(`/v1/projects/${id}`, updates);
+    await api.put(`/api/v1/projects/${id}`, updates);
   },
 
   delete: async (id: number): Promise<void> => {
-    await api.delete(`/v1/projects/${id}`);
+    await api.delete(`/api/v1/projects/${id}`);
   },
 };
 

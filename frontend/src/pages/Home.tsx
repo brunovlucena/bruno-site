@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { projectsApi } from '../services/api'
+import { Project } from '../types'
 import { 
   SiReact, 
   SiTypescript, 
@@ -19,10 +21,58 @@ import {
   SiPrometheus,
   SiGrafana
 } from 'react-icons/si'
-import { FaShieldAlt } from 'react-icons/fa'
+import { FaShieldAlt, FaLock, FaChartBar, FaCloud, FaRobot, FaRocket } from 'react-icons/fa'
 import { BiCertification } from 'react-icons/bi'
 
 const Home: React.FC = () => {
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true)
+        const fetchedProjects = await projectsApi.getAll()
+        setProjects(fetchedProjects)
+        setError(null)
+      } catch (err) {
+        console.error('Failed to fetch projects:', err)
+        setError('Failed to load projects')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProjects()
+  }, [])
+
+  const getIconComponent = (iconName: string) => {
+    const iconMap: { [key: string]: React.ComponentType<any> } = {
+      'react': SiReact,
+      'typescript': SiTypescript,
+      'vite': SiVite,
+      'tailwind': SiTailwindcss,
+      'router': SiReactrouter,
+      'go': SiGo,
+      'postgresql': SiPostgresql,
+      'redis': SiRedis,
+      'kubernetes': SiKubernetes,
+      'flux': SiFlux,
+      'helm': SiHelm,
+      'nginx': SiNginx,
+      'docker': SiDocker,
+      'github': SiGithub,
+      'githubactions': SiGithubactions,
+      'pulumi': SiPulumi,
+      'prometheus': SiPrometheus,
+      'grafana': SiGrafana,
+      'shield': FaShieldAlt,
+      'certification': BiCertification,
+    }
+    return iconMap[iconName.toLowerCase()] || SiGithub
+  }
+
   return (
     <div className="home">
       <section className="hero">
@@ -37,9 +87,98 @@ const Home: React.FC = () => {
           <div className="about-header">
             <div className="about-intro">
               <h2>About Me</h2>
-              <p>Senior Cloud Native Infrastructure Engineer with 12+ years of experience architecting and maintaining robust cloud-native solutions on AWS, GCP, and bare-metal environments. Expert in Kubernetes orchestration, observability systems, and automation using Terraform, Pulumi, and CI/CD pipelines.</p>
+              <p>Senior Cloud Native Infrastructure Engineer with 12+ years of experience architecting and maintaining robust cloud-native solutions on AWS, GCP, and bare-metal environments. Expert in Kubernetes orchestration, observability systems, and automation using Terraform, Pulumi, and CI/CD pipelines. Proven track record in SRE practices, security analysis, and leading infrastructure teams. Passionate about solving complex infrastructure challenges and driving innovation in Agentic DevOps and LLMOps. Delivers high-availability, scalable solutions that minimize downtime and optimize system performance.</p>
             </div>
           </div>
+          
+          <div className="skills-grid">
+            <div className="skill-tag">
+              <FaLock className="skill-icon" />
+              <span>IT Security</span>
+            </div>
+            <div className="skill-tag">
+              <FaChartBar className="skill-icon" />
+              <span>Project Management</span>
+            </div>
+            <div className="skill-tag">
+              <SiKubernetes className="skill-icon" />
+              <span>Kubernetes</span>
+            </div>
+            <div className="skill-tag">
+              <FaCloud className="skill-icon" />
+              <span>AWS & GCP</span>
+            </div>
+            <div className="skill-tag">
+              <SiPrometheus className="skill-icon" />
+              <span>Observability</span>
+            </div>
+            <div className="skill-tag">
+              <FaRobot className="skill-icon" />
+              <span>AI/LLMOps</span>
+            </div>
+            <div className="skill-tag">
+              <FaLock className="skill-icon" />
+              <span>Security</span>
+            </div>
+            <div className="skill-tag">
+              <FaRocket className="skill-icon" />
+              <span>Automation</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects" className="section">
+        <div className="container">
+          <h2>Projects</h2>
+          {loading && (
+            <div className="loading">
+              <p>Loading projects...</p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="error">
+              <p>Error: {error}</p>
+            </div>
+          )}
+          
+          {!loading && !error && projects.length === 0 && (
+            <div className="no-projects">
+              <p>No projects available at the moment.</p>
+            </div>
+          )}
+          
+          {!loading && !error && projects.length > 0 && (
+            <div className="projects-grid">
+              {projects.map((project) => {
+                const IconComponent = getIconComponent(project.technologies[0] || 'github')
+                return (
+                  <div key={project.id} className="project-card">
+                    <div className="project-header">
+                      <IconComponent className="project-icon" />
+                      <h3>{project.title}</h3>
+                    </div>
+                    <p className="project-description">{project.description}</p>
+                    <div className="project-meta">
+                      <span className="project-type">{project.type}</span>
+                      <span className="project-modules">{project.modules} modules</span>
+                    </div>
+                    {project.github_url && (
+                      <a 
+                        href={project.github_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="project-link"
+                      >
+                        View Project
+                      </a>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </section>
 
