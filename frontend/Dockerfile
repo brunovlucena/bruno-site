@@ -19,33 +19,6 @@ RUN npm run build
 # Production stage - use regular nginx
 FROM nginx:alpine
 
-# Create necessary directories with correct permissions
-RUN mkdir -p /var/cache/nginx/client_temp \
-    /var/cache/nginx/fastcgi_temp \
-    /var/cache/nginx/proxy_temp \
-    /var/cache/nginx/scgi_temp \
-    /var/cache/nginx/uwsgi_temp \
-    /var/log/nginx \
-    /var/run \
-    /tmp/nginx_proxy \
-    /tmp/nginx_fastcgi \
-    /tmp/nginx_uwsgi \
-    /tmp/nginx_scgi && \
-    chown -R nginx:nginx /var/cache/nginx \
-    /var/log/nginx \
-    /var/run \
-    /tmp/nginx_proxy \
-    /tmp/nginx_fastcgi \
-    /tmp/nginx_uwsgi \
-    /tmp/nginx_scgi && \
-    chmod -R 755 /var/cache/nginx \
-    /var/log/nginx \
-    /var/run \
-    /tmp/nginx_proxy \
-    /tmp/nginx_fastcgi \
-    /tmp/nginx_uwsgi \
-    /tmp/nginx_scgi
-
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 RUN chown -R nginx:nginx /usr/share/nginx/html
