@@ -16,17 +16,51 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage - use nginxinc/nginx-unprivileged for non-root operation
-FROM nginxinc/nginx-unprivileged:alpine-slim
+# Production stage - use regular nginx but configure for non-root
+FROM nginx:alpine
+
+# Create nginx user and group if they don't exist
+RUN addgroup -g 101 -S nginx && \
+    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
+
+# Create necessary directories with correct permissions
+RUN mkdir -p /var/cache/nginx/client_temp \
+    /var/cache/nginx/fastcgi_temp \
+    /var/cache/nginx/proxy_temp \
+    /var/cache/nginx/scgi_temp \
+    /var/cache/nginx/uwsgi_temp \
+    /var/log/nginx \
+    /var/run \
+    /tmp/nginx_proxy \
+    /tmp/nginx_fastcgi \
+    /tmp/nginx_uwsgi \
+    /tmp/nginx_scgi && \
+    chown -R nginx:nginx /var/cache/nginx \
+    /var/log/nginx \
+    /var/run \
+    /tmp/nginx_proxy \
+    /tmp/nginx_fastcgi \
+    /tmp/nginx_uwsgi \
+    /tmp/nginx_scgi && \
+    chmod -R 755 /var/cache/nginx \
+    /var/log/nginx \
+    /var/run \
+    /tmp/nginx_proxy \
+    /tmp/nginx_fastcgi \
+    /tmp/nginx_uwsgi \
+    /tmp/nginx_scgi
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
+RUN chown -R nginx:nginx /usr/share/nginx/html
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
+RUN chown nginx:nginx /etc/nginx/nginx.conf
 
-# Expose port 8080 (nginx-unprivileged uses 8080 instead of 80)
-EXPOSE 8080
+# Expose port 80
+EXPOSE 80
 
-# Start nginx as non-root user
+# Switch to nginx user and start nginx
+USER nginx
 CMD ["nginx", "-g", "daemon off;"] 
