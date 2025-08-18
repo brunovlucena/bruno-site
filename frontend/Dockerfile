@@ -16,8 +16,8 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage - use nginx:alpine-slim for smaller size
-FROM nginx:alpine-slim
+# Production stage - use nginxinc/nginx-unprivileged for non-root operation
+FROM nginxinc/nginx-unprivileged:alpine-slim
 
 # Create necessary directories and set permissions
 RUN mkdir -p /tmp/nginx_proxy /tmp/nginx_fastcgi /tmp/nginx_uwsgi /tmp/nginx_scgi /var/cache/nginx /run && \
@@ -33,8 +33,8 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Expose port
-EXPOSE 80
+# Expose port 8080 (nginx-unprivileged uses 8080 instead of 80)
+EXPOSE 8080
 
-# Start nginx as root (required for binding to port 80)
+# Start nginx as non-root user
 CMD ["nginx", "-g", "daemon off;"] 
