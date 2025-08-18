@@ -22,16 +22,16 @@ FROM nginx:stable-alpine
 # Switch to root user
 USER root
 
+# Copy nginx configuration first
+COPY nginx.conf /etc/nginx/nginx.conf
+
 # Create nginx cache directories in /tmp with proper permissions
 RUN mkdir -p /tmp/cache/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp} && \
-    chmod -R 755 /tmp/cache/nginx && \
+    chmod -R 777 /tmp/cache/nginx && \
     chown -R nginx:nginx /tmp/cache/nginx
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 8080
 EXPOSE 8080
