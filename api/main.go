@@ -18,9 +18,11 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/otel"
 
 	// 🔧 Environment and database
 	"github.com/joho/godotenv"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 
 	// 📊 Prometheus monitoring
@@ -29,30 +31,31 @@ import (
 
 	// 🗄️ Redis caching
 	"github.com/redis/go-redis/v9"
-
-	// 🔍 OpenTelemetry tracing
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	"go.opentelemetry.io/otel/sdk/resource"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
+	// 🔍 OpenTelemetry tracing - DISABLED
+	// "go.opentelemetry.io/otel"
+	// "go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	// "go.opentelemetry.io/otel/sdk/resource"
+	// sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	// semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 )
 
 // =============================================================================
 // 📋 DATA STRUCTURES
 // =============================================================================
 
-// 🎯 Project represents a portfolio project
+// 🎯 Project represents a project
 type Project struct {
-	ID          int    `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Type        string `json:"type"`
-	Modules     int    `json:"modules"`
-	Icon        string `json:"icon"`
-	URL         string `json:"url"`
-	Active      bool   `json:"active"` // Controls visibility
+	ID               int      `json:"id"`
+	Title            string   `json:"title"`
+	Description      string   `json:"description"`
+	ShortDescription string   `json:"short_description"`
+	Type             string   `json:"type"`
+	Modules          int      `json:"modules"`
+	Icon             string   `json:"icon"`
+	URL              string   `json:"url"`
+	VideoURL         string   `json:"video_url,omitempty"`
+	Technologies     []string `json:"technologies"`
+	Active           bool     `json:"active"` // Controls visibility
 }
 
 // 📄 Content represents dynamic content from database
@@ -192,29 +195,29 @@ func clearCache(ctx context.Context, key string) {
 // 🗃️ DATABASE HELPERS (with tracing)
 // =============================================================================
 
-// queryRowWithTracing executes a single row query with OpenTelemetry tracing
+// queryRowWithTracing executes a single row query with OpenTelemetry tracing - DISABLED
 func queryRowWithTracing(ctx context.Context, tracerName, queryName, query string, dest ...interface{}) error {
-	tracer := otel.Tracer(tracerName)
-	_, span := tracer.Start(ctx, fmt.Sprintf("db.query.%s", queryName))
-	defer span.End()
+	// tracer := otel.Tracer(tracerName)
+	// _, span := tracer.Start(ctx, fmt.Sprintf("db.query.%s", queryName))
+	// defer span.End()
 
 	err := db.QueryRowContext(ctx, query, dest...).Scan(dest...)
-	if err != nil {
-		span.RecordError(err)
-	}
+	// if err != nil {
+	// 	span.RecordError(err)
+	// }
 	return err
 }
 
-// execWithTracing executes a database statement with OpenTelemetry tracing
+// execWithTracing executes a database statement with OpenTelemetry tracing - DISABLED
 func execWithTracing(ctx context.Context, tracerName, queryName, query string, args ...interface{}) (sql.Result, error) {
-	tracer := otel.Tracer(tracerName)
-	_, span := tracer.Start(ctx, fmt.Sprintf("db.exec.%s", queryName))
-	defer span.End()
+	// tracer := otel.Tracer(tracerName)
+	// _, span := tracer.Start(ctx, fmt.Sprintf("db.exec.%s", queryName))
+	// defer span.End()
 
 	result, err := db.ExecContext(ctx, query, args...)
-	if err != nil {
-		span.RecordError(err)
-	}
+	// if err != nil {
+	// 	span.RecordError(err)
+	// }
 	return result, err
 }
 
@@ -355,33 +358,34 @@ func countInactiveProjects(projects []Project) int {
 // 🔍 OPEN TELEMETRY SETUP
 // =============================================================================
 
-// initTracer sets up OpenTelemetry tracing
-func initTracer() (*sdktrace.TracerProvider, error) {
-	exporter, err := otlptracegrpc.New(context.Background(),
-		otlptracegrpc.WithEndpoint("localhost:4317"),
-		otlptracegrpc.WithInsecure(),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create OTLP exporter: %w", err)
-	}
+// initTracer sets up OpenTelemetry tracing - DISABLED
+func initTracer() (interface{}, error) {
+	// exporter, err := otlptracegrpc.New(context.Background(),
+	// 	otlptracegrpc.WithEndpoint("localhost:4317"),
+	// 	otlptracegrpc.WithInsecure(),
+	// )
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to create OTLP exporter: %w", err)
+	// }
 
-	res, err := resource.New(context.Background(),
-		resource.WithAttributes(
-			semconv.ServiceName("portfolio-api"),
-			semconv.ServiceVersion("1.0.0"),
-		),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create resource: %w", err)
-	}
+	// res, err := resource.New(context.Background(),
+	// 	resource.WithAttributes(
+	// 		semconv.ServiceName("bruno-api"),
+	// 		semconv.ServiceVersion("1.0.0"),
+	// 	),
+	// )
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to create resource: %w", err)
+	// }
 
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithBatcher(exporter),
-		sdktrace.WithResource(res),
-	)
+	// tp := sdktrace.NewTracerProvider(
+	// 	sdktrace.WithBatcher(exporter),
+	// 	sdktrace.WithResource(res),
+	// )
 
-	otel.SetTracerProvider(tp)
-	return tp, nil
+	// otel.SetTracerProvider(tp)
+	// return tp, nil
+	return nil, nil
 }
 
 // =============================================================================
@@ -395,9 +399,9 @@ func initDB() {
 		// 🔧 Fallback to individual environment variables
 		dbHost := getEnv("DB_HOST", "localhost")
 		dbPort := getEnv("DB_PORT", "5432")
-		dbUser := getEnv("DB_USER", "portfolio_user")
-		dbPassword := getEnv("DB_PASSWORD", "portfolio_password")
-		dbName := getEnv("DB_NAME", "portfolio")
+		dbUser := getEnv("DB_USER", "bruno_user")
+		dbPassword := getEnv("DB_PASSWORD", "bruno_password")
+		dbName := getEnv("DB_NAME", "bruno_site")
 
 		dbURL = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 			dbHost, dbPort, dbUser, dbPassword, dbName)
@@ -513,28 +517,29 @@ func prometheusMiddleware() gin.HandlerFunc {
 
 // getProjects returns active projects
 func getProjects(c *gin.Context) {
-	tracer := otel.Tracer("portfolio-api")
-	ctx, span := tracer.Start(c.Request.Context(), "getProjects")
-	defer span.End()
+	// tracer := otel.Tracer("bruno-api")
+	// ctx, span := tracer.Start(c.Request.Context(), "getProjects")
+	// defer span.End()
+	ctx := c.Request.Context()
 
 	// 🗄️ Try cache first
 	if cached, found := getFromCache[[]Project](ctx, "projects"); found {
-		span.AddEvent("cache_hit")
+		// span.AddEvent("cache_hit")
 		respondWithETag(c, cached, http.StatusOK)
 		return
 	}
 
-	span.AddEvent("cache_miss")
+	// span.AddEvent("cache_miss")
 
 	// 🗃️ Query database
 	rows, err := db.QueryContext(ctx, `
-		SELECT id, title, description, type, modules, github_url, live_url, active
+		SELECT id, title, description, short_description, type, modules, github_url, live_url, video_url, technologies, active
 		FROM projects 
 		WHERE active = true
 		ORDER BY "order" ASC, id ASC
 	`)
 	if err != nil {
-		span.RecordError(err)
+		// span.RecordError(err)
 		respondWithError(c, http.StatusInternalServerError, "Failed to fetch projects")
 		return
 	}
@@ -544,7 +549,9 @@ func getProjects(c *gin.Context) {
 	for rows.Next() {
 		var p Project
 		var githubURL, liveURL sql.NullString
-		if err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.Type, &p.Modules, &githubURL, &liveURL, &p.Active); err != nil {
+		var videoURL sql.NullString
+		var technologies pq.StringArray
+		if err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.ShortDescription, &p.Type, &p.Modules, &githubURL, &liveURL, &videoURL, &technologies, &p.Active); err != nil {
 			continue
 		}
 		// 🔗 Use live_url if available, otherwise use github_url
@@ -553,29 +560,35 @@ func getProjects(c *gin.Context) {
 		} else if githubURL.Valid {
 			p.URL = githubURL.String
 		}
+		if videoURL.Valid {
+			p.VideoURL = videoURL.String
+		}
+		// Set technologies
+		p.Technologies = []string(technologies)
 		projects = append(projects, p)
 	}
 
 	// 🗄️ Cache the result
 	setCache(ctx, "projects", projects, 5*time.Minute)
 
-	span.SetAttributes(semconv.DBStatement("SELECT projects"))
+	// span.SetAttributes(semconv.DBStatement("SELECT projects"))
 	respondWithETag(c, projects, http.StatusOK)
 }
 
 // getAllProjects returns all projects (including inactive) for admin
 func getAllProjects(c *gin.Context) {
-	tracer := otel.Tracer("portfolio-api")
-	ctx, span := tracer.Start(c.Request.Context(), "getAllProjects")
-	defer span.End()
+	// tracer := otel.Tracer("bruno-api")
+	// ctx, span := tracer.Start(c.Request.Context(), "getAllProjects")
+	// defer span.End()
+	ctx := c.Request.Context()
 
 	rows, err := db.QueryContext(ctx, `
-		SELECT id, title, description, type, modules, github_url, live_url, active
+		SELECT id, title, description, short_description, type, modules, github_url, live_url, video_url, technologies, active
 		FROM projects 
 		ORDER BY "order" ASC, id ASC
 	`)
 	if err != nil {
-		span.RecordError(err)
+		// span.RecordError(err)
 		respondWithError(c, http.StatusInternalServerError, "Failed to fetch projects")
 		return
 	}
@@ -585,7 +598,9 @@ func getAllProjects(c *gin.Context) {
 	for rows.Next() {
 		var p Project
 		var githubURL, liveURL sql.NullString
-		if err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.Type, &p.Modules, &githubURL, &liveURL, &p.Active); err != nil {
+		var videoURL sql.NullString
+		var technologies pq.StringArray
+		if err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.ShortDescription, &p.Type, &p.Modules, &githubURL, &liveURL, &videoURL, &technologies, &p.Active); err != nil {
 			continue
 		}
 		if liveURL.Valid {
@@ -593,10 +608,15 @@ func getAllProjects(c *gin.Context) {
 		} else if githubURL.Valid {
 			p.URL = githubURL.String
 		}
+		if videoURL.Valid {
+			p.VideoURL = videoURL.String
+		}
+		// Set technologies
+		p.Technologies = []string(technologies)
 		projects = append(projects, p)
 	}
 
-	span.SetAttributes(semconv.DBStatement("SELECT all projects"))
+	// span.SetAttributes(semconv.DBStatement("SELECT all projects"))
 	respondWithSuccess(c, gin.H{
 		"projects": projects,
 		"total":    len(projects),
@@ -607,9 +627,10 @@ func getAllProjects(c *gin.Context) {
 
 // activateProject activates a project
 func activateProject(c *gin.Context) {
-	tracer := otel.Tracer("portfolio-api")
-	ctx, span := tracer.Start(c.Request.Context(), "activateProject")
-	defer span.End()
+	// tracer := otel.Tracer("bruno-api")
+	// ctx, span := tracer.Start(c.Request.Context(), "activateProject")
+	// defer span.End()
+	ctx := c.Request.Context()
 
 	projectID := c.Param("id")
 	if projectID == "" {
@@ -617,9 +638,9 @@ func activateProject(c *gin.Context) {
 		return
 	}
 
-	result, err := execWithTracing(ctx, "portfolio-api", "activate_project", "UPDATE projects SET active = true WHERE id = $1", projectID)
+	result, err := execWithTracing(ctx, "bruno-api", "activate_project", "UPDATE projects SET active = true WHERE id = $1", projectID)
 	if err != nil {
-		span.RecordError(err)
+		// span.RecordError(err)
 		respondWithError(c, http.StatusInternalServerError, "Failed to activate project")
 		return
 	}
@@ -631,7 +652,7 @@ func activateProject(c *gin.Context) {
 	}
 
 	clearCache(ctx, "projects")
-	span.AddEvent("project_activated")
+	// span.AddEvent("project_activated")
 	respondWithSuccess(c, gin.H{
 		"message":    "Project activated successfully",
 		"project_id": projectID,
@@ -741,7 +762,7 @@ func getContact(c *gin.Context) {
 	}
 
 	contactData := ContactData{
-		Email:        getContentValue(ctx, "contact", "email", "bruno.lucena@example.com"),
+		Email:        getContentValue(ctx, "contact", "email", "bruno@lucena.cloud"),
 		Location:     getContentValue(ctx, "contact", "location", "Brazil"),
 		LinkedIn:     getContentValue(ctx, "contact", "linkedin", "https://www.linkedin.com/in/bvlucena"),
 		GitHub:       getContentValue(ctx, "contact", "github", "https://github.com/brunovlucena"),
@@ -907,17 +928,17 @@ func main() {
 		log.Println("ℹ️ No .env file found, using environment variables")
 	}
 
-	// 🔍 Initialize OpenTelemetry tracing
-	tp, err := initTracer()
-	if err != nil {
-		log.Printf("⚠️ Failed to initialize tracer: %v", err)
-	} else {
-		defer func() {
-			if err := tp.Shutdown(context.Background()); err != nil {
-				log.Printf("❌ Error shutting down tracer provider: %v", err)
-			}
-		}()
-	}
+	// 🔍 Initialize OpenTelemetry tracing - DISABLED
+	// tp, err := initTracer()
+	// if err != nil {
+	// 	log.Printf("⚠️ Failed to initialize tracer: %v", err)
+	// } else {
+	// 	defer func() {
+	// 		if err := tp.Shutdown(context.Background()); err != nil {
+	// 			log.Printf("❌ Error shutting down tracer provider: %v", err)
+	// 		}
+	// 	}()
+	// }
 
 	// 🗄️ Initialize database and Redis
 	initDB()
@@ -935,7 +956,7 @@ func main() {
 	// 🔧 Add middleware
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
 	r.Use(prometheusMiddleware())
-	r.Use(otelgin.Middleware("portfolio-api"))
+	// r.Use(otelgin.Middleware("portfolio-api")) // DISABLED
 
 	// 🌍 Configure CORS
 	config := cors.DefaultConfig()
@@ -956,14 +977,14 @@ func main() {
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// 🎯 API routes with rate limiting
-	api := r.Group("/api/v1")
+	v1 := r.Group("/v1")
 	{
-		api.GET("/projects", rateLimitMiddleware(), getProjects)
-		api.GET("/about", rateLimitMiddleware(), getAbout)
-		api.GET("/contact", rateLimitMiddleware(), getContact)
-		api.GET("/content/skills", rateLimitMiddleware(), getSkills)
-		api.GET("/content/experience", rateLimitMiddleware(), getExperience)
-		api.POST("/analytics/visit", rateLimitMiddleware(), trackVisit)
+		v1.GET("/projects", rateLimitMiddleware(), getProjects)
+		v1.GET("/about", rateLimitMiddleware(), getAbout)
+		v1.GET("/contact", rateLimitMiddleware(), getContact)
+		v1.GET("/content/skills", rateLimitMiddleware(), getSkills)
+		v1.GET("/content/experience", rateLimitMiddleware(), getExperience)
+		v1.POST("/analytics/visit", rateLimitMiddleware(), trackVisit)
 	}
 
 	// 👑 Admin routes for project management
@@ -977,7 +998,7 @@ func main() {
 
 	// 🚀 Start server
 	port := getEnv("PORT", "8080")
-	log.Printf("🚀 Starting portfolio API server on port %s", port)
+	log.Printf("🚀 Starting Bruno API server on port %s", port)
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal("❌ Failed to start server:", err)
 	}

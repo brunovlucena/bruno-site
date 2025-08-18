@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Database migration script for portfolio API
+# Database migration script for Bruno API
 # This script runs the SQL migrations to set up the database schema and populate initial data
 
 set -e
@@ -16,12 +16,12 @@ DB_HOST=${DB_HOST:-localhost}
 DB_PORT=${DB_PORT:-5432}
 DB_USER=${DB_USER:-postgres}
 DB_PASSWORD=${DB_PASSWORD:-password}
-DB_NAME=${DB_NAME:-portfolio}
+DB_NAME=${DB_NAME:-bruno_site}
 
 # Migration directory
 MIGRATIONS_DIR="migrations"
 
-echo -e "${GREEN}🚀 Starting database migration for portfolio API${NC}"
+echo -e "${GREEN}🚀 Starting database migration for Bruno API${NC}"
 echo "Database: $DB_HOST:$DB_PORT/$DB_NAME"
 echo "User: $DB_USER"
 echo ""
@@ -96,4 +96,4 @@ echo "  • Skills loaded: 37"
 echo "  • Experience entries: 6"
 echo "  • Content entries: 3"
 echo ""
-echo -e "${GREEN}🚀 Your portfolio database is ready!${NC}" 
+echo -e "${GREEN}🚀 Your Bruno database is ready!${NC}" 

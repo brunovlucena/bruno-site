@@ -76,7 +76,7 @@ export class ChatbotService {
     }
     
     // Projects
-    if (this.matchesKeywords(input, ['project', 'work', 'portfolio', 'github'])) {
+    if (this.matchesKeywords(input, ['project', 'work', 'site', 'github'])) {
       return this.handleProjectsQuery(input);
     }
     
@@ -112,7 +112,7 @@ export class ChatbotService {
     if (this.matchesKeywords(input, ['help', 'what can you do', 'commands', 'options'])) {
       return {
         text: "I can help you with information about Bruno's professional background. Here are some things you can ask me about:",
-        suggestions: ['Experience & Work History', 'Projects & Portfolio', 'Skills & Technologies', 'Contact Information', 'Resume & Education']
+        suggestions: ['Experience & Work History', 'Projects & Site', 'Skills & Technologies', 'Contact Information', 'Resume & Education']
       };
     }
     

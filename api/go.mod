@@ -1,4 +1,4 @@
-module portfolio-api
+module bruno-api
 
 go 1.23.0
 

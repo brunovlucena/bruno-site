@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 // Check if we're in development and use proxy if available
 const isDevelopment = import.meta.env.DEV;
-const baseURL = isDevelopment ? '/api' : API_BASE_URL;
+const baseURL = isDevelopment ? '/' : API_BASE_URL;
 
 const api = axios.create({
   baseURL: baseURL,
@@ -57,12 +57,14 @@ api.interceptors.response.use(
 export const projectsApi = {
   getAll: async (): Promise<Project[]> => {
     try {
-      console.log('📡 API: Calling /api/v1/projects...');
-      const response = await api.get('/api/v1/projects');
+      console.log('📡 API: Calling /v1/projects...');
+      const response = await api.get('/v1/projects');
       console.log('✅ API: Projects response received:', {
         status: response.status,
-        dataLength: response.data?.length || 0,
-        sample: response.data?.[0] ? { id: response.data[0].id, title: response.data[0].title } : null
+        dataType: typeof response.data,
+        isArray: Array.isArray(response.data),
+        dataLength: Array.isArray(response.data) ? response.data.length : 0,
+        sample: Array.isArray(response.data) && response.data.length > 0 ? { id: response.data[0].id, title: response.data[0].title } : null
       });
       return response.data || [];
     } catch (error) {
@@ -72,21 +74,21 @@ export const projectsApi = {
   },
 
   getById: async (id: number): Promise<Project> => {
-    const response = await api.get(`/api/v1/projects/${id}`);
+    const response = await api.get(`/v1/projects/${id}`);
     return response.data;
   },
 
   create: async (project: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<Project> => {
-    const response = await api.post('/api/v1/projects', project);
+    const response = await api.post('/v1/projects', project);
     return response.data;
   },
 
   update: async (id: number, updates: Partial<Project>): Promise<void> => {
-    await api.put(`/api/v1/projects/${id}`, updates);
+    await api.put(`/v1/projects/${id}`, updates);
   },
 
   delete: async (id: number): Promise<void> => {
-    await api.delete(`/api/v1/projects/${id}`);
+    await api.delete(`/v1/projects/${id}`);
   },
 };
 
@@ -162,18 +164,8 @@ export const contentApi = {
 
 // Analytics API
 export const analyticsApi = {
-  getVisitorStats: async (): Promise<AnalyticsData> => {
-    const response = await api.get('/v1/analytics/visitors');
-    return response.data;
-  },
-
   trackVisit: async (data: { project_id?: number; ip: string; user_agent: string; referrer?: string }): Promise<void> => {
-    await api.post('/v1/analytics/track', data);
-  },
-
-  getProjectViews: async (projectId: number): Promise<number> => {
-    const response = await api.get(`/v1/analytics/projects/${projectId}/views`);
-    return response.data.views;
+    await api.post('/v1/analytics/visit', data);
   },
 };
 

@@ -1,4 +1,4 @@
--- Initial database schema for portfolio system
+-- Initial database schema for Bruno site system
 -- Migration: 001_initial_schema.sql
 
 -- Enable UUID extension

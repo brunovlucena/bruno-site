@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { projectsApi } from '../services/api'
 import { Project } from '../types'
 import { 
@@ -19,7 +20,9 @@ import {
   SiGithubactions,
   SiPulumi,
   SiPrometheus,
-  SiGrafana
+  SiGrafana,
+  SiAmazon,
+  SiGooglecloud
 } from 'react-icons/si'
 import { FaShieldAlt, FaLock, FaChartBar, FaCloud, FaRobot, FaRocket } from 'react-icons/fa'
 import { BiCertification } from 'react-icons/bi'
@@ -28,6 +31,7 @@ const Home: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [searchParams] = useSearchParams()
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -46,6 +50,17 @@ const Home: React.FC = () => {
 
     fetchProjects()
   }, [])
+
+  // Handle scrolling to projects section when section parameter is present
+  useEffect(() => {
+    const section = searchParams.get('section')
+    if (section === 'projects') {
+      const projectsElement = document.getElementById('projects')
+      if (projectsElement) {
+        projectsElement.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+  }, [searchParams])
 
   const getIconComponent = (iconName: string) => {
     const iconMap: { [key: string]: React.ComponentType<any> } = {
@@ -77,8 +92,8 @@ const Home: React.FC = () => {
     <div className="home">
       <section className="hero">
         <div className="container">
-          <h1>SRE/DevSecOps/AI Engineer</h1>
-          <p>Senior Cloud Native Infrastructure Engineer with 12+ years of experience</p>
+          <h1>Senior Cloud Native Infrastructure Engineer</h1>
+          <p>SRE • DevSecOps • AI/ML Infrastructure • Platform Engineering</p>
         </div>
       </section>
       
@@ -87,42 +102,58 @@ const Home: React.FC = () => {
           <div className="about-header">
             <div className="about-intro">
               <h2>About Me</h2>
-              <p>Senior Cloud Native Infrastructure Engineer with 12+ years of experience architecting and maintaining robust cloud-native solutions on AWS, GCP, and bare-metal environments. Expert in Kubernetes orchestration, observability systems, and automation using Terraform, Pulumi, and CI/CD pipelines. Proven track record in SRE practices, security analysis, and leading infrastructure teams. Passionate about solving complex infrastructure challenges and driving innovation in Agentic DevOps and LLMOps. Delivers high-availability, scalable solutions that minimize downtime and optimize system performance.</p>
+              <p>Senior Cloud Native Infrastructure Engineer with 12+ years of experience designing, building, and scaling mission-critical cloud-native platforms. Expert in Kubernetes ecosystem, multi-cloud architectures (AWS/GCP), and modern observability stacks. Proven track record in Site Reliability Engineering (SRE), DevSecOps practices, and leading high-performing infrastructure teams. Specialized in AI/ML infrastructure, LLMOps, and building resilient systems that handle millions of requests. Passionate about automation, security-first approaches, and driving innovation in cloud-native technologies. Delivers enterprise-grade solutions with 99.9%+ uptime, optimized performance, and comprehensive security postures.</p>
             </div>
           </div>
           
           <div className="skills-grid">
             <div className="skill-tag">
-              <FaLock className="skill-icon" />
-              <span>IT Security</span>
+              <SiGo className="skill-icon" style={{ color: '#00ADD8' }} />
+              <span>Go</span>
             </div>
             <div className="skill-tag">
-              <FaChartBar className="skill-icon" />
-              <span>Project Management</span>
-            </div>
-            <div className="skill-tag">
-              <SiKubernetes className="skill-icon" />
+              <SiKubernetes className="skill-icon" style={{ color: '#326CE5' }} />
               <span>Kubernetes</span>
             </div>
             <div className="skill-tag">
-              <FaCloud className="skill-icon" />
-              <span>AWS & GCP</span>
+              <SiDocker className="skill-icon" style={{ color: '#2496ED' }} />
+              <span>Docker</span>
             </div>
             <div className="skill-tag">
-              <SiPrometheus className="skill-icon" />
-              <span>Observability</span>
+              <SiPostgresql className="skill-icon" style={{ color: '#336791' }} />
+              <span>PostgreSQL</span>
             </div>
             <div className="skill-tag">
-              <FaRobot className="skill-icon" />
-              <span>AI/LLMOps</span>
+              <SiRedis className="skill-icon" style={{ color: '#DC382D' }} />
+              <span>Redis</span>
             </div>
             <div className="skill-tag">
-              <FaLock className="skill-icon" />
-              <span>Security</span>
+              <SiPrometheus className="skill-icon" style={{ color: '#E6522C' }} />
+              <span>Prometheus</span>
             </div>
             <div className="skill-tag">
-              <FaRocket className="skill-icon" />
-              <span>Automation</span>
+              <SiGrafana className="skill-icon" style={{ color: '#F46800' }} />
+              <span>Grafana</span>
+            </div>
+            <div className="skill-tag">
+              <SiPulumi className="skill-icon" style={{ color: '#00B4D8' }} />
+              <span>Pulumi</span>
+            </div>
+            <div className="skill-tag">
+              <SiAmazon className="skill-icon" style={{ color: '#FF9900' }} />
+              <span>AWS</span>
+            </div>
+            <div className="skill-tag">
+              <SiGooglecloud className="skill-icon" style={{ color: '#4285F4' }} />
+              <span>GCP</span>
+            </div>
+            <div className="skill-tag">
+              <SiGithub className="skill-icon" style={{ color: '#181717' }} />
+              <span>GitHub</span>
+            </div>
+            <div className="skill-tag">
+              <SiGithubactions className="skill-icon" style={{ color: '#2088FF' }} />
+              <span>GitHub Actions</span>
             </div>
           </div>
         </div>
@@ -130,10 +161,10 @@ const Home: React.FC = () => {
 
       <section id="projects" className="section">
         <div className="container">
-          <h2>Projects</h2>
+          <h2>Homelab</h2>
           {loading && (
             <div className="loading">
-              <p>Loading projects...</p>
+              <p>Loading homelab projects...</p>
             </div>
           )}
           
@@ -145,7 +176,7 @@ const Home: React.FC = () => {
           
           {!loading && !error && projects.length === 0 && (
             <div className="no-projects">
-              <p>No projects available at the moment.</p>
+              <p>No homelab projects available at the moment.</p>
             </div>
           )}
           
@@ -160,6 +191,20 @@ const Home: React.FC = () => {
                       <h3>{project.title}</h3>
                     </div>
                     <p className="project-description">{project.description}</p>
+                    
+                    {/* YouTube Video Embed */}
+                    {project.video_url && (
+                      <div className="project-video">
+                        <iframe
+                          src={project.video_url}
+                          title={`${project.title} Video`}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    )}
+                    
                     <div className="project-meta">
                       <span className="project-type">{project.type}</span>
                       <span className="project-modules">{project.modules} modules</span>
@@ -171,7 +216,7 @@ const Home: React.FC = () => {
                         rel="noopener noreferrer"
                         className="project-link"
                       >
-                        View Project
+                        View Homelab Project
                       </a>
                     )}
                   </div>
@@ -182,56 +227,32 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      <section id="technologies" className="section">
+      <footer className="footer">
         <div className="container">
-          <h2>Technologies Used</h2>
-          <p>This portfolio site was built using modern cloud-native technologies:</p>
-          
-          <div className="tech-grid">
-            <div className="tech-category">
-              <h3>Frontend</h3>
-              <ul>
-                <li><SiReact className="tech-icon" /> React 19 with TypeScript 5.9</li>
-                <li><SiVite className="tech-icon" /> Vite for fast builds</li>
-                <li><SiTailwindcss className="tech-icon" /> Tailwind CSS for styling</li>
-                <li><SiReactrouter className="tech-icon" /> React Router for navigation</li>
-              </ul>
+          <div className="footer-content">
+            <div className="footer-tech">
+              <p>This site was built with:</p>
+              <div className="footer-icons">
+                <SiReact className="footer-icon" style={{ color: '#61DAFB' }} />
+                <SiTypescript className="footer-icon" style={{ color: '#3178C6' }} />
+                <SiVite className="footer-icon" style={{ color: '#646CFF' }} />
+                <SiTailwindcss className="footer-icon" style={{ color: '#06B6D4' }} />
+              </div>
             </div>
-            
-            <div className="tech-category">
-              <h3>Backend</h3>
-              <ul>
-                <li><SiGo className="tech-icon" /> Go (Golang) API</li>
-                <li><SiPostgresql className="tech-icon" /> PostgreSQL database</li>
-                <li><SiRedis className="tech-icon" /> Redis for caching</li>
-                <li><FaShieldAlt className="tech-icon" /> JWT authentication</li>
-              </ul>
-            </div>
-            
-            <div className="tech-category">
-              <h3>Infrastructure</h3>
-              <ul>
-                <li><SiKubernetes className="tech-icon" /> Kubernetes orchestration</li>
-                <li><SiFlux className="tech-icon" /> Flux GitOps for deployment</li>
-                <li><SiHelm className="tech-icon" /> Helm charts for packaging</li>
-                <li><SiNginx className="tech-icon" /> Nginx ingress controller</li>
-                <li><BiCertification className="tech-icon" /> Cert-manager for SSL</li>
-              </ul>
-            </div>
-            
-            <div className="tech-category">
-              <h3>DevOps</h3>
-              <ul>
-                <li><SiDocker className="tech-icon" /> Docker containerization</li>
-                <li><SiGithub className="tech-icon" /> GitHub Container Registry</li>
-                <li><SiGithubactions className="tech-icon" /> GitHub Actions CI/CD</li>
-                <li><SiPulumi className="tech-icon" /> Pulumi for IaC</li>
-                <li><SiPrometheus className="tech-icon" /> Prometheus + Grafana monitoring</li>
-              </ul>
+            <div className="footer-links">
+              <a href="https://github.com/brunovlucena" target="_blank" rel="noopener noreferrer">
+                <SiGithub className="footer-link-icon" />
+                GitHub
+              </a>
+              <a href="https://www.linkedin.com/in/bvlucena" target="_blank" rel="noopener noreferrer">
+                <SiGithub className="footer-link-icon" />
+                LinkedIn
+              </a>
             </div>
           </div>
         </div>
-      </section>
+      </footer>
+
     </div>
   )
 }

@@ -2,11 +2,13 @@ export interface Project {
   id: number;
   title: string;
   description: string;
+  short_description: string;
   type: string;
   modules: number;
   github_url: string;
   live_url?: string;
   url?: string; // Computed property for display
+  video_url?: string;
   technologies: string[];
   image_url?: string;
   featured: boolean;

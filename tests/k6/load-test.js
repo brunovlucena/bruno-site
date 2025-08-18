@@ -56,7 +56,7 @@ export default function () {
     project_id: 1,
     ip: '127.0.0.1',
     user_agent: 'k6-load-test',
-    referrer: 'https://portfolio.brunolucena.dev',
+    referrer: 'https://lucena.cloud',
   };
 
   const trackResponse = http.post(

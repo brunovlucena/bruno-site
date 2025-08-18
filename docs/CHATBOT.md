@@ -1,13 +1,13 @@
-# 🤖 Bruno's Portfolio AI Assistant
+# 🤖 Bruno's Site AI Assistant
 
 ## 📋 Overview
 
-Bruno's AI Assistant is an intelligent chatbot integrated into the portfolio website designed to help visitors navigate through projects, experience, and skills. The chatbot serves as a conversational interface that provides personalized information based on user queries and context.
+Bruno's AI Assistant is an intelligent chatbot integrated into the Bruno site designed to help visitors navigate through projects, experience, and skills. The chatbot serves as a conversational interface that provides personalized information based on user queries and context.
 
 ## 🎯 Primary Objectives
 
 ### 1. **Client Navigation**
-- **Project Discovery**: Help clients understand Bruno's technical capabilities and project portfolio
+- **Project Discovery**: Help clients understand Bruno's technical capabilities and project site
 - **Technology Stack**: Explain the technologies used in each project and their business value
 - **Solution Architecture**: Provide insights into system design and infrastructure decisions
 - **Case Studies**: Share project outcomes, challenges solved, and business impact
@@ -28,7 +28,7 @@ Bruno's AI Assistant is an intelligent chatbot integrated into the portfolio web
 
 ### **Conversation Management**
 - **Persistent History**: Maintains conversation context across page navigation using localStorage
-- **Multi-Page Support**: Available on both main portfolio page and resume page
+- **Multi-Page Support**: Available on both main site page and resume page
 - **Context Awareness**: Remembers previous interactions and builds on them
 
 ### **Intelligent Responses**
@@ -71,7 +71,7 @@ Assistant: "You can reach Bruno through LinkedIn at https://www.linkedin.com/in/
 ## 🎨 User Interface Features
 
 ### **Visual Design**
-- **Dark Theme Integration**: Matches portfolio's professional dark theme
+- **Dark Theme Integration**: Matches site's professional dark theme
 - **Purple Accent Colors**: Uses site's secondary color (#7c3aed) for consistency
 - **Glass Morphism**: Modern backdrop blur effects for visual appeal
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
@@ -106,7 +106,7 @@ Assistant: "You can reach Bruno through LinkedIn at https://www.linkedin.com/in/
 ### **AI Response Generation**
 - **Context Injection**: Incorporates project data and user history into prompts
 - **Dynamic Prompting**: Adapts responses based on user type and query intent
-- **Knowledge Base Integration**: Leverages portfolio data for accurate responses
+- **Knowledge Base Integration**: Leverages site data for accurate responses
 - **Conversation Flow**: Maintains natural dialogue progression and coherence
 - **Real-time Learning**: Adapts responses based on conversation context
 - **Domain Expertise**: Specialized knowledge in cloud-native and DevOps domains
@@ -222,7 +222,7 @@ Database Query → Project Filtering → Technology Mapping → Dynamic Content 
 - **Conversation Duration**: Time spent interacting with chatbot
 - **Question Depth**: Complexity and specificity of user queries
 - **Return Visits**: Users coming back for more information
-- **Page Navigation**: Movement between portfolio sections
+- **Page Navigation**: Movement between site sections
 
 ### **Information Discovery**
 - **Project Views**: Increased interest in specific projects

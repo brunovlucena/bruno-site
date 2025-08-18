@@ -1,5 +1,5 @@
 -- Migration: Add active column to projects table
--- This allows controlling which projects are visible on the portfolio
+-- This allows controlling which projects are visible on the site
 
 -- Add active column with default value true (all existing projects remain active)
 ALTER TABLE projects ADD COLUMN active BOOLEAN DEFAULT true NOT NULL;
@@ -8,4 +8,4 @@ ALTER TABLE projects ADD COLUMN active BOOLEAN DEFAULT true NOT NULL;
 CREATE INDEX idx_projects_active ON projects(active);
 
 -- Add comment to document the column purpose
-COMMENT ON COLUMN projects.active IS 'Controls whether the project is visible on the portfolio (true = visible, false = hidden)'; 
+COMMENT ON COLUMN projects.active IS 'Controls whether the project is visible on the site (true = visible, false = hidden)'; 

@@ -1,7 +1,7 @@
 {
-  "name": "portfolio-frontend",
+  "name": "bruno-frontend",
   "version": "1.0.0",
-  "description": "Dynamic portfolio frontend built with React",
+  "description": "Dynamic Bruno site frontend built with React",
   "private": true,
   "dependencies": {
     "@types/node": "^20.0.0",

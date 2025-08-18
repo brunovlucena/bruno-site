@@ -1,10 +1,10 @@
 # 🚀 Bruno Site
 
-A production-ready, dynamic portfolio system showcasing SRE/DevSecOps and AI Engineering expertise. Built with modern cloud-native technologies and intelligent AI integration.
+A production-ready, dynamic Bruno site system showcasing SRE/DevSecOps and AI Engineering expertise. Built with modern cloud-native technologies and intelligent AI integration.
 
 ## 📋 Quick Overview
 
-This portfolio system demonstrates:
+This Bruno site system demonstrates:
 - **Dynamic Content Management** with real-time updates
 - **AI-Powered Chatbot** using Ollama and Gemma3n
 - **Production Infrastructure** with Kubernetes and monitoring
@@ -59,7 +59,7 @@ open http://localhost:3000
 - **[🛡️ Security Improvements](./SECURITY_IMPROVEMENTS_SUMMARY.md)** - Security enhancements
 
 ### Development
-- **[🎨 Frontend Guide](./portfolio-frontend/README.md)** - Frontend development and deployment
+- **[🎨 Frontend Guide](./frontend/README.md)** - Frontend development and deployment
 - **[📊 Cloudflare Summary](./CLOUDFLARE_IMPLEMENTATION_SUMMARY.md)** - CDN implementation details
 
 ## 🎯 Key Features
@@ -71,7 +71,7 @@ open http://localhost:3000
 - **Dynamic Responses**: Real-time project and skill information
 
 ### 📊 **Dynamic Content Management**
-- **Real-time Updates**: Modify portfolio content via API
+- **Real-time Updates**: Modify site content via API
 - **Project Management**: CRUD operations for projects
 - **Skill Matrix**: Dynamic skill updates
 - **Experience Timeline**: Live career updates
@@ -126,8 +126,8 @@ open http://localhost:3000
 
 ```
 bruno-dev/
-├── portfolio-api/           # Go API server
-├── portfolio-frontend/      # Frontend application
+├── api/           # Go API server
+├── frontend/      # Frontend application
 ├── portifolio-site/         # Static site assets
 ├── k8s/                    # Kubernetes manifests
 ├── k6/                     # Performance testing
@@ -140,14 +140,14 @@ bruno-dev/
 
 ### Frontend Development
 ```bash
-cd portfolio-frontend
+cd frontend
 npm install
 npm run dev
 ```
 
 ### Backend Development
 ```bash
-cd portfolio-api
+cd api
 go mod tidy
 go run main.go
 ```
@@ -187,9 +187,9 @@ k6 run k6/load-test.js
 
 - **LinkedIn**: [Bruno Lucena](https://www.linkedin.com/in/bvlucena)
 - **GitHub**: [brunovlucena](https://github.com/brunovlucena)
-- **Portfolio**: [Live Demo](http://localhost:3000)
+- **Bruno Site**: [Live Demo](http://localhost:3000)
 
 ---
 
-*This portfolio system demonstrates modern cloud-native development practices, AI integration, and production-ready infrastructure management.*
+*This Bruno site system demonstrates modern cloud-native development practices, AI integration, and production-ready infrastructure management.*
 # bruno-site
