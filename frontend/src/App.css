@@ -11,3 +11,67 @@
 .App-link {
   color: #61dafb;
 }
+
+/* Technologies Section */
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.tech-category {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tech-category:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tech-category h3 {
+  color: #495057;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.tech-category ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tech-category li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e9ecef;
+  color: #6c757d;
+}
+
+.tech-category li:last-child {
+  border-bottom: none;
+}
+
+.tech-category li:hover {
+  color: #495057;
+}
+
+.tech-icon {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+  vertical-align: middle;
+  color: #007bff;
+}
+
+.tech-category li {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e9ecef;
+  color: #6c757d;
+}

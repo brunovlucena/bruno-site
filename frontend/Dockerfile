@@ -16,16 +16,17 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage - use regular nginx
-FROM nginx:alpine
+# Production stage - use nginx without user restrictions
+FROM nginx:stable-alpine
+
+# Switch to root user
+USER root # TODO: FIX THIS!
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
-RUN chown -R nginx:nginx /usr/share/nginx/html
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
-RUN chown nginx:nginx /etc/nginx/nginx.conf
 
 # Expose port 8080
 EXPOSE 8080
