@@ -23,8 +23,8 @@ FROM nginx:stable-alpine
 # USER root
 
 # Create nginx cache directories in /tmp (writable by any user)
-RUN mkdir -p /tmp/cache/nginx && \
-    chmod -R 755 /tmp/cache/nginx && \
+RUN mkdir -p /tmp/cache/nginx
+    chmod -R 755 /tmp/cache/nginx
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
