@@ -20,7 +20,7 @@ body {
         radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.02) 0%, transparent 60%);
     background-size: 200px 200px, 300px 300px, 150px 150px;
     background-position: 0 0, 100px 100px, 50px 50px;
-    background-attachment: fixed;
+    background-attachment: scroll;
 }
 
 /* Terraform-inspired dark color palette */
@@ -659,6 +659,11 @@ main {
     min-height: 320px;
     position: relative;
     overflow: hidden;
+    /* Prevent scroll flicker on some browsers */
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    will-change: transform;
+    contain: paint;
 }
 
 .project-card::before {
