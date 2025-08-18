@@ -16,7 +16,7 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage - use regular nginx but configure for non-root
+# Production stage - use regular nginx
 FROM nginx:alpine
 
 # Create necessary directories with correct permissions
@@ -54,9 +54,8 @@ RUN chown -R nginx:nginx /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 RUN chown nginx:nginx /etc/nginx/nginx.conf
 
-# Expose port 80
-EXPOSE 80
+# Expose port 8080
+EXPOSE 8080
 
-# Switch to nginx user and start nginx
-USER nginx
+# Start nginx as root (required for binding to port 8080)
 CMD ["nginx", "-g", "daemon off;"] 
