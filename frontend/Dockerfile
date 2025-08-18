@@ -19,14 +19,6 @@ RUN npm run build
 # Production stage - use nginxinc/nginx-unprivileged for non-root operation
 FROM nginxinc/nginx-unprivileged:alpine-slim
 
-# Create necessary directories and set permissions
-RUN mkdir -p /tmp/nginx_proxy /tmp/nginx_fastcgi /tmp/nginx_uwsgi /tmp/nginx_scgi /var/cache/nginx /run && \
-    chmod 755 /tmp/nginx_proxy /tmp/nginx_fastcgi /tmp/nginx_uwsgi /tmp/nginx_scgi /var/cache/nginx /run && \
-    # Remove default nginx files to save space
-    rm -rf /usr/share/nginx/html/* && \
-    # Remove unnecessary nginx modules and files
-    rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
-
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
