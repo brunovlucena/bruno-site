@@ -20,12 +20,11 @@ RUN npm run build
 FROM nginx:stable-alpine
 
 # Switch to root user
-USER nginx
+# USER root
 
 # Create nginx cache directories in /tmp (writable by any user)
 RUN mkdir -p /tmp/cache/nginx && \
     chmod -R 755 /tmp/cache/nginx && \
-    chown -R nginx:nginx /tmp/cache/nginx
 
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
@@ -36,5 +35,4 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Expose port 8080
 EXPOSE 8080
 
-# Start nginx as root (required for binding to port 8080)
 CMD ["nginx", "-g", "daemon off;"] 
