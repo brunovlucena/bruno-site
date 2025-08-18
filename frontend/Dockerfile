@@ -22,6 +22,10 @@ FROM nginx:stable-alpine
 # Switch to root user
 USER root # TODO: FIX THIS!
 
+# Create nginx cache directories in /tmp (writable by any user)
+RUN mkdir -p /tmp/cache/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp} && \
+    chmod -R 755 /tmp/cache/nginx
+
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
