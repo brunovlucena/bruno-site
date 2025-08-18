@@ -20,10 +20,10 @@ RUN npm run build
 FROM nginx:stable-alpine
 
 # Switch to root user
-USER root
+USER nginx
 
 # Create nginx cache directories in /tmp (writable by any user)
-RUN mkdir -p /tmp/cache/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp} && \
+RUN mkdir -p /tmp/cache/nginx && \
     chmod -R 755 /tmp/cache/nginx && \
     chown -R nginx:nginx /tmp/cache/nginx
 
