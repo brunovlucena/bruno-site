@@ -139,6 +139,47 @@ test-api:
 	@echo "Contact:"
 	@curl -s http://localhost:8080/api/v1/contact | jq . || curl -s http://localhost:8080/api/v1/contact
 
+# Run all tests
+test: test-api-unit test-frontend-unit test-e2e test-load
+
+# Run API unit tests
+test-api-unit:
+	@echo "🧪 Running API unit tests..."
+	@cd api && go test -v -race -coverprofile=coverage.out ./...
+	@cd api && go tool cover -html=coverage.out -o coverage.html
+	@echo "✅ API unit tests completed"
+
+# Run frontend unit tests
+test-frontend-unit:
+	@echo "🧪 Running frontend unit tests..."
+	@cd frontend && npm run test -- --run --coverage
+	@echo "✅ Frontend unit tests completed"
+
+# Run E2E tests
+test-e2e:
+	@echo "🧪 Running E2E tests..."
+	@cd frontend && npm run test:e2e
+	@echo "✅ E2E tests completed"
+
+# Run load tests
+test-load:
+	@echo "🧪 Running load tests..."
+	@k6 run tests/k6/load-test.js
+	@echo "✅ Load tests completed"
+
+# Run tests in watch mode
+test-watch:
+	@echo "🧪 Running tests in watch mode..."
+	@cd frontend && npm run test:watch
+
+# Run tests with coverage
+test-coverage:
+	@echo "🧪 Running tests with coverage..."
+	@cd api && go test -v -race -coverprofile=coverage.out ./...
+	@cd api && go tool cover -func=coverage.out
+	@cd frontend && npm run test:coverage
+	@echo "✅ Coverage reports generated"
+
 # Watch logs from all services
 watch-logs:
 	@echo "👀 Watching logs from all services (Ctrl+C to stop):"
