@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Project, Skill, Experience, Content, AnalyticsData } from '@/types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://bruno-site-bruno-site-chart-api:80';
 
 // Check if we're in development and use proxy if available
 const isDevelopment = import.meta.env.DEV;
