@@ -532,13 +532,17 @@ func getProjects(c *gin.Context) {
 	// span.AddEvent("cache_miss")
 
 	// 🗃️ Query database
-	rows, err := db.QueryContext(ctx, `
-		SELECT id, title, description, description as short_description, type, modules, github_url, live_url, video_url, technologies, active
+	query := `
+		SELECT id, title, description, description as short_description, type, modules, github_url, live_url, image_url as video_url, technologies, active
 		FROM projects 
 		WHERE active = true
 		ORDER BY "order" ASC, id ASC
-	`)
+	`
+	log.Printf("🔍 Executing query: %s", query)
+
+	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
+		log.Printf("❌ Database query failed: %v", err)
 		// span.RecordError(err)
 		respondWithError(c, http.StatusInternalServerError, "Failed to fetch projects")
 		return
@@ -582,12 +586,16 @@ func getAllProjects(c *gin.Context) {
 	// defer span.End()
 	ctx := c.Request.Context()
 
-	rows, err := db.QueryContext(ctx, `
-		SELECT id, title, description, description as short_description, type, modules, github_url, live_url, video_url, technologies, active
+	query := `
+		SELECT id, title, description, description as short_description, type, modules, github_url, live_url, image_url as video_url, technologies, active
 		FROM projects 
 		ORDER BY "order" ASC, id ASC
-	`)
+	`
+	log.Printf("🔍 getAllProjects: Executing query: %s", query)
+
+	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
+		log.Printf("❌ getAllProjects: Database query failed: %v", err)
 		// span.RecordError(err)
 		respondWithError(c, http.StatusInternalServerError, "Failed to fetch projects")
 		return
@@ -615,6 +623,8 @@ func getAllProjects(c *gin.Context) {
 		p.Technologies = []string(technologies)
 		projects = append(projects, p)
 	}
+
+	log.Printf("🔍 getAllProjects: Found %d projects", len(projects))
 
 	// span.SetAttributes(semconv.DBStatement("SELECT all projects"))
 	respondWithSuccess(c, gin.H{
