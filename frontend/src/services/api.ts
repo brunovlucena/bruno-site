@@ -16,6 +16,16 @@ const api = axios.create({
 
 // Request interceptor for tracking
 api.interceptors.request.use((config) => {
+  console.log('🔍 DEBUG: API Request:', {
+    method: config.method,
+    url: config.url,
+    baseURL: config.baseURL,
+    fullURL: config.baseURL + config.url,
+    headers: config.headers,
+    userAgent: navigator.userAgent,
+    referrer: window.location.href
+  });
+  
   // Add user agent and other tracking info
   config.headers['User-Agent'] = navigator.userAgent;
   config.headers['Referer'] = window.location.href;
@@ -25,6 +35,15 @@ api.interceptors.request.use((config) => {
 // Response interceptor for better error handling
 api.interceptors.response.use(
   (response) => {
+    console.log('✅ DEBUG: API Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      url: response.config?.url,
+      dataType: typeof response.data,
+      dataLength: Array.isArray(response.data) ? response.data.length : 'N/A',
+      headers: response.headers
+    });
+    
     // Check if response is empty or malformed
     if (!response.data) {
       console.warn('Empty response from API:', response.config?.url);
@@ -37,10 +56,16 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.warn('API Error:', {
+    console.error('❌ DEBUG: API Error:', {
       url: error.config?.url,
+      baseURL: error.config?.baseURL,
+      fullURL: error.config?.baseURL + error.config?.url,
       status: error.response?.status,
-      message: error.message
+      statusText: error.response?.statusText,
+      message: error.message,
+      responseData: error.response?.data,
+      responseHeaders: error.response?.headers,
+      requestHeaders: error.config?.headers
     });
     
     // Return a rejected promise with a more descriptive error

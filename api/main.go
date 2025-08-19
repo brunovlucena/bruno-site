@@ -522,12 +522,17 @@ func getProjects(c *gin.Context) {
 	// defer span.End()
 	ctx := c.Request.Context()
 
+	log.Printf("🔍 DEBUG: getProjects called - User-Agent: %s, Remote-Addr: %s", c.GetHeader("User-Agent"), c.ClientIP())
+
 	// 🗄️ Try cache first
 	if cached, found := getFromCache[[]Project](ctx, "projects"); found {
+		log.Printf("✅ DEBUG: Cache hit for projects, returning %d projects", len(cached))
 		// span.AddEvent("cache_hit")
 		respondWithETag(c, cached, http.StatusOK)
 		return
 	}
+
+	log.Printf("❌ DEBUG: Cache miss for projects, querying database")
 
 	// span.AddEvent("cache_miss")
 
@@ -542,14 +547,17 @@ func getProjects(c *gin.Context) {
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
-		log.Printf("❌ Database query failed: %v", err)
+		log.Printf("❌ DEBUG: Database query failed: %v", err)
 		// span.RecordError(err)
 		respondWithError(c, http.StatusInternalServerError, "Failed to fetch projects")
 		return
 	}
 	defer rows.Close()
 
+	log.Printf("✅ DEBUG: Database query successful, processing rows")
+
 	var projects []Project
+	rowCount := 0
 	for rows.Next() {
 		var p Project
 		var githubURL, liveURL sql.NullString
@@ -570,12 +578,17 @@ func getProjects(c *gin.Context) {
 		// Set technologies
 		p.Technologies = []string(technologies)
 		projects = append(projects, p)
+		rowCount++
 	}
 
+	log.Printf("✅ DEBUG: Processed %d projects from database", rowCount)
+
 	// 🗄️ Cache the result
+	log.Printf("💾 DEBUG: Caching %d projects for 5 minutes", len(projects))
 	setCache(ctx, "projects", projects, 5*time.Minute)
 
 	// span.SetAttributes(semconv.DBStatement("SELECT projects"))
+	log.Printf("✅ DEBUG: Returning %d projects to client", len(projects))
 	respondWithETag(c, projects, http.StatusOK)
 }
 
@@ -960,7 +973,8 @@ func main() {
 	}
 
 	// 🌐 Set up Gin router
-	gin.SetMode(gin.ReleaseMode)
+	// Enable debug mode for verbose logging
+	gin.SetMode(gin.DebugMode)
 	r := gin.Default()
 
 	// 🔧 Add middleware
