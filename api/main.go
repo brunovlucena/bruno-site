@@ -960,11 +960,11 @@ func main() {
 
 	// 🌍 Configure CORS
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000", "http://localhost:5173"}
-	config.AllowMethods = []string{"GET", "POST", "OPTIONS"}
-	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept"}
+	config.AllowOrigins = []string{"http://localhost:3000", "http://localhost:5173", "http://localhost:8080", "*"}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
 	config.ExposeHeaders = []string{"Content-Length"}
-	config.AllowCredentials = false
+	config.AllowCredentials = true
 	config.MaxAge = 12 * time.Hour
 	r.Use(cors.New(config))
 

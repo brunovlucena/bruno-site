@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { Project, Skill, Experience, Content, AnalyticsData } from '@/types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
 
 // Check if we're in development and use proxy if available
 const isDevelopment = import.meta.env.DEV;
-const baseURL = isDevelopment ? '/' : API_BASE_URL;
+const baseURL = isDevelopment ? API_BASE_URL : API_BASE_URL;
 
 const api = axios.create({
   baseURL: baseURL,
