@@ -533,7 +533,7 @@ func getProjects(c *gin.Context) {
 
 	// 🗃️ Query database
 	rows, err := db.QueryContext(ctx, `
-		SELECT id, title, description, short_description, type, modules, github_url, live_url, video_url, technologies, active
+		SELECT id, title, description, description as short_description, type, modules, github_url, live_url, video_url, technologies, active
 		FROM projects 
 		WHERE active = true
 		ORDER BY "order" ASC, id ASC
@@ -583,7 +583,7 @@ func getAllProjects(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	rows, err := db.QueryContext(ctx, `
-		SELECT id, title, description, short_description, type, modules, github_url, live_url, video_url, technologies, active
+		SELECT id, title, description, description as short_description, type, modules, github_url, live_url, video_url, technologies, active
 		FROM projects 
 		ORDER BY "order" ASC, id ASC
 	`)
