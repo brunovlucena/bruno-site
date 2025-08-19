@@ -103,7 +103,7 @@ const Home: React.FC = () => {
             <div className="about-intro">
               <div className="about-image-container">
                 <img 
-                  src="/assets/eu.png" 
+                  src="./assets/eu.png" 
                   alt="Bruno Lucena" 
                   className="about-image"
                 />
