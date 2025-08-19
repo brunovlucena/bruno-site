@@ -158,18 +158,23 @@ func init() {
 func getFromCache[T any](ctx context.Context, key string) (T, bool) {
 	var result T
 	if rdb == nil {
+		log.Printf("❌ DEBUG: Cache miss - Redis not available for key: %s", key)
 		return result, false
 	}
 
+	log.Printf("🔍 DEBUG: Attempting to get from cache - key: %s", key)
 	cached, err := rdb.Get(ctx, key).Result()
 	if err != nil {
+		log.Printf("❌ DEBUG: Cache miss - Redis error for key %s: %v", key, err)
 		return result, false
 	}
 
 	if err := json.Unmarshal([]byte(cached), &result); err != nil {
+		log.Printf("❌ DEBUG: Cache miss - JSON unmarshal error for key %s: %v", key, err)
 		return result, false
 	}
 
+	log.Printf("✅ DEBUG: Cache hit - Retrieved data for key: %s", key)
 	return result, true
 }
 
@@ -394,6 +399,8 @@ func initTracer() (interface{}, error) {
 
 // initDB initializes database connection
 func initDB() {
+	log.Printf("🔍 DEBUG: Initializing database connection...")
+
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
 		// 🔧 Fallback to individual environment variables
@@ -403,16 +410,23 @@ func initDB() {
 		dbPassword := getEnv("DB_PASSWORD", "bruno_password")
 		dbName := getEnv("DB_NAME", "bruno_site")
 
+		log.Printf("🔍 DEBUG: Using individual DB config - Host: %s, Port: %s, User: %s, DB: %s",
+			dbHost, dbPort, dbUser, dbName)
+
 		dbURL = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 			dbHost, dbPort, dbUser, dbPassword, dbName)
+	} else {
+		log.Printf("🔍 DEBUG: Using DATABASE_URL environment variable")
 	}
 
 	var err error
+	log.Printf("🔍 DEBUG: Opening database connection...")
 	db, err = sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatal("❌ Failed to connect to database:", err)
 	}
 
+	log.Printf("🔍 DEBUG: Pinging database...")
 	if err := db.Ping(); err != nil {
 		log.Fatal("❌ Failed to ping database:", err)
 	}
@@ -422,6 +436,8 @@ func initDB() {
 
 // initRedis initializes Redis connection
 func initRedis() {
+	log.Printf("🔍 DEBUG: Initializing Redis connection...")
+
 	redisURL := os.Getenv("REDIS_URL")
 	if redisURL == "" {
 		// 🔧 Fallback to individual environment variables
@@ -429,11 +445,22 @@ func initRedis() {
 		redisPort := getEnv("REDIS_PORT", "6379")
 		redisPassword := getEnv("REDIS_PASSWORD", "")
 
+		log.Printf("🔍 DEBUG: Using individual Redis config - Host: %s, Port: %s, Password: %s",
+			redisHost, redisPort, func() string {
+				if redisPassword != "" {
+					return "***"
+				} else {
+					return "none"
+				}
+			}())
+
 		if redisPassword != "" {
 			redisURL = fmt.Sprintf("redis://:%s@%s:%s", redisPassword, redisHost, redisPort)
 		} else {
 			redisURL = fmt.Sprintf("redis://%s:%s", redisHost, redisPort)
 		}
+	} else {
+		log.Printf("🔍 DEBUG: Using REDIS_URL environment variable")
 	}
 
 	opt, err := redis.ParseURL(redisURL)
@@ -986,14 +1013,24 @@ func main() {
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://localhost:3000", "http://localhost:5173", "http://localhost:8080", "*"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization", "User-Agent", "Referer"}
 	config.ExposeHeaders = []string{"Content-Length"}
 	config.AllowCredentials = true
 	config.MaxAge = 12 * time.Hour
 	r.Use(cors.New(config))
 
+	// 🔍 Add debug middleware for all requests
+	r.Use(func(c *gin.Context) {
+		log.Printf("🔍 DEBUG: Incoming request - Method: %s, Path: %s, IP: %s, User-Agent: %s",
+			c.Request.Method, c.Request.URL.Path, c.ClientIP(), c.GetHeader("User-Agent"))
+		c.Next()
+		log.Printf("✅ DEBUG: Request completed - Status: %d, Size: %d",
+			c.Writer.Status(), c.Writer.Size())
+	})
+
 	// 🏥 Health check endpoint
 	r.GET("/health", func(c *gin.Context) {
+		log.Printf("🏥 DEBUG: Health check requested from %s", c.ClientIP())
 		respondWithSuccess(c, gin.H{"status": "ok"})
 	})
 
