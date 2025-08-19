@@ -152,13 +152,13 @@ test-api-unit:
 # Run frontend unit tests
 test-frontend-unit:
 	@echo "🧪 Running frontend unit tests..."
-	@cd frontend && npm run test -- --run --coverage
+	@cd frontend && npm install --legacy-peer-deps && npm run test -- --run --coverage
 	@echo "✅ Frontend unit tests completed"
 
 # Run E2E tests
 test-e2e:
 	@echo "🧪 Running E2E tests..."
-	@cd frontend && npm run test:e2e
+	@cd frontend && npm install --legacy-peer-deps && npm run test:e2e
 	@echo "✅ E2E tests completed"
 
 # Run load tests

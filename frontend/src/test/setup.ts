@@ -1,16 +1,11 @@
 import '@testing-library/jest-dom'
-import { beforeAll, afterEach, afterAll } from 'vitest'
-import { server } from './mocks/server'
+import { vi } from 'vitest'
 
-// Establish API mocking before all tests
-beforeAll(() => server.listen())
-
-// Reset any request handlers that we may add during the tests,
-// so they don't affect other tests
-afterEach(() => server.resetHandlers())
-
-// Clean up after the tests are finished
-afterAll(() => server.close())
+// Disable MSW for now to avoid localhost issues
+// import { server } from './mocks/server'
+// beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }))
+// afterEach(() => server.resetHandlers())
+// afterAll(() => server.close())
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
@@ -18,6 +13,10 @@ global.IntersectionObserver = class IntersectionObserver {
   disconnect() {}
   observe() {}
   unobserve() {}
+  root: Element | null = null
+  rootMargin: string = ''
+  thresholds: ReadonlyArray<number> = []
+  takeRecords() { return [] }
 }
 
 // Mock ResizeObserver

@@ -124,6 +124,7 @@ func getSkillsHandler(c *gin.Context) {
 }
 
 func getExperienceHandler(c *gin.Context) {
+	endDate := "2023-01"
 	experience := []Experience{
 		{
 			ID:           1,
@@ -131,9 +132,10 @@ func getExperienceHandler(c *gin.Context) {
 			Company:      "Test Company",
 			Description:  "Test experience",
 			StartDate:    "2020-01",
-			EndDate:      "2023-01",
+			EndDate:      &endDate,
 			Technologies: []string{"Go", "React"},
-			Active:       true,
+			Current:      false,
+			Order:        1,
 		},
 	}
 	c.JSON(http.StatusOK, experience)
@@ -271,7 +273,7 @@ func TestExperienceEndpoint(t *testing.T) {
 	assert.Len(t, experience, 1)
 	assert.Equal(t, "Software Engineer", experience[0].Title)
 	assert.Equal(t, "Test Company", experience[0].Company)
-	assert.True(t, experience[0].Active)
+	assert.False(t, experience[0].Current)
 }
 
 func TestTrackProjectViewEndpoint(t *testing.T) {
