@@ -6,7 +6,7 @@
 set -e  # Exit on any error
 
 NAMESPACE="bruno"
-DATABASE="bruno-site"
+DATABASE="bruno_site"
 USER="postgres"
 
 echo "🗄️ Starting database migration process..."
