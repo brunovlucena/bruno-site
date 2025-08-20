@@ -565,7 +565,7 @@ func getProjects(c *gin.Context) {
 
 	// 🗃️ Query database
 	query := `
-		SELECT id, title, description, description as short_description, type, modules, github_url, live_url, image_url as video_url, technologies, active
+		SELECT id, title, description, description as short_description, type, modules, github_url, live_url, video_url, technologies, active
 		FROM projects 
 		WHERE active = true
 		ORDER BY "order" ASC, id ASC
@@ -627,7 +627,7 @@ func getAllProjects(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	query := `
-		SELECT id, title, description, description as short_description, type, modules, github_url, live_url, image_url as video_url, technologies, active
+		SELECT id, title, description, description as short_description, type, modules, github_url, live_url, video_url, technologies, active
 		FROM projects 
 		ORDER BY "order" ASC, id ASC
 	`
