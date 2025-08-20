@@ -10,7 +10,7 @@ export interface Project {
   url?: string; // Computed property for display
   video_url?: string;
   technologies: string[];
-  image_url?: string;
+  video_url?: string;
   featured: boolean;
   active: boolean; // Controls project visibility
   order: number;

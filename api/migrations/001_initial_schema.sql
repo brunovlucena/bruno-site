@@ -14,7 +14,7 @@ CREATE TABLE projects (
     github_url VARCHAR(500),
     live_url VARCHAR(500),
     technologies TEXT[],
-    image_url VARCHAR(500),
+            video_url VARCHAR(500),
     featured BOOLEAN DEFAULT FALSE,
     "order" INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
