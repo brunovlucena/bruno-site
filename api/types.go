@@ -51,6 +51,7 @@ type Skill struct {
 	Proficiency int    `json:"proficiency"`
 	Icon        string `json:"icon"`
 	Order       int    `json:"order"`
+	Active      bool   `json:"active"`
 }
 
 // 💼 Experience represents work experience

@@ -75,9 +75,9 @@ func getProjectsHandler(c *gin.Context) {
 			Description:      "A test project",
 			ShortDescription: "Test",
 			Type:             "web",
-			Modules:          3,
 			Icon:             "test-icon",
-			URL:              "https://test.com",
+			GithubURL:        "https://github.com/test",
+			LiveURL:          "https://test.com",
 			Technologies:     []string{"Go", "React"},
 			Active:           true,
 		},
@@ -118,6 +118,7 @@ func getSkillsHandler(c *gin.Context) {
 			Proficiency: 90,
 			Icon:        "go-icon",
 			Order:       1,
+			Active:      true,
 		},
 	}
 	c.JSON(http.StatusOK, skills)
@@ -136,6 +137,7 @@ func getExperienceHandler(c *gin.Context) {
 			Technologies: []string{"Go", "React"},
 			Current:      false,
 			Order:        1,
+			Active:       true,
 		},
 	}
 	c.JSON(http.StatusOK, experience)

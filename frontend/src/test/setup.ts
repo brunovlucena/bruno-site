@@ -1,12 +1,6 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
-// Disable MSW for now to avoid localhost issues
-// import { server } from './mocks/server'
-// beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }))
-// afterEach(() => server.resetHandlers())
-// afterAll(() => server.close())
-
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
   constructor() {}
