@@ -1,62 +1,47 @@
-name: Release Helm Chart
+name: Package Helm Chart
 
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  contents: read
 
 jobs:
-  release:
+  package:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Install Helm
         uses: azure/setup-helm@v3
         with:
           version: v3.12.0
 
-      - name: Package and Deploy Chart
+      - name: Validate Helm Chart
         run: |
-          # Package chart
+          echo "🔍 Validating Helm chart..."
+          helm lint chart/
+          
+      - name: Package Helm Chart
+        run: |
+          echo "📦 Packaging Helm chart..."
           helm package chart/ --debug
           
-          # Create charts directory and move package
-          mkdir -p charts
-          mv *.tgz charts/
+          # Display chart info
+          CHART_VERSION=$(grep '^version:' chart/Chart.yaml | awk '{print $2}')
+          CHART_NAME=$(grep '^name:' chart/Chart.yaml | awk '{print $2}')
+          echo "✅ Successfully packaged $CHART_NAME v$CHART_VERSION"
           
-          # Generate index
-          cd charts
-          helm repo index . --url https://brunovlucena.github.io/bruno-site
-          
-          # Display deployment info
-          CHART_VERSION=$(grep '^version:' ../chart/Chart.yaml | awk '{print $2}')
-          CHART_NAME=$(grep '^name:' ../chart/Chart.yaml | awk '{print $2}')
-          echo "🚀 Deploying $CHART_NAME v$CHART_VERSION"
+          # List generated files
+          ls -la *.tgz
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Deploy to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload Chart Artifact
+        uses: actions/upload-artifact@v3
         with:
-          path: './charts'
-
-      - name: Deploy
-        uses: actions/deploy-pages@v4
+          name: helm-chart
+          path: '*.tgz'
+          retention-days: 30
