@@ -609,6 +609,9 @@ func getProjects(c *gin.Context) {
 	}
 
 	log.Printf("✅ DEBUG: Processed %d projects from database", rowCount)
+	for i, p := range projects {
+		log.Printf("🔍 DEBUG: Project %d: %s, VideoURL: %s", i+1, p.Title, p.VideoURL)
+	}
 
 	// 🗄️ Cache the result
 	log.Printf("💾 DEBUG: Caching %d projects for 5 minutes", len(projects))
