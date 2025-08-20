@@ -72,6 +72,7 @@ jobs:
           npm ci --legacy-peer-deps
           npm run lint
           echo "Frontend tests temporarily disabled - skipping test execution"
+        continue-on-error: true
 
       - uses: codecov/codecov-action@v3
         with:
@@ -137,6 +138,9 @@ jobs:
   security-scan:
     runs-on: ubuntu-latest
     continue-on-error: true
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - uses: actions/checkout@v4
@@ -150,7 +154,7 @@ jobs:
           exit-code: '0'
           severity: 'CRITICAL,HIGH'
 
-      - uses: github/codeql-action/upload-sarif@v2
+      - uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'

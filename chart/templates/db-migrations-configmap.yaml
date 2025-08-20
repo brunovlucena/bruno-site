@@ -301,7 +301,7 @@ data:
         'Key Responsibilities:
 
 - Cloud Operations: Managed and maintained complex cloud infrastructure on AWS and GCP.
-Automation: Implemented automation tools (Saltstack) to streamline operations and reduce manual effort.
+- Automation: Implemented automation tools (Saltstack) to streamline operations and reduce manual effort.
 
 - Monitoring and Logging: Deployed and configured monitoring and logging solutions (Prometheus, ELK) to ensure system health and performance.
 
