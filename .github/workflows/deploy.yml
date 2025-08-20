@@ -34,15 +34,18 @@ jobs:
             file: ./api/Dockerfile
             registry: ghcr.io
             image_name: ${{ github.repository }}/api
-            condition: ${{ github.event_name == 'push' || github.event.inputs.build_api == 'true' }}
           - name: frontend
             context: ./frontend
             file: ./frontend/Dockerfile
             registry: ghcr.io
             image_name: ${{ github.repository }}/frontend
-            condition: ${{ github.event_name == 'push' || github.event.inputs.build_frontend == 'true' }}
     
-    if: matrix.condition
+    if: |
+      (github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch' && (
+        (matrix.name == 'api' && github.event.inputs.build_api == 'true') ||
+        (matrix.name == 'frontend' && github.event.inputs.build_frontend == 'true')
+      ))
     permissions:
       contents: read
       packages: write
