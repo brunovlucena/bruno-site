@@ -35,7 +35,7 @@ jobs:
       - name: Package and Deploy Chart
         run: |
           # Package chart
-          helm package . --debug
+          helm package chart/ --debug
           
           # Create charts directory and move package
           mkdir -p charts
@@ -46,8 +46,8 @@ jobs:
           helm repo index . --url https://brunovlucena.github.io/bruno-site
           
           # Display deployment info
-          CHART_VERSION=$(grep '^version:' ../Chart.yaml | awk '{print $2}')
-          CHART_NAME=$(grep '^name:' ../Chart.yaml | awk '{print $2}')
+          CHART_VERSION=$(grep '^version:' ../chart/Chart.yaml | awk '{print $2}')
+          CHART_NAME=$(grep '^name:' ../chart/Chart.yaml | awk '{print $2}')
           echo "🚀 Deploying $CHART_NAME v$CHART_VERSION"
 
       - name: Setup Pages
