@@ -40,7 +40,7 @@ jobs:
           ls -la *.tgz
 
       - name: Upload Chart Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: helm-chart
           path: '*.tgz'
