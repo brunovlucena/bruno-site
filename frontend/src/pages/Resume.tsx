@@ -1,15 +1,117 @@
 import React, { useState, useEffect } from 'react'
+import { apiClient } from '../services/api'
+import { Experience } from '../services/api'
 
-interface Experience {
-  id: number
-  title: string
-  company: string
-  start_date: string
-  end_date: string | null
-  current: boolean
-  description: string
-  technologies: string[]
-  order: number
+// Technology icons mapping
+const technologyIcons: { [key: string]: string } = {
+  // Cloud Platforms
+  'AWS': '☁️',
+  'GCP': '☁️',
+  'Google Cloud Platform': '☁️',
+  'Azure': '☁️',
+  'OpenStack': '☁️',
+  
+  // Kubernetes & Containerization
+  'Kubernetes': '☸️',
+  'Docker': '🐳',
+  'EKS': '☸️',
+  'Kops': '☸️',
+  'Bare-metal': '🖥️',
+  
+  // Infrastructure as Code
+  'Terraform': '🏗️',
+  'Pulumi': '☁️',
+  'Ansible': '🤖',
+  'Chef': '👨‍🍳',
+  'Saltstack': '🧂',
+  
+  // CI/CD & DevOps
+  'CI/CD': '🔄',
+  'GitHub Actions': '🐙',
+  'GitLab CI/CD': '🦊',
+  'Jenkins': '🤖',
+  'ArgoCD': '🚀',
+  'Flux': '⚡',
+  'GitOps': '📦',
+  
+  // Monitoring & Observability
+  'Prometheus': '📊',
+  'Grafana': '📈',
+  'Loki': '📝',
+  'Tempo': '⏱️',
+  'Thanos': '⚡',
+  'ELK': '🦷',
+  'EFK': '🦷',
+  'OpenTelemetry': '👁️',
+  'Monitoring': '📊',
+  'Logging': '📝',
+  'Tracing': '🔍',
+  'Alerting': '🚨',
+  'Metrics': '📈',
+  
+  // Programming Languages
+  'Go': '🐹',
+  'Golang': '🐹',
+  'Python': '🐍',
+  'Bash': '💻',
+  'JavaScript': '📗',
+  'TypeScript': '📘',
+  
+  // Databases & Messaging
+  'PostgreSQL': '🐘',
+  'Redis': '🔴',
+  'RabbitMQ': '🐰',
+  'MongoDB': '🍃',
+  'Kafka': '📨',
+  
+  // Distributed Systems
+  'Mesos': '🕷️',
+  'Consul': '🏛️',
+  'Linkerd': '🔗',
+  'Distributed Systems': '🌐',
+  
+  // Serverless & Platforms
+  'Serverless': '⚡',
+  'AWS Lambda': '⚡',
+  'Knative': '☸️',
+  'CloudEvents': '☁️',
+  
+  // Security
+  'Security': '🔒',
+  'Compliance': '📋',
+  'Network Security': '🛡️',
+  'VPN': '🔐',
+  
+  // AI/ML
+  'RAG': '🤖',
+  'Vertex AI': '🧠',
+  'Machine Learning': '🤖',
+  
+  // Networking
+  'Load Balancing': '⚖️',
+  'API Gateway': '🚪',
+  'Service Mesh': '🕸️',
+  
+  // Management
+  'Team Leadership': '👥',
+  'People Management': '👥',
+  'Project Management': '📊',
+  'Agile/Scrum': '🔄',
+  
+  // General
+  'Infrastructure': '🏗️',
+  'Automation': '⚙️',
+  'Operations': '🔧',
+  'Cloud Operations': '☁️',
+  'Infrastructure as Code': '🏗️',
+  'Cloud Migration': '🔄',
+  'VMware ESXi': '💻',
+  'Collaboration': '🤝',
+  'Troubleshooting': '🔧',
+  'Observability': '👁️',
+  'Cloud Native Infrastructure': '☸️',
+  'Cloud-Native Infrastructure': '☸️',
+  'Problem-Solving': '🧩'
 }
 
 const Resume: React.FC = () => {
@@ -20,20 +122,40 @@ const Resume: React.FC = () => {
   useEffect(() => {
     const fetchExperience = async () => {
       try {
-        const response = await fetch('/api/v1/content/experience')
-        if (!response.ok) {
-          throw new Error('Failed to fetch experience data')
-        }
-        const data = await response.json()
-        const sortedData = (data || []).sort((a, b) => {
-          // Sort by start_date in descending order (most recent first)
+        const data = await apiClient.getExperiences()
+        console.log('Raw experience data:', data)
+        
+        // Remove duplicates based on unique combination of title, company, and start_date
+        const uniqueData = data.reduce((acc, current) => {
+          const key = `${current.title}-${current.company}-${current.start_date}`
+          const exists = acc.find(item => 
+            `${item.title}-${item.company}-${item.start_date}` === key
+          )
+          if (!exists) {
+            acc.push(current)
+          }
+          return acc
+        }, [] as Experience[])
+        
+        console.log('Unique experience data:', uniqueData)
+        
+        const sortedData = uniqueData.sort((a, b) => {
+          // Sort by order first (highest first), then by start_date (most recent first)
+          if (a.order !== b.order) {
+            return b.order - a.order
+          }
           const dateA = new Date(a.start_date)
           const dateB = new Date(b.start_date)
           return dateB.getTime() - dateA.getTime()
         })
+        
+        console.log('Sorted experience data:', sortedData)
+        console.log('Technologies check:', sortedData.map(exp => ({ title: exp.title, technologies: exp.technologies, length: exp.technologies?.length })))
         setExperience(sortedData)
+        setError(null)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
+        console.error('Failed to fetch experiences:', err)
+        setError('Failed to fetch experience data')
       } finally {
         setLoading(false)
       }
@@ -60,6 +182,10 @@ const Resume: React.FC = () => {
       return `${start} - ${end}`
     }
     return start
+  }
+
+  const getTechnologyIcon = (technology: string): string => {
+    return technologyIcons[technology] || '🔧'
   }
 
   if (loading) {
@@ -150,7 +276,23 @@ const Resume: React.FC = () => {
                   </div>
                   {exp.technologies && exp.technologies.length > 0 && (
                     <div className="experience-technologies">
-                      <strong>Technologies:</strong> {exp.technologies.join(', ')}
+                      <strong>Technologies used at {exp.company}:</strong>
+                      <div className="technology-icons">
+                        {exp.technologies.map((tech, index) => (
+                          <span key={index} className="technology-icon" title={tech}>
+                            {getTechnologyIcon(tech)}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="technology-names">
+                        {exp.technologies.join(', ')}
+                      </div>
+                    </div>
+                                    )}
+                  {(!exp.technologies || exp.technologies.length === 0) && (
+                    <div className="experience-technologies">
+                      <strong>DEBUG: No technologies for {exp.company}</strong>
+                      <div>Technologies: {JSON.stringify(exp.technologies)}</div>
                     </div>
                   )}
                 </div>

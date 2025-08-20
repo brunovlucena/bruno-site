@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { projectsApi } from '../services/api'
+import { apiClient } from '../services/api'
 import { Project } from '../types'
 import { 
   SiReact, 
@@ -22,8 +22,13 @@ import {
   SiPrometheus,
   SiGrafana,
   SiAmazon,
-  SiGooglecloud
+  SiGooglecloud,
+  SiTerraform,
+  SiOpentelemetry,
+  SiKnative,
+  SiRabbitmq
 } from 'react-icons/si'
+import { FaSearch, FaClock, FaDatabase, FaStream, FaEye } from 'react-icons/fa'
 import { FaShieldAlt, FaLock, FaChartBar, FaCloud, FaRobot, FaRocket } from 'react-icons/fa'
 import { BiCertification } from 'react-icons/bi'
 
@@ -37,7 +42,7 @@ const Home: React.FC = () => {
     const fetchProjects = async () => {
       try {
         setLoading(true)
-        const fetchedProjects = await projectsApi.getAll()
+        const fetchedProjects = await apiClient.getProjects()
         setProjects(fetchedProjects)
         setError(null)
       } catch (err) {
@@ -73,6 +78,7 @@ const Home: React.FC = () => {
       'postgresql': SiPostgresql,
       'redis': SiRedis,
       'kubernetes': SiKubernetes,
+      'knative': SiKnative,
       'flux': SiFlux,
       'helm': SiHelm,
       'nginx': SiNginx,
@@ -88,11 +94,61 @@ const Home: React.FC = () => {
     return iconMap[iconName.toLowerCase()] || SiGithub
   }
 
+  const isVideoUrl = (url: string): boolean => {
+    const videoDomains = [
+      'youtube.com',
+      'youtu.be',
+      'vimeo.com',
+      'dailymotion.com',
+      'twitch.tv'
+    ]
+    try {
+      const urlObj = new URL(url)
+      return videoDomains.some(domain => urlObj.hostname.includes(domain))
+    } catch {
+      return false
+    }
+  }
+
+  const getVideoEmbedUrl = (url: string): string => {
+    try {
+      const urlObj = new URL(url)
+      
+      // YouTube
+      if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be')) {
+        const videoId = urlObj.searchParams.get('v') || urlObj.pathname.slice(1)
+        return `https://www.youtube.com/embed/${videoId}`
+      }
+      
+      // Vimeo
+      if (urlObj.hostname.includes('vimeo.com')) {
+        const videoId = urlObj.pathname.slice(1)
+        return `https://player.vimeo.com/video/${videoId}`
+      }
+      
+      // Dailymotion
+      if (urlObj.hostname.includes('dailymotion.com')) {
+        const videoId = urlObj.pathname.split('/').pop() || ''
+        return `https://www.dailymotion.com/embed/video/${videoId}`
+      }
+      
+      // Twitch
+      if (urlObj.hostname.includes('twitch.tv')) {
+        const videoId = urlObj.pathname.split('/').pop() || ''
+        return `https://player.twitch.tv/?video=v${videoId}&parent=${window.location.hostname}`
+      }
+      
+      return url
+    } catch {
+      return url
+    }
+  }
+
   return (
     <div className="home">
       <section className="hero">
         <div className="container">
-          <h1>Senior Cloud Native Infrastructure Engineer</h1>
+          <h1>Cloud Native Infrastructure Engineer</h1>
           <p>SRE • DevSecOps • AI/ML Infrastructure • Platform Engineering</p>
         </div>
       </section>
@@ -109,7 +165,7 @@ const Home: React.FC = () => {
                 />
               </div>
               <h2>About Me</h2>
-              <p>Senior Cloud Native Infrastructure Engineer with 12+ years of experience designing, building, and scaling mission-critical cloud-native platforms. Expert in Kubernetes ecosystem, multi-cloud architectures (AWS/GCP), and modern observability stacks. Proven track record in Site Reliability Engineering (SRE), DevSecOps practices, and leading high-performing infrastructure teams. Specialized in AI/ML infrastructure, LLMOps, and building resilient systems that handle millions of requests. Passionate about automation, security-first approaches, and driving innovation in cloud-native technologies. Delivers enterprise-grade solutions with 99.9%+ uptime, optimized performance, and comprehensive security postures.</p>
+              <p>Senior Cloud Native Infrastructure Engineer with 10+ years of experience designing, building, and scaling mission-critical cloud-native platforms. Expert in Kubernetes ecosystem, multi-cloud architectures (AWS/GCP), and modern observability stacks. Proven track record in Site Reliability Engineering (SRE), DevSecOps practices, and leading high-performing infrastructure teams. Specialized in AI/ML infrastructure, LLMOps, and building resilient systems that handle millions of requests. Passionate about automation, security-first approaches, and driving innovation in cloud-native technologies. Delivers enterprise-grade solutions with 99.9%+ uptime, optimized performance, and comprehensive security postures.</p>
             </div>
           </div>
           
@@ -152,7 +208,7 @@ const Home: React.FC = () => {
             </div>
             <div className="skill-tag">
               <SiGooglecloud className="skill-icon" style={{ color: '#4285F4' }} />
-              <span>GCP</span>
+              <span>Google Cloud</span>
             </div>
             <div className="skill-tag">
               <SiGithub className="skill-icon" style={{ color: '#181717' }} />
@@ -161,6 +217,30 @@ const Home: React.FC = () => {
             <div className="skill-tag">
               <SiGithubactions className="skill-icon" style={{ color: '#2088FF' }} />
               <span>GitHub Actions</span>
+            </div>
+            <div className="skill-tag">
+              <SiTerraform className="skill-icon" style={{ color: '#7B42BC' }} />
+              <span>Terraform</span>
+            </div>
+            <div className="skill-tag">
+              <FaChartBar className="skill-icon" style={{ color: '#F5A800' }} />
+              <span>OpenTelemetry</span>
+            </div>
+            <div className="skill-tag">
+              <FaStream className="skill-icon" style={{ color: '#F15922' }} />
+              <span>Loki</span>
+            </div>
+            <div className="skill-tag">
+              <FaDatabase className="skill-icon" style={{ color: '#E6522C' }} />
+              <span>Tempo</span>
+            </div>
+            <div className="skill-tag">
+              <SiKnative className="skill-icon" style={{ color: '#0865AD' }} />
+              <span>Knative</span>
+            </div>
+            <div className="skill-tag">
+              <SiRabbitmq className="skill-icon" style={{ color: '#FF6600' }} />
+              <span>RabbitMQ</span>
             </div>
           </div>
         </div>
@@ -199,11 +279,11 @@ const Home: React.FC = () => {
                     </div>
                     <p className="project-description">{project.description}</p>
                     
-                    {/* YouTube Video Embed */}
-                    {project.video_url && (
+                    {/* Video Embed - if live_url is a video URL */}
+                    {project.live_url && isVideoUrl(project.live_url) && (
                       <div className="project-video">
                         <iframe
-                          src={project.video_url}
+                          src={getVideoEmbedUrl(project.live_url)}
                           title={`${project.title} Video`}
                           frameBorder="0"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -214,18 +294,18 @@ const Home: React.FC = () => {
                     
                     <div className="project-meta">
                       <span className="project-type">{project.type}</span>
-                      <span className="project-modules">{project.modules} modules</span>
+                      {project.github_url && (
+                        <a 
+                          href={project.github_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="project-link"
+                        >
+                          <SiGithub className="project-link-icon" />
+                          <span>GitHub</span>
+                        </a>
+                      )}
                     </div>
-                    {project.github_url && (
-                      <a 
-                        href={project.github_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="project-link"
-                      >
-                        View Homelab Project
-                      </a>
-                    )}
                   </div>
                 )
               })}

@@ -1,77 +1,31 @@
--- Populate database with initial data from HTML files
+-- Populate database with initial data including Bruno Site
 -- Migration: 002_populate_data.sql
 
--- Insert projects from index.html
-INSERT INTO projects (title, description, type, modules, github_url, technologies, featured, "order") VALUES
+-- Clear existing data
+DELETE FROM projects;
+DELETE FROM experience;
+
+-- Insert only Bruno Site and Knative Lambda projects
+INSERT INTO projects (title, description, type, github_url, live_url, technologies, featured, "order") VALUES
 (
-    'DevOps CLI',
-    'A powerful command-line interface for DevSecOps/SRE automation, built with TypeScript and featuring AI-powered code generation and project management tools.',
-    'CLI Tool',
-    4,
-    'https://github.com/brunovlucena/bruno-cli',
-    ARRAY['TypeScript', 'Node.js', 'AI/ML', 'CLI', 'DevSecOps'],
+    'Bruno Site',
+    'Personal portfolio and homelab showcase website built with React, TypeScript, Go, and modern cloud-native technologies. Features real-time project updates, interactive chatbot, and comprehensive skill showcase.',
+    'Portfolio Website',
+    'https://github.com/brunovlucena/bruno-site',
+    'https://www.youtube.com/watch?v=lkkGlVWvkLk',
+    ARRAY['React', 'TypeScript', 'Go', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes', 'Nginx'],
     TRUE,
     1
-),
-(
-    'Monitoring Platform',
-    'Complete observability solution with Prometheus, Grafana, Loki, OpenTelemetry & Tempo for comprehensive application monitoring and tracing.',
-    'Observability Stack',
-    5,
-    'https://github.com/brunovlucena/observability-stack',
-    ARRAY['Prometheus', 'Grafana', 'Loki', 'OpenTelemetry', 'Tempo', 'Kubernetes'],
-    TRUE,
-    2
 ),
 (
     'Knative Lambda',
     'Serverless functions and cloud-native development platform using Knative for scalable, event-driven applications with Kubernetes.',
     'Serverless',
-    3,
     'https://github.com/brunovlucena/knative-lambda',
+    'https://www.youtube.com/watch?v=lkkGlVWvkLk',
     ARRAY['Knative', 'Kubernetes', 'Serverless', 'CloudEvents', 'Go'],
-    FALSE,
-    3
-),
-(
-    'Doctor Chatbot',
-    'AI-powered medical assistance and health guidance system built with advanced natural language processing and medical knowledge integration.',
-    'AI Application',
-    3,
-    'https://github.com/brunovlucena/doctor-companion',
-    ARRAY['AI/ML', 'NLP', 'Healthcare', 'Python', 'TensorFlow'],
     TRUE,
-    4
-),
-(
-    'SRE Agent on K8s',
-    'Intelligent SRE agent deployed on Kubernetes for automated monitoring, incident response, and infrastructure optimization using AI/ML capabilities.',
-    'Kubernetes Agent',
-    5,
-    'https://github.com/brunovlucena/sre-agent-k8s',
-    ARRAY['Kubernetes', 'AI/ML', 'SRE', 'Monitoring', 'Automation'],
-    TRUE,
-    5
-),
-(
-    'DJ Double',
-    'Advanced music mixing and DJ application with real-time audio processing, beat matching, and professional sound engineering capabilities.',
-    'Music Application',
-    4,
-    'https://github.com/brunovlucena/dj-double',
-    ARRAY['Audio Processing', 'Real-time', 'Music', 'C++', 'DSP'],
-    FALSE,
-    6
-),
-(
-    'Analista Financeiro',
-    'Comprehensive financial analysis platform with automated reporting, risk assessment, and data visualization for investment decision-making.',
-    'Financial Analysis',
-    6,
-    'https://github.com/brunovlucena/financial-analyst',
-    ARRAY['Financial Analysis', 'Data Visualization', 'Risk Assessment', 'Python', 'Pandas'],
-    FALSE,
-    7
+    2
 );
 
 -- Insert skills from about section
@@ -98,68 +52,89 @@ INSERT INTO skills (name, category, proficiency, icon, "order") VALUES
 ('Prometheus', 'Observability', 5, '📊', 13),
 ('Grafana', 'Observability', 5, '📈', 14),
 ('Loki', 'Observability', 4, '📝', 15),
-('OpenTelemetry', 'Observability', 4, '🔍', 16),
-('Thanos', 'Observability', 3, '📊', 17),
+('Tempo', 'Observability', 4, '⏱️', 16),
+('OpenTelemetry', 'Observability', 4, '👁️', 17),
+
+-- Infrastructure
+('Terraform', 'Infrastructure', 5, '🏗️', 18),
+('Pulumi', 'Infrastructure', 4, '☁️', 19),
+('Docker', 'Infrastructure', 5, '🐳', 20),
+('Flux', 'Infrastructure', 4, '⚡', 21),
+('Helm', 'Infrastructure', 4, '⚓', 22),
+
+-- Programming Languages
+('Go', 'Programming', 5, '🐹', 23),
+('Python', 'Programming', 4, '🐍', 24),
+('TypeScript', 'Programming', 4, '📘', 25),
+('JavaScript', 'Programming', 4, '📗', 26),
+('Bash', 'Programming', 4, '💻', 27),
+
+-- Databases & Messaging
+('PostgreSQL', 'Database', 5, '🐘', 28),
+('Redis', 'Database', 4, '🔴', 29),
+('RabbitMQ', 'Messaging', 4, '🐰', 30),
+('MongoDB', 'Database', 3, '🍃', 31),
 
 -- AI/ML
-('AI/LLMOps', 'AI', 4, '🤖', 18),
-('Vertex AI', 'AI', 4, '🧠', 19),
-('RAG', 'AI', 4, '🔍', 20),
-('Machine Learning', 'AI', 3, '🤖', 21),
+('Machine Learning', 'AI/ML', 4, '🤖', 32),
+('TensorFlow', 'AI/ML', 4, '📊', 33),
+('Natural Language Processing', 'AI/ML', 4, '💬', 34),
+('Computer Vision', 'AI/ML', 3, '👁️', 35),
 
--- Automation & CI/CD
-('Terraform', 'Automation', 5, '🏗️', 22),
-('Pulumi', 'Automation', 4, '⚙️', 23),
-('GitHub Actions', 'Automation', 5, '🔄', 24),
-('GitLab CI', 'Automation', 4, '🔄', 25),
-('Atmos', 'Automation', 4, '🌪️', 26),
-('Ansible', 'Automation', 3, '🤖', 27),
-('Saltstack', 'Automation', 3, '🧂', 28),
-('Helm', 'Automation', 4, '⛵', 29),
+-- DevOps & SRE
+('Site Reliability Engineering', 'DevOps', 5, '⚙️', 36),
+('DevSecOps', 'DevOps', 5, '🔒', 37),
+('CI/CD', 'DevOps', 5, '🔄', 38),
+('GitOps', 'DevOps', 4, '📦', 39),
+('Infrastructure as Code', 'DevOps', 5, '🏗️', 40),
 
--- Programming
-('Golang', 'Programming', 4, '🐹', 30),
-('Python', 'Programming', 4, '🐍', 31),
-('Bash', 'Programming', 5, '💻', 32),
-('Ruby', 'Programming', 3, '💎', 33),
+-- Monitoring & Alerting
+('Monitoring', 'Monitoring', 5, '📊', 41),
+('Alerting', 'Monitoring', 5, '🚨', 42),
+('Logging', 'Monitoring', 5, '📝', 43),
+('Tracing', 'Monitoring', 4, '🔍', 44),
+('Metrics', 'Monitoring', 5, '📈', 45),
 
--- Distributed Systems
-('RabbitMQ', 'Distributed', 4, '🐰', 34),
-('Kafka', 'Distributed', 3, '📨', 35),
-('Consul', 'Distributed', 3, '🏛️', 36),
-('CloudEvents', 'Distributed', 4, '☁️', 37);
+-- Cloud Platforms
+('AWS', 'Cloud', 5, '☁️', 46),
+('Google Cloud Platform', 'Cloud', 4, '☁️', 47),
+('Azure', 'Cloud', 3, '☁️', 48),
+('Multi-cloud', 'Cloud', 4, '☁️', 49),
 
--- Insert experience from resume.html
-INSERT INTO experience (title, company, start_date, end_date, current, description, technologies, "order") VALUES
+-- Networking & Security
+('Network Security', 'Security', 4, '🛡️', 50),
+('Load Balancing', 'Networking', 4, '⚖️', 51),
+('API Gateway', 'Networking', 4, '🚪', 52),
+('Service Mesh', 'Networking', 4, '🕸️', 53),
+('VPN', 'Security', 4, '🔐', 54),
+
+-- Tools & Platforms
+('GitHub', 'Tools', 5, '🐙', 55),
+('GitLab', 'Tools', 4, '🦊', 56),
+('Jenkins', 'Tools', 4, '🤖', 57),
+('ArgoCD', 'Tools', 4, '🚀', 58),
+('Knative', 'Platforms', 4, '☸️', 59),
+('Serverless', 'Platforms', 4, '⚡', 60);
+
+-- Insert experience data in chronological order (oldest to newest)
+INSERT INTO experience (title, company, start_date, end_date, current, description, technologies, "order", active) VALUES
 (
-    'SRE/DevOps Engineer',
-    'Notifi',
-    '2023-06-01',
-    NULL,
-    TRUE,
-    'Architect and maintain highly available, scalable cloud-native infrastructure using Kubernetes, AWS, GCP, and Pulumi. Implement comprehensive observability solutions with Prometheus, Loki, Tempo, Grafana, and OpenTelemetry. Develop RAG-based chatbot for SRE using Vertex AI and advanced AI/ML technologies. Automate infrastructure provisioning and deployment using Terraform, Atmos, and GitHub Actions. Build serverless applications on AWS Lambda and Knative with CloudEvents and RabbitMQ. Lead platform engineering initiatives and mentor junior engineers.',
-    ARRAY['Kubernetes', 'AWS', 'GCP', 'Pulumi', 'Prometheus', 'Loki', 'Tempo', 'Grafana', 'OpenTelemetry', 'Vertex AI', 'RAG', 'Terraform', 'Atmos', 'GitHub Actions', 'AWS Lambda', 'Knative', 'CloudEvents', 'RabbitMQ', 'Platform Engineering'],
-    1
-),
-(
-    'SRE Chapter Lead & Senior Infrastructure Engineer',
-    'Mobimeo',
-    '2020-02-01',
-    '2023-03-31',
+    'Operations Engineer',
+    'Crealytics',
+    '2017-08-01',
+    '2018-03-31',
     FALSE,
-    'Led SRE chapter as line manager, developing team members and driving infrastructure strategy. Designed and maintained robust cloud-native infrastructure on AWS using EKS, Kops, and Kubernetes. Implemented monitoring and logging solutions with Prometheus, Loki, Grafana, Thanos, and EFK stack. Automated infrastructure using Terraform and CI/CD pipelines with GitHub Actions/GitLab CI. Resolved complex infrastructure issues, minimizing downtime and service disruptions. Established SRE best practices and SLI/SLO frameworks.',
-    ARRAY['SRE', 'Leadership', 'AWS EKS', 'Kops', 'Kubernetes', 'Prometheus', 'Loki', 'Grafana', 'Thanos', 'EFK', 'Terraform', 'CI/CD', 'GitHub Actions', 'GitLab CI', 'SLI/SLO'],
-    2
-),
-(
-    'Cloud Consultant',
-    'Namecheap, Inc',
-    '2019-03-01',
-    '2019-08-31',
-    FALSE,
-    'Led migration from VMware ESXi to Kubernetes-based platform on OpenStack. Implemented infrastructure as code practices using Terraform for automation. Developed automation scripts using Bash, Golang, Ansible, and Helm. Designed scalable microservices architecture and implemented CI/CD pipelines. Reduced infrastructure costs by 40% through containerization and automation.',
-    ARRAY['VMware', 'Kubernetes', 'OpenStack', 'Terraform', 'Bash', 'Golang', 'Ansible', 'Helm', 'Microservices', 'CI/CD', 'Containerization'],
-    3
+    'Key Responsibilities:
+
+- Cloud Operations: Managed and maintained complex cloud infrastructure on AWS and GCP.
+Automation: Implemented automation tools (Saltstack) to streamline operations and reduce manual effort.
+
+- Monitoring and Logging: Deployed and configured monitoring and logging solutions (Prometheus, ELK) to ensure system health and performance.
+
+- Distributed Systems: Worked with distributed systems technologies like Mesos, Consul, Kafka, and Linkerd to build scalable and resilient applications.',
+    ARRAY['AWS', 'GCP', 'Saltstack', 'Prometheus', 'ELK', 'Mesos', 'Consul', 'Kafka', 'Linkerd', 'Distributed Systems', 'Cloud Operations', 'Automation', 'Monitoring', 'Logging']::TEXT[],
+    1,
+    TRUE
 ),
 (
     'DevOps Engineer',
@@ -167,64 +142,108 @@ INSERT INTO experience (title, company, start_date, end_date, current, descripti
     '2018-04-01',
     '2018-12-31',
     FALSE,
-    'Designed and implemented Kubernetes cluster on bare-metal infrastructure. Automated infrastructure provisioning using Saltstack and Chef. Deployed monitoring and logging solutions with Prometheus and ELK stack. Implemented blue-green deployments and automated rollback mechanisms. Achieved 99.5% uptime through proactive monitoring and incident response.',
-    ARRAY['Kubernetes', 'Bare-metal', 'Saltstack', 'Chef', 'Prometheus', 'ELK', 'Blue-Green Deployments', 'Incident Response'],
-    4
+    'Key Responsibilities:
+
+- Cloud-Native Infrastructure: Designed and implemented a Kubernetes cluster on bare-metal to modernize the infrastructure.
+
+- Automation and CI/CD: Automated infrastructure provisioning and configuration management using Saltstack and Chef.
+
+- Monitoring and Logging: Deployed and configured monitoring and logging solutions (Prometheus, ELK) to gain visibility into system health and performance.
+
+- Collaboration: Worked closely with development teams to improve deployment processes and reduce downtime.',
+    ARRAY['Kubernetes', 'Bare-metal', 'Saltstack', 'Chef', 'Prometheus', 'ELK', 'Automation', 'CI/CD', 'Monitoring', 'Logging', 'Infrastructure', 'Collaboration']::TEXT[],
+    2,
+    TRUE
 ),
 (
-    'Operations Engineer',
-    'Crealytics',
-    '2017-08-01',
-    '2018-03-31',
+    'Cloud Consultant',
+    'Namecheap, Inc',
+    '2019-03-01',
+    '2019-08-31',
     FALSE,
-    'Managed complex cloud infrastructure on AWS and GCP. Implemented automation tools using Saltstack to streamline operations. Deployed monitoring and logging solutions with Prometheus and ELK. Worked with distributed systems including Mesos, Consul, Kafka, and Linkerd. Optimized system performance and reduced response times by 60%.',
-    ARRAY['AWS', 'GCP', 'Saltstack', 'Prometheus', 'ELK', 'Mesos', 'Consul', 'Kafka', 'Linkerd', 'Performance Optimization'],
-    5
+    'Key Responsibilities:
+
+- Cloud Migration and Modernization: Led the migration of legacy infrastructure from VMware ESXi to a Kubernetes-based platform on OpenStack.
+
+- Infrastructure as Code: Implemented infrastructure as code practices using Terraform to automate provisioning and configuration management.
+ 
+- Automation and CI/CD: Developed and maintained automation scripts (Bash, Golang, Ansible, Helm) to streamline operations and improve efficiency.',
+    ARRAY['Cloud Migration', 'VMware ESXi', 'Kubernetes', 'OpenStack', 'Terraform', 'Bash', 'Golang', 'Ansible', 'Helm', 'Infrastructure as Code', 'Automation', 'CI/CD']::TEXT[],
+    3,
+    TRUE
 ),
 (
-    'IT Security Analyst',
-    'Tempest Security Intelligence',
-    '2011-01-01',
-    '2013-10-31',
+    'Senior Infrastructure Engineer',
+    'Mobimeo',
+    '2020-02-01',
+    '2023-03-31',
     FALSE,
-    'Conducted in-depth vulnerability assessments and security risk analysis. Researched latest security threats and vulnerabilities for impact assessment. Developed automated tools and scripts using Bash and Ruby for vulnerability scanning. Created and customized Nessus Scanner Plugins (NASL) for enhanced detection. Established security frameworks and compliance procedures.',
-    ARRAY['Vulnerability Assessment', 'Security Analysis', 'Bash', 'Ruby', 'Nessus', 'NASL', 'Security Frameworks', 'Compliance'],
-    6
+    'Key Responsibilities:
+
+- Cloud Native Infrastructure: Designed, implemented, and maintained a robust cloud-native infrastructure on AWS, leveraging services like EKS, Kops, and Kubernetes.
+
+- Automation and CI/CD: Automated infrastructure provisioning, deployment, and configuration management using Terraform and GitHub Actions/GitLab CI/CD.
+
+- Observability: Implemented and optimized monitoring, logging, and tracing solutions (Prometheus, Loki, Grafana, Thanos, EFK) to gain deep insights into system performance and behavior.
+
+- Problem-Solving and Troubleshooting: Quickly identified and resolved complex infrastructure issues, minimizing downtime and service disruptions.',
+    ARRAY['AWS', 'EKS', 'Kops', 'Kubernetes', 'Terraform', 'GitHub Actions', 'GitLab CI/CD', 'Prometheus', 'Loki', 'Grafana', 'Thanos', 'EFK', 'Infrastructure', 'Automation', 'CI/CD', 'Observability', 'Troubleshooting']::TEXT[],
+    4,
+    TRUE
+),
+(
+    'SRE Chapter Lead',
+    'Mobimeo',
+    '2021-12-01',
+    '2023-03-31',
+    FALSE,
+    'The SRE chapter lead is the line manager for the chapter members, responsible for developing people and the things happening in the SRE chapter but still is a member of the infrastructure & Operations Team and does day-to-day work.',
+    ARRAY['SRE', 'Team Leadership', 'People Management', 'Infrastructure', 'Operations']::TEXT[],
+    5,
+    TRUE
+),
+(
+    'SRE/DevOps',
+    'Notifi',
+    '2023-06-01',
+    NULL,
+    TRUE,
+    'Key Responsibilities:
+
+- Cloud Native Infrastructure: Architect, build, and maintain highly available, scalable, and resilient cloud-native infrastructure using Kubernetes, AWS, GCP, Pulumi, and many others
+
+- Observability: Implement and optimize monitoring, logging, and tracing solutions (Prometheus, Loki, Tempo, Grafana, OpenTelemetry) to gain deep insights into system performance and behavior.
+
+- Chatbot for SRE: RAG, Vertex AI
+
+- Automation and CI/CD: Automate infrastructure provisioning, deployment, and configuration management using Terraform, Atmos, and GitHub Actions to accelerate development and reduce errors.
+
+- Serverless and Function-as-a-Service: Develop and deploy serverless applications on AWS Lambda 
+
+- Serverless on K8s: Knative (CloudEvents, RabbitMQ), Golang 
+
+- Security and Compliance: Ensure the security and compliance of systems and applications by implementing best practices and leveraging security tools.',
+    ARRAY['Kubernetes', 'AWS', 'GCP', 'Pulumi', 'Prometheus', 'Loki', 'Tempo', 'Grafana', 'OpenTelemetry', 'RAG', 'Vertex AI', 'Terraform', 'Atmos', 'GitHub Actions', 'AWS Lambda', 'Knative', 'CloudEvents', 'RabbitMQ', 'Golang', 'Security', 'Compliance']::TEXT[],
+    6,
+    TRUE
 );
 
--- Insert content from HTML files
+-- Insert content data
 INSERT INTO content (key, value) VALUES
 (
     'about',
-    '{
-        "title": "About Me",
-        "description": "Senior Cloud Native Infrastructure Engineer with 12+ years of experience designing, building, and scaling mission-critical cloud-native platforms. Expert in Kubernetes ecosystem, multi-cloud architectures (AWS/GCP), and modern observability stacks. Proven track record in Site Reliability Engineering (SRE), DevSecOps practices, and leading high-performing infrastructure teams. Specialized in AI/ML infrastructure, LLMOps, and building resilient systems that handle millions of requests. Passionate about automation, security-first approaches, and driving innovation in cloud-native technologies. Delivers enterprise-grade solutions with 99.9%+ uptime, optimized performance, and comprehensive security postures.",
-        "highlights": [
-            {"icon": "☸️", "text": "Kubernetes Expert"},
-            {"icon": "☁️", "text": "Multi-Cloud Architect"},
-            {"icon": "📊", "text": "Observability & SRE"},
-            {"icon": "🤖", "text": "AI/ML Infrastructure"},
-            {"icon": "🔒", "text": "DevSecOps"},
-            {"icon": "🚀", "text": "Platform Engineering"},
-            {"icon": "⚡", "text": "High-Performance Systems"},
-            {"icon": "🛡️", "text": "Security-First"}
-        ]
-    }'::jsonb
+    '{"description": "Senior Cloud Native Infrastructure Engineer with extensive experience in designing, implementing, and maintaining scalable, resilient cloud-native infrastructure. Passionate about automation, observability, and modern DevOps practices."}'
 ),
 (
     'contact',
-    '{
-        "email": "bruno.lucena@example.com",
-        "location": "Brazil",
-        "linkedin": "https://www.linkedin.com/in/bvlucena",
-        "github": "https://github.com/brunovlucena",
-        "availability": "Open to new opportunities in SRE, DevSecOps, and AI Engineering roles."
-    }'::jsonb
-),
-(
-    'hero',
-    '{
-        "title": "Senior Cloud Native Infrastructure Engineer",
-        "subtitle": "SRE • DevSecOps • AI/ML Infrastructure • Platform Engineering"
-    }'::jsonb
-); 
+    '{"email": "bruno@lucena.cloud", "location": "Brazil", "linkedin": "https://www.linkedin.com/in/bvlucena", "github": "https://github.com/brunovlucena", "availability": "Open to new opportunities"}'
+);
+
+-- Verify all data
+SELECT 'Projects' as table_name, COUNT(*) as count FROM projects
+UNION ALL
+SELECT 'Skills' as table_name, COUNT(*) as count FROM skills
+UNION ALL
+SELECT 'Experience' as table_name, COUNT(*) as count FROM experience
+UNION ALL
+SELECT 'Content' as table_name, COUNT(*) as count FROM content; 

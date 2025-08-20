@@ -1,18 +1,26 @@
 # Bruno Site Makefile
 # This Makefile manages the complete Bruno site system using Docker Compose
 
-.PHONY: help start stop restart build logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell
+# Environment configuration
+ENV ?= dev
+DOCKER_COMPOSE_FILE = docker-compose.yml
+
+.PHONY: help start stop restart build build-dev build-prd logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell frontend-dev frontend-dev-stop
 
 # Default target
 help:
 	@echo "🚀 Bruno Site Management"
 	@echo "========================"
 	@echo ""
+	@echo "Environment: $(ENV)"
+	@echo ""
 	@echo "Available commands:"
-	@echo "  make start      - Start all services"
+	@echo "  make start      - Start all services (dev environment - Docker Compose)"
+	@echo "  make start-prd  - Show production deployment info (Kubernetes)"
 	@echo "  make stop       - Stop all services"
 	@echo "  make restart    - Restart all services"
-	@echo "  make build      - Build all Docker images"
+	@echo "  make build      - Build all Docker images (dev environment)"
+	@echo "  make build-prd  - Show production build info (Kubernetes)"
 	@echo "  make logs       - Show logs from all services"
 	@echo "  make api-logs   - Show API logs only"
 	@echo "  make frontend-logs - Show frontend logs only"
@@ -24,12 +32,16 @@ help:
 	@echo "  make redis-cli  - Connect to Redis CLI"
 	@echo "  make api-shell  - Open shell in API container"
 	@echo "  make frontend-shell - Open shell in frontend container"
+	@echo "  make frontend-dev   - Run frontend in development mode (hot reload)"
+	@echo "  make frontend-dev-stop - Stop frontend dev gracefully (prevents browser flicker)"
+	@echo "  make restart-fresh  - Restart with fresh database (clean + start)"
 	@echo ""
 
-# Start services
+# Start services (development)
 start:
-	@echo "🚀 Starting Bruno Site..."
-	@docker-compose up --build -d
+	@echo "🚀 Starting Bruno Site (Development)..."
+	@echo "Environment: $(ENV)"
+	@docker-compose -f $(DOCKER_COMPOSE_FILE) up --build -d
 	# @echo "⏳ Waiting for services to be ready..."
 	# @timeout 60 bash -c 'until docker exec postgres pg_isready -U bruno_user -d bruno_site; do sleep 2; done' || true
 	# @timeout 30 bash -c 'until docker exec redis redis-cli ping; do sleep 2; done' || true
@@ -49,22 +61,27 @@ start:
 # Stop services
 stop:
 	@echo "🛑 Stopping Bruno Site..."
-	@docker-compose down
+	@docker-compose -f $(DOCKER_COMPOSE_FILE) down
 	@echo "✅ Services stopped"
 
 # Restart services
 restart: stop start
 
-# Build all images
+# Restart with fresh database (clean and start)
+restart-fresh: clean start
+
+# Build all images (development)
 build:
-	@echo "🏗️ Building Docker images..."
-	@docker-compose build
+	@echo "🏗️ Building Docker images (Development)..."
+	@echo "Environment: $(ENV)"
+	@cp frontend/Dockerfile.dev frontend/Dockerfile
+	@docker-compose -f $(DOCKER_COMPOSE_FILE) build
 	@echo "✅ Images built successfully"
 
 # Show logs from all services
 logs:
 	@echo "📋 Recent logs from all services:"
-	@docker-compose logs --tail=50
+	@docker-compose -f $(DOCKER_COMPOSE_FILE) logs --tail=50
 
 # Show API logs
 api-logs:
@@ -84,7 +101,7 @@ db-logs:
 # Show service status
 status:
 	@echo "📊 Service Status:"
-	@docker-compose ps
+	@docker-compose -f $(DOCKER_COMPOSE_FILE) ps
 	# @echo ""
 	# @echo "🔍 Health Checks:"
 	# @echo "  PostgreSQL: $$(docker exec postgres pg_isready -U bruno_user -d bruno_site > /dev/null 2>&1 && echo "✅ Healthy" || echo "❌ Unhealthy")"
@@ -95,7 +112,7 @@ status:
 # Clean everything (stop and remove containers, volumes, networks)
 clean:
 	@echo "🧹 Cleaning up Bruno Site..."
-	@docker-compose down -v --remove-orphans
+	@docker-compose -f $(DOCKER_COMPOSE_FILE) down -v --remove-orphans
 	@docker system prune -f
 	@echo "✅ Cleanup completed"
 
@@ -123,6 +140,27 @@ api-shell:
 frontend-shell:
 	@echo "🔧 Opening shell in frontend container..."
 	@docker exec -it frontend /bin/sh
+
+# Run frontend in development mode (hot reload)
+frontend-dev:
+	@echo "🚀 Starting frontend in development mode..."
+	@echo "📋 This will run the frontend with hot reload on http://localhost:5173"
+	@echo "🔗 It will connect to the API running in Docker on http://localhost:8080"
+	@echo "💡 To stop gracefully, use: make frontend-dev-stop"
+	@echo "⏳ Starting Vite dev server..."
+	@cd frontend && npm run dev
+
+# Stop frontend dev gracefully (prevents browser flicker)
+frontend-dev-stop:
+	@echo "🛑 Stopping frontend dev gracefully..."
+	@echo "💡 This prevents the browser from flickering when stopping the dev server"
+	@echo "📋 Close your browser tab first, then press Ctrl+C in the terminal"
+	@echo "⏳ Or use Ctrl+C directly in the terminal where frontend-dev is running"
+	@echo ""
+	@echo "🔍 If you need to force kill the process:"
+	@echo "   pkill -f 'vite'"
+	@echo "   or"
+	@echo "   lsof -ti:5173 | xargs kill -9"
 
 # Test API endpoints
 test-api:
@@ -183,7 +221,7 @@ test-coverage:
 # Watch logs from all services
 watch-logs:
 	@echo "👀 Watching logs from all services (Ctrl+C to stop):"
-	@docker-compose logs -f
+	@docker-compose -f $(DOCKER_COMPOSE_FILE) logs -f
 
 # Update dependencies
 update-deps:

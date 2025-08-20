@@ -1,13 +1,86 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { Search, FileText, Linkedin, Github, Mail } from 'lucide-react'
+
+// =============================================================================
+// 📋 TYPES
+// =============================================================================
+
+interface HeaderLink {
+  to: string
+  icon: React.ReactNode
+  label: string
+  external?: boolean
+}
+
+// =============================================================================
+// 🎯 HEADER COMPONENT
+// =============================================================================
 
 const Header: React.FC = () => {
+  const navigationLinks: HeaderLink[] = [
+    {
+      to: '/?section=projects',
+      icon: <Search className="header-link-icon" />,
+      label: 'Search',
+    },
+    {
+      to: '/resume',
+      icon: <FileText className="header-link-icon" />,
+      label: 'Resume',
+    },
+    {
+      to: 'https://www.linkedin.com/in/bvlucena',
+      icon: <Linkedin className="header-link-icon" />,
+      label: 'LinkedIn',
+      external: true,
+    },
+    {
+      to: 'https://github.com/brunovlucena',
+      icon: <Github className="header-link-icon" />,
+      label: 'GitHub',
+      external: true,
+    },
+    {
+      to: '/contact',
+      icon: <Mail className="header-link-icon" />,
+      label: 'Contact',
+    },
+  ]
+
+  const renderLink = (link: HeaderLink) => {
+    const linkProps = {
+      className: 'header-link',
+      ...(link.external && {
+        target: '_blank',
+        rel: 'noopener noreferrer',
+      }),
+    }
+
+    if (link.external) {
+      return (
+        <a key={link.label} href={link.to} {...linkProps}>
+          {link.icon}
+          <span>{link.label}</span>
+        </a>
+      )
+    }
+
+    return (
+      <Link key={link.label} to={link.to} {...linkProps}>
+        {link.icon}
+        <span>{link.label}</span>
+      </Link>
+    )
+  }
+
   return (
     <header className="header">
       <div className="header-container">
-        <div className="header-left">
-                    <Link to="/" className="logo">
-            <span className="logo-text">Bruno Lucena</span>
+        {/* Logo */}
+        <div className="header-brand">
+          <Link to="/" className="logo">
+            <span className="logo-text">🚀 Bruno Lucena</span>
           </Link>
           
           {/* Homelab Link */}
@@ -16,27 +89,16 @@ const Header: React.FC = () => {
           </Link>
         </div>
         
-        <div className="header-actions">
-          <a href="#" className="header-link">
-            <div className="header-link-icon">🔍</div>
-            <span>Search</span>
-          </a>
-          <Link to="/resume" className="header-link">
-            <div className="header-link-icon">📖</div>
-            <span>Resume</span>
-          </Link>
-          <a href="https://www.linkedin.com/in/bvlucena" className="header-link" target="_blank" rel="noopener noreferrer">
-            <div className="header-link-icon">🔗</div>
-            <span>LinkedIn</span>
-          </a>
-          <a href="https://github.com/brunovlucena" className="header-link" target="_blank" rel="noopener noreferrer">
-            <div className="header-link-icon">🐙</div>
-            <span>GitHub</span>
-          </a>
-          <a href="/contact" className="header-link">
-            <span>Contact</span>
-          </a>
-        </div>
+        {/* Navigation */}
+        <nav className="header-nav">
+          <ul className="nav-menu">
+            {navigationLinks.map((link) => (
+              <li key={link.label}>
+                {renderLink(link)}
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </header>
   )

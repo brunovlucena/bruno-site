@@ -1,0 +1,56 @@
+# Build stage
+FROM golang:1.24-alpine AS builder
+
+# Install git and ca-certificates for dependencies
+RUN apk update && apk add --no-cache git ca-certificates
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files first for better caching
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build the application with optimizations
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -ldflags="-w -s -extldflags=-static" \
+    -a -installsuffix cgo \
+    -o main .
+
+# Development stage - use alpine with debug tools
+FROM alpine:latest
+
+# Install debug tools and runtime dependencies
+RUN apk update && apk add --no-cache \
+    ca-certificates \
+    curl \
+    wget \
+    net-tools \
+    procps \
+    vim \
+    less \
+    htop \
+    tcpdump \
+    netcat-openbsd \
+    git \
+    && rm -rf /var/cache/apk/*
+
+# Copy the binary from builder
+COPY --from=builder /app/main /app/main
+
+# Create app directory and set permissions
+RUN mkdir -p /app && chmod +x /app/main
+
+# Set working directory
+WORKDIR /app
+
+# Expose port
+EXPOSE 8080
+
+# Run the application
+CMD ["/app/main"]

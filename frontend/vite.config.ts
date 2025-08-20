@@ -11,11 +11,11 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    port: 5173,
     host: '0.0.0.0',
     proxy: {
       '/api': {
-        target: 'http://api:8080',
+        target: 'http://0.0.0.0:8080',
         changeOrigin: true,
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {

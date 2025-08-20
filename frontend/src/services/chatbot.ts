@@ -1,4 +1,4 @@
-import { projectsApi, skillsApi, experienceApi, contentApi } from './api';
+import { apiClient } from './api';
 
 export interface ChatbotResponse {
   text: string;
@@ -30,10 +30,10 @@ export class ChatbotService {
       // Load data in parallel with better error handling
       console.log('📡 ChatbotService: Loading projects...');
       const [projectsData, skillsData, experienceData, aboutData] = await Promise.allSettled([
-        projectsApi.getAll(),
-        skillsApi.getAll(),
-        contentApi.getAbout(),
-        experienceApi.getAll()
+        apiClient.getProjects(),
+        apiClient.getSkills(),
+        apiClient.getAbout(),
+        apiClient.getExperiences()
       ]);
 
       console.log('📊 ChatbotService: Processing results...');

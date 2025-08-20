@@ -12,31 +12,7 @@
   color: #61dafb;
 }
 
-/* Header Styles */
-.header {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1rem 0;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.header-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-}
+/* Header Styles - Removed to avoid conflicts with index.css */
 
 .project-links {
   display: flex;
@@ -79,7 +55,6 @@
 }
 
 .project-video {
-  margin: 1rem 0;
   border-radius: 8px;
   overflow: hidden;
   position: relative;
@@ -110,35 +85,13 @@
 
 
 
-.homelab-link {
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-  transition: opacity 0.2s ease;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
+/* Homelab link styles moved to index.css */
 
-.homelab-link:hover {
-  background: rgba(255, 255, 255, 0.1);
-  opacity: 0.8;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
+/* Header actions removed to avoid conflicts */
 
 
 
-.logo-text {
-  color: white;
-  font-size: 1.5rem;
-  font-weight: 600;
-  text-decoration: none;
-}
+/* Logo text styles moved to index.css */
 
 .projects-dropdown {
   position: relative;
@@ -229,29 +182,7 @@
 
 /* Old project-link styles removed - replaced with project-card styles above */
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.header-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-  transition: opacity 0.2s ease;
-}
-
-.header-link:hover {
-  opacity: 0.8;
-}
-
-.header-link-icon {
-  font-size: 1.2rem;
-}
+/* Header actions and links removed to avoid conflicts */
 
 /* Skills Grid - Using styles from index.css */
 
@@ -272,6 +203,9 @@
   padding: 1.5rem;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .project-card:hover {
@@ -303,13 +237,26 @@
 .project-description {
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.6;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
+  text-align: left;
+  display: none;
+}
+
+.project-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .project-meta {
   display: flex;
+  justify-content: flex-end;
+  align-items: center;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  align-self: flex-end;
 }
 
 .project-type {
@@ -331,7 +278,9 @@
 }
 
 .project-link {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   background: #007bff;
   color: white;
   padding: 0.5rem 1rem;
@@ -339,6 +288,12 @@
   text-decoration: none;
   font-weight: 500;
   transition: background-color 0.2s ease;
+  margin-top: 1rem;
+  align-self: flex-end;
+}
+
+.project-link-icon {
+  font-size: 1rem;
 }
 
 .project-link:hover {

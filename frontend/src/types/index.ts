@@ -4,18 +4,11 @@ export interface Project {
   description: string;
   short_description: string;
   type: string;
-  modules: number;
+  icon: string;
   github_url: string;
-  live_url?: string;
-  url?: string; // Computed property for display
-  video_url?: string;
+  live_url: string;
   technologies: string[];
-  video_url?: string;
-  featured: boolean;
-  active: boolean; // Controls project visibility
-  order: number;
-  created_at: string;
-  updated_at: string;
+  active: boolean;
 }
 
 export interface Skill {

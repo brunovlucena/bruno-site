@@ -1,43 +1,65 @@
-# 🎨 Portfolio Frontend
+# Bruno Site Frontend
 
-A modern, static HTML/CSS/JS frontend for Bruno Lucena's portfolio website. This application showcases SRE/DevSecOps and AI Engineering skills through an interactive, responsive interface with AI-powered chatbot integration.
+A modern, responsive React frontend for the Bruno portfolio website built with TypeScript, Vite, and Tailwind CSS.
 
 ## 🚀 Features
 
-- **Static HTML/CSS/JS** - Lightweight, fast-loading interface
-- **Responsive Design** - Works perfectly on all devices
-- **Dynamic Content** - Fetches data from the Go API
-- **AI Chatbot** - Ollama-powered intelligent assistant
-- **Real-time Updates** - Live project and skill information
-- **Performance Optimized** - Minimal dependencies, fast loading
-- **Accessibility** - WCAG compliant design
-
-## 🛠️ Tech Stack
-
-- **Frontend**: Static HTML/CSS/JavaScript
-- **Build Tool**: Vite (for development)
-- **Styling**: Custom CSS with CSS Variables
-- **AI Integration**: Ollama with Gemma3n model
-- **HTTP Client**: Fetch API
-- **Deployment**: Docker with nginx
+- **React 19** with TypeScript for type safety
+- **Vite** for fast development and building
+- **Tailwind CSS** for utility-first styling
+- **React Query** for server state management
+- **React Router** for client-side routing
+- **Framer Motion** for smooth animations
+- **Lucide React** for beautiful icons
+- **React Hot Toast** for notifications
+- **Responsive design** for all devices
+- **Dark mode support**
+- **Accessibility features**
+- **Performance optimized**
 
 ## 📁 Project Structure
 
 ```
-portfolio-frontend/
-├── public/                 # Static assets
-│   ├── index.html          # Main portfolio page
-│   ├── resume.html         # Resume page
-│   ├── styles/             # CSS files
-│   │   └── main.css        # Main stylesheet
-│   └── components/         # JavaScript components
-│       └── header.js       # Header functionality
-├── Dockerfile.dev          # Development container
-├── Dockerfile              # Production container
-├── package.json            # Dependencies and scripts
-├── vite.config.ts          # Vite configuration
-└── README.md               # This file
+frontend/
+├── src/
+│   ├── components/     # Reusable UI components
+│   │   ├── Header.tsx
+│   │   └── Chatbot.tsx
+│   ├── pages/         # Page components
+│   │   ├── Home.tsx
+│   │   └── Resume.tsx
+│   ├── hooks/         # Custom React hooks
+│   │   └── useApi.ts
+│   ├── services/      # API services
+│   │   └── api.ts
+│   ├── utils/         # Utility functions
+│   │   └── index.ts
+│   ├── types/         # TypeScript type definitions
+│   ├── App.tsx        # Main application component
+│   ├── main.tsx       # Application entry point
+│   └── index.css      # Global styles
+├── public/            # Static assets
+├── dist/              # Build output
+├── package.json       # Dependencies and scripts
+├── vite.config.ts     # Vite configuration
+├── tailwind.config.js # Tailwind CSS configuration
+├── tsconfig.json      # TypeScript configuration
+└── README.md          # This file
 ```
+
+## 🛠️ Technology Stack
+
+- **Framework**: React 19 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **State Management**: React Query (TanStack Query)
+- **Routing**: React Router DOM
+- **Icons**: Lucide React
+- **Animations**: Framer Motion
+- **Notifications**: React Hot Toast
+- **Testing**: Vitest + Playwright
+- **Linting**: ESLint
+- **Formatting**: Prettier
 
 ## 🚀 Quick Start
 
@@ -45,222 +67,249 @@ portfolio-frontend/
 
 - Node.js 18+ 
 - npm or yarn
-- Go API backend running (optional for development)
 
-### Development
-
-1. **Install dependencies:**
-   ```bash
-   cd portfolio-frontend
-   npm install
-   ```
-
-2. **Start development server:**
-   ```bash
-   npm run dev
-   ```
-
-3. **Open in browser:**
-   ```
-   http://localhost:3000
-   ```
-
-### Docker Development
-
-1. **Build and run with Docker:**
-   ```bash
-   docker-compose up portfolio-frontend
-   ```
-
-2. **Access the application:**
-   ```
-   http://localhost:3000
-   ```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# API Configuration
-VITE_API_URL=http://localhost:8080
-
-# Chatbot Configuration
-VITE_CHATBOT_ENABLED=true
-```
-
-### API Integration
-
-The frontend communicates with the Go API backend through the following endpoints:
-
-- **Projects**: `/api/v1/projects` - Dynamic project information
-- **Content**: `/api/v1/content/*` - Skills, experience, about content
-- **Admin**: `/admin/projects/*` - Project management (activate/deactivate)
-- **Health**: `/health` - Service health check
-
-### AI Chatbot Integration
-
-The chatbot integrates with Ollama for intelligent responses:
-
-- **Ollama Server**: Local AI inference for privacy and performance
-- **Gemma3n Model**: Advanced language understanding and context awareness
-- **Dynamic Responses**: Real-time information from portfolio data
-- **Conversation Memory**: Persistent chat history using localStorage
-
-## 🎨 Design System
-
-### Color Palette
-
-- **Primary**: `#ffffff` (White)
-- **Secondary**: `#7c3aed` (Purple)
-- **Background**: `#1a202c` (Dark Gray)
-- **Card Background**: `#2d3748` (Medium Gray)
-- **Border**: `#4a5568` (Light Gray)
-- **Text Primary**: `#ffffff` (White)
-- **Text Secondary**: `#a0aec0` (Light Gray)
-
-### Typography
-
-- **Font Family**: System fonts (San Francisco, Segoe UI, etc.)
-- **Headings**: Bold weights with proper hierarchy
-- **Body**: Regular weight with good line height
-
-### Components
-
-#### Header
-- Sticky navigation with dynamic dropdown menu
-- Mobile-responsive hamburger menu
-- Project categorization (Infrastructure & DevOps, AI & Applications)
-- Real-time project filtering from database
-
-#### Project Cards
-- Dynamic content loading from API
-- Technology-specific icons with official brand colors
-- Hover animations and transitions
-- Responsive grid layout
-- Active project filtering
-
-#### AI Chatbot
-- Floating chat interface with dark theme
-- Ollama-powered intelligent responses
-- Conversation memory and context awareness
-- Quick suggestion buttons
-- Multi-page support (index.html and resume.html)
-
-## 📱 Responsive Design
-
-The application is fully responsive with breakpoints:
-
-- **Mobile**: < 768px
-- **Tablet**: 768px - 1024px
-- **Desktop**: > 1024px
-
-## 🚀 Deployment
-
-### Docker
-
-1. **Build the image:**
-   ```bash
-   docker build -t brunovlucena/portfolio-frontend:latest .
-   ```
-
-2. **Run the container:**
-   ```bash
-   docker run -p 80:80 brunovlucena/portfolio-frontend:latest
-   ```
-
-### Kubernetes
-
-Deploy to Kubernetes using the provided manifests:
+### Installation
 
 ```bash
-kubectl apply -f k8s/portfolio-frontend-deployment.yaml
-```
+# Install dependencies
+npm install
 
-### CI/CD
-
-The frontend is automatically deployed through GitHub Actions when changes are pushed to the main branch.
-
-## 🔍 Performance
-
-### Optimizations
-
-- **Static Assets**: Pre-built HTML/CSS/JS for fast loading
-- **Minimal Dependencies**: No heavy frameworks or libraries
-- **Efficient Caching**: Browser caching for static assets
-- **Compression**: Gzip compression for all assets
-- **CDN Ready**: Optimized for Cloudflare CDN deployment
-
-### Performance Metrics
-
-- **Load Time**: < 1 second for initial page load
-- **Bundle Size**: < 100KB total (excluding images)
-- **Accessibility**: WCAG 2.1 AA compliant
-- **SEO**: Optimized meta tags and structure
-
-## 🧪 Testing
-
-### Available Scripts
-
-```bash
 # Start development server
 npm run dev
 
 # Build for production
 npm run build
 
-# Run with Docker
-docker-compose up portfolio-frontend
+# Preview production build
+npm run preview
 ```
 
-## 🔧 Development
+### Environment Variables
 
-### Adding New Pages
+Create a `.env` file in the frontend directory:
 
-1. Create HTML file in `public/`
-2. Add navigation links in header
-3. Include chatbot integration if needed
+```env
+# API Configuration
+VITE_API_URL=http://localhost:8080/api
 
-### Modifying Styles
+# Feature Flags
+VITE_ENABLE_ANALYTICS=true
+VITE_ENABLE_CHATBOT=true
+```
 
-1. Update CSS variables in `public/styles/main.css`
-2. Maintain dark theme consistency
-3. Test responsive design across devices
+## 📚 Available Scripts
 
-### API Integration
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run test` - Run unit tests
+- `npm run test:ui` - Run tests with UI
+- `npm run test:coverage` - Run tests with coverage
+- `npm run test:e2e` - Run end-to-end tests
+- `npm run test:e2e:ui` - Run e2e tests with UI
 
-1. Add new fetch calls in HTML files
-2. Update error handling for new endpoints
-3. Test with backend API
+## 🎨 Styling
 
-## 🔒 Security
+The project uses Tailwind CSS for styling with a custom configuration:
 
-- **Content Security Policy**: Configured in nginx
-- **HTTPS Only**: All external links use HTTPS
-- **XSS Protection**: Input sanitization and validation
-- **CORS**: Properly configured for API communication
+### Color Palette
+
+```javascript
+// tailwind.config.js
+colors: {
+  primary: {
+    50: '#eff6ff',
+    500: '#3b82f6',
+    900: '#1e3a8a',
+  },
+  gray: {
+    50: '#f9fafb',
+    900: '#111827',
+  }
+}
+```
+
+### Dark Mode
+
+Dark mode is supported and can be toggled using the `dark` class on the HTML element.
+
+### Responsive Design
+
+The application is fully responsive with breakpoints:
+- `sm`: 640px
+- `md`: 768px
+- `lg`: 1024px
+- `xl`: 1280px
+- `2xl`: 1536px
+
+## 🔧 API Integration
+
+The frontend integrates with the backend API through a centralized service layer:
+
+### API Client
+
+```typescript
+import { apiClient } from './services/api'
+
+// Get all projects
+const projects = await apiClient.getProjects()
+
+// Create a new project
+const newProject = await apiClient.createProject({
+  title: 'My Project',
+  description: 'Project description',
+  // ... other fields
+})
+```
+
+### React Query Hooks
+
+```typescript
+import { useProjects, useCreateProject } from './hooks/useApi'
+
+function ProjectsList() {
+  const { data: projects, isLoading, error } = useProjects()
+  const createProject = useCreateProject()
+
+  // Use the data and mutations
+}
+```
+
+## 🧪 Testing
+
+### Unit Tests
+
+Tests are written with Vitest and React Testing Library:
+
+```bash
+# Run all tests
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+### End-to-End Tests
+
+E2E tests use Playwright:
+
+```bash
+# Run e2e tests
+npm run test:e2e
+
+# Run e2e tests with UI
+npm run test:e2e:ui
+```
+
+## 📦 Build & Deployment
+
+### Development Build
+
+```bash
+npm run dev
+```
+
+### Production Build
+
+```bash
+npm run build
+```
+
+The build output is optimized for production with:
+- Code splitting
+- Tree shaking
+- Minification
+- Asset optimization
+
+### Docker Deployment
+
+```dockerfile
+FROM node:18-alpine as builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+## 🔍 Performance
+
+### Optimization Features
+
+- **Code Splitting**: Automatic route-based code splitting
+- **Lazy Loading**: Components loaded on demand
+- **Image Optimization**: Automatic image optimization
+- **Caching**: React Query caching for API responses
+- **Bundle Analysis**: Built-in bundle analyzer
+
+### Performance Monitoring
+
+```bash
+# Analyze bundle size
+npm run build -- --analyze
+```
+
+## 🛡️ Security
+
+### Security Features
+
+- **Content Security Policy**: Configured in index.html
+- **HTTPS Only**: Production builds enforce HTTPS
+- **XSS Protection**: React's built-in XSS protection
+- **Input Validation**: Client-side validation with TypeScript
+
+## 🌐 Browser Support
+
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test across different browsers
-5. Submit a pull request
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+### Code Style
+
+The project uses ESLint and Prettier for code formatting:
+
+```bash
+# Format code
+npm run format
+
+# Check code style
+npm run lint
+```
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is part of the Bruno portfolio website.
 
-## 🆘 Support
+## 🆘 Troubleshooting
 
-For support or questions:
+### Common Issues
 
-- **LinkedIn**: [linkedin.com/in/bvlucena](https://www.linkedin.com/in/bvlucena)
-- **GitHub**: [github.com/brunovlucena](https://github.com/brunovlucena)
+1. **Port already in use**: Change the port in `vite.config.ts`
+2. **API connection issues**: Check the `VITE_API_URL` environment variable
+3. **Build failures**: Clear node_modules and reinstall dependencies
 
----
+### Getting Help
 
-**Built with ❤️ by Bruno Lucena** 
+- Check the [Vite documentation](https://vitejs.dev/)
+- Review the [React Query documentation](https://tanstack.com/query)
+- Consult the [Tailwind CSS documentation](https://tailwindcss.com/) 

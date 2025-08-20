@@ -24,10 +24,8 @@ export const handlers = [
         description: 'A test project description',
         short_description: 'Test project',
         type: 'web',
-        modules: 3,
         icon: 'test-icon',
         url: 'https://test.com',
-        video_url: 'https://test.com/video',
         technologies: ['React', 'TypeScript'],
         active: true
       }

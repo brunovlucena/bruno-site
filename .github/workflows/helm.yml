@@ -1,0 +1,62 @@
+name: Release Helm Chart
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Package and Deploy Chart
+        run: |
+          # Package chart
+          helm package . --debug
+          
+          # Create charts directory and move package
+          mkdir -p charts
+          mv *.tgz charts/
+          
+          # Generate index
+          cd charts
+          helm repo index . --url https://brunovlucena.github.io/bruno-site
+          
+          # Display deployment info
+          CHART_VERSION=$(grep '^version:' ../Chart.yaml | awk '{print $2}')
+          CHART_NAME=$(grep '^name:' ../Chart.yaml | awk '{print $2}')
+          echo "🚀 Deploying $CHART_NAME v$CHART_VERSION"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Deploy to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './charts'
+
+      - name: Deploy
+        uses: actions/deploy-pages@v4

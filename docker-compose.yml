@@ -1,7 +1,7 @@
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: bruno-postgres
     environment:
       POSTGRES_DB: bruno_site
@@ -9,9 +9,8 @@ services:
       POSTGRES_PASSWORD: secure-password
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./api/migrations:/docker-entrypoint-initdb.d
     ports:
-      - "5432:5432"
+      - "0.0.0.0:5432:5432"
     networks:
       - bruno-network
     healthcheck:
@@ -19,13 +18,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   # Redis Cache
   redis:
-    image: redis:7-alpine
+    image: redis:7.2-alpine
     container_name: bruno-redis
     ports:
-      - "6379:6379"
+      - "0.0.0.0:6379:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -36,11 +36,39 @@ services:
       timeout: 5s
       retries: 5
 
+  # Database Migration Service
+  db-migrate:
+    image: postgres:16-alpine
+    container_name: bruno-db-migrate
+    environment:
+      - PGPASSWORD=secure-password
+    volumes:
+      - ./api/migrations:/migrations
+    command: >
+      sh -c "
+        echo 'Waiting for PostgreSQL to be ready...'
+        until pg_isready -h postgres -p 5432 -U postgres; do
+          echo 'PostgreSQL is not ready yet. Waiting...'
+          sleep 2
+        done
+        echo 'PostgreSQL is ready. Running migrations...'
+        psql -h postgres -p 5432 -U postgres -d bruno_site -f /migrations/001_initial_schema.sql
+        psql -h postgres -p 5432 -U postgres -d bruno_site -f /migrations/003_add_active_column.sql
+        psql -h postgres -p 5432 -U postgres -d bruno_site -f /migrations/002_populate_data.sql
+        echo 'Migrations completed successfully!'
+      "
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bruno-network
+    restart: "no"
+
   # Bruno Site API Backend
   api:
     build:
       context: ./api
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: bruno-api
     environment:
       - DATABASE_URL=postgresql://postgres:secure-password@postgres:5432/bruno_site?sslmode=disable
@@ -48,38 +76,41 @@ services:
       - PORT=8080
       - CORS_ORIGIN=http://localhost:3000
     ports:
-      - "8080:8080"
+      - "0.0.0.0:8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
     networks:
       - bruno-network
     healthcheck:
-      test: ["CMD-SHELL", "ps aux | grep main | grep -v grep || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
 
   # Bruno Site Frontend
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: bruno-frontend
     environment:
       - VITE_API_URL=/api
       - VITE_APP_ENV=production
     ports:
-      - "3000:8080"
+      - "0.0.0.0:3000:8080"
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
     networks:
       - bruno-network
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -1,204 +1,256 @@
-import axios from 'axios';
-import { Project, Skill, Experience, Content, AnalyticsData } from '@/types';
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 
-// Use relative API URL - nginx will proxy /api/* requests to the backend
-const API_BASE_URL = '/api';
+// =============================================================================
+// 📋 TYPES
+// =============================================================================
 
-const baseURL = API_BASE_URL;
+export interface Project {
+  id: number
+  title: string
+  description: string
+  short_description: string
+  type: string
+  icon: string
+  github_url: string
+  live_url: string
+  technologies: string[]
+  active: boolean
+}
 
-const api = axios.create({
-  baseURL: baseURL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 5000, // 5 second timeout
-});
+export interface Skill {
+  id: number
+  name: string
+  category: string
+  proficiency: number
+  icon: string
+  order: number
+}
 
-// Request interceptor for tracking
-api.interceptors.request.use((config) => {
-  console.log('🔍 DEBUG: API Request:', {
-    method: config.method,
-    url: config.url,
-    baseURL: config.baseURL,
-    fullURL: config.baseURL + config.url,
-    headers: config.headers,
-    userAgent: navigator.userAgent,
-    referrer: window.location.href
-  });
-  
-  // Add user agent and other tracking info
-  config.headers['User-Agent'] = navigator.userAgent;
-  config.headers['Referer'] = window.location.href;
-  return config;
-});
+export interface Experience {
+  id: number
+  title: string
+  company: string
+  start_date: string
+  end_date?: string
+  current: boolean
+  description: string
+  technologies: string[]
+  order: number
+  active: boolean
+}
 
-// Response interceptor for better error handling
-api.interceptors.response.use(
-  (response) => {
-    console.log('✅ DEBUG: API Response:', {
-      status: response.status,
-      statusText: response.statusText,
-      url: response.config?.url,
-      dataType: typeof response.data,
-      dataLength: Array.isArray(response.data) ? response.data.length : 'N/A',
-      headers: response.headers
-    });
-    
-    // Check if response is empty or malformed
-    if (!response.data) {
-      console.warn('Empty response from API:', response.config?.url);
-      return Promise.reject({
-        message: 'Empty response from server',
-        status: response.status,
-        url: response.config?.url
-      });
-    }
-    return response;
-  },
-  (error) => {
-    console.error('❌ DEBUG: API Error:', {
-      url: error.config?.url,
-      baseURL: error.config?.baseURL,
-      fullURL: error.config?.baseURL + error.config?.url,
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      message: error.message,
-      responseData: error.response?.data,
-      responseHeaders: error.response?.headers,
-      requestHeaders: error.config?.headers
-    });
-    
-    // Return a rejected promise with a more descriptive error
-    return Promise.reject({
-      message: error.response?.data?.message || error.message || 'Network error',
-      status: error.response?.status,
-      url: error.config?.url
-    });
+export interface AboutData {
+  description: string
+  highlights: Array<{
+    icon: string
+    text: string
+  }>
+}
+
+export interface ContactData {
+  email: string
+  location: string
+  linkedin: string
+  github: string
+  availability: string
+}
+
+export interface Content {
+  id: number
+  type: string
+  value: string
+}
+
+// =============================================================================
+// 🌐 API CLIENT
+// =============================================================================
+
+class ApiClient {
+  private client: AxiosInstance
+
+  constructor() {
+    this.client = axios.create({
+      baseURL: import.meta.env.VITE_API_URL || '/api',
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    // Request interceptor
+    this.client.interceptors.request.use(
+      (config) => {
+        // Add auth token if available
+        const token = localStorage.getItem('auth_token')
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`
+        }
+        return config
+      },
+      (error) => Promise.reject(error)
+    )
+
+    // Response interceptor
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        // Handle common errors
+        if (error.response?.status === 401) {
+          // Handle unauthorized
+          localStorage.removeItem('auth_token')
+        }
+        return Promise.reject(error)
+      }
+    )
   }
-);
 
-// Projects API
-export const projectsApi = {
-  getAll: async (): Promise<Project[]> => {
-    try {
-      console.log('📡 API: Calling /v1/projects...');
-      const response = await api.get('/v1/projects');
-      console.log('✅ API: Projects response received:', {
-        status: response.status,
-        dataType: typeof response.data,
-        isArray: Array.isArray(response.data),
-        dataLength: Array.isArray(response.data) ? response.data.length : 0,
-        sample: Array.isArray(response.data) && response.data.length > 0 ? { id: response.data[0].id, title: response.data[0].title } : null
-      });
-      return response.data || [];
-    } catch (error) {
-      console.error('❌ API: Failed to load projects:', error);
-      return [];
-    }
-  },
+  // =============================================================================
+  // 🎯 PROJECTS
+  // =============================================================================
 
-  getById: async (id: number): Promise<Project> => {
-    const response = await api.get(`/v1/projects/${id}`);
-    return response.data;
-  },
+  async getProjects(): Promise<Project[]> {
+    const response: AxiosResponse<Project[]> = await this.client.get('/projects')
+    return response.data
+  }
 
-  create: async (project: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<Project> => {
-    const response = await api.post('/v1/projects', project);
-    return response.data;
-  },
+  async getProject(id: number): Promise<Project> {
+    const response: AxiosResponse<Project> = await this.client.get(`/projects/${id}`)
+    return response.data
+  }
 
-  update: async (id: number, updates: Partial<Project>): Promise<void> => {
-    await api.put(`/v1/projects/${id}`, updates);
-  },
+  async createProject(project: Omit<Project, 'id'>): Promise<Project> {
+    const response: AxiosResponse<Project> = await this.client.post('/projects', project)
+    return response.data
+  }
 
-  delete: async (id: number): Promise<void> => {
-    await api.delete(`/v1/projects/${id}`);
-  },
-};
+  async updateProject(id: number, project: Partial<Project>): Promise<void> {
+    await this.client.put(`/projects/${id}`, project)
+  }
 
-// Skills API
-export const skillsApi = {
-  getAll: async (): Promise<Skill[]> => {
-    try {
-      console.log('📡 API: Calling /v1/content/skills...');
-      const response = await api.get('/v1/content/skills');
-      console.log('✅ API: Skills response received:', {
-        status: response.status,
-        dataLength: response.data?.length || 0
-      });
-      return response.data || [];
-    } catch (error) {
-      console.error('❌ API: Failed to load skills:', error);
-      return [];
-    }
-  },
+  async deleteProject(id: number): Promise<void> {
+    await this.client.delete(`/projects/${id}`)
+  }
 
-  update: async (skills: Skill[]): Promise<void> => {
-    await api.put('/v1/content/skills', { skills });
-  },
-};
+  // =============================================================================
+  // 🛠️ SKILLS
+  // =============================================================================
 
-// Experience API
-export const experienceApi = {
-  getAll: async (): Promise<Experience[]> => {
-    try {
-      console.log('📡 API: Calling /v1/content/experience...');
-      const response = await api.get('/v1/content/experience');
-      console.log('✅ API: Experience response received:', {
-        status: response.status,
-        dataLength: response.data?.length || 0
-      });
-      return response.data || [];
-    } catch (error) {
-      console.error('❌ API: Failed to load experience:', error);
-      return [];
-    }
-  },
+  async getSkills(): Promise<Skill[]> {
+    const response: AxiosResponse<Skill[]> = await this.client.get('/skills')
+    return response.data
+  }
 
-  update: async (experience: Experience[]): Promise<void> => {
-    await api.put('/v1/content/experience', { experience });
-  },
-};
+  async getSkill(id: number): Promise<Skill> {
+    const response: AxiosResponse<Skill> = await this.client.get(`/skills/${id}`)
+    return response.data
+  }
 
-// Content API
-export const contentApi = {
-  getAbout: async (): Promise<Content> => {
-    try {
-      const response = await api.get('/v1/about');
-      return response.data || { key: 'about', value: { description: '' } };
-    } catch (error) {
-      console.warn('Failed to load about content:', error);
-      return { key: 'about', value: { description: '' } };
-    }
-  },
+  async createSkill(skill: Omit<Skill, 'id'>): Promise<Skill> {
+    const response: AxiosResponse<Skill> = await this.client.post('/skills', skill)
+    return response.data
+  }
 
-  updateAbout: async (content: Content['value']): Promise<void> => {
-    await api.put('/v1/about', content);
-  },
+  async updateSkill(id: number, skill: Partial<Skill>): Promise<void> {
+    await this.client.put(`/skills/${id}`, skill)
+  }
 
-  getContact: async (): Promise<Content> => {
-    const response = await api.get('/v1/contact');
-    return response.data;
-  },
+  async deleteSkill(id: number): Promise<void> {
+    await this.client.delete(`/skills/${id}`)
+  }
 
-  updateContact: async (content: Content['value']): Promise<void> => {
-    await api.put('/v1/contact', content);
-  },
-};
+  // =============================================================================
+  // 💼 EXPERIENCES
+  // =============================================================================
 
-// Analytics API
-export const analyticsApi = {
-  trackVisit: async (data: { project_id?: number; ip: string; user_agent: string; referrer?: string }): Promise<void> => {
-    await api.post('/v1/analytics/visit', data);
-  },
-};
+  async getExperiences(): Promise<Experience[]> {
+    const response: AxiosResponse<Experience[]> = await this.client.get('/experiences')
+    return response.data
+  }
 
-// Health check
-export const healthApi = {
-  check: async (): Promise<{ status: string; time: string; version: string }> => {
-    const response = await api.get('/health');
-    return response.data;
-  },
-};
+  async getExperience(id: number): Promise<Experience> {
+    const response: AxiosResponse<Experience> = await this.client.get(`/experiences/${id}`)
+    return response.data
+  }
 
-export default api; 
+  async createExperience(experience: Omit<Experience, 'id'>): Promise<Experience> {
+    const response: AxiosResponse<Experience> = await this.client.post('/experiences', experience)
+    return response.data
+  }
+
+  async updateExperience(id: number, experience: Partial<Experience>): Promise<void> {
+    await this.client.put(`/experiences/${id}`, experience)
+  }
+
+  async deleteExperience(id: number): Promise<void> {
+    await this.client.delete(`/experiences/${id}`)
+  }
+
+  // =============================================================================
+  // 📄 CONTENT
+  // =============================================================================
+
+  async getContent(): Promise<Content[]> {
+    const response: AxiosResponse<Content[]> = await this.client.get('/content')
+    return response.data
+  }
+
+  async getContentByType(type: string): Promise<Content[]> {
+    const response: AxiosResponse<Content[]> = await this.client.get(`/content/${type}`)
+    return response.data
+  }
+
+  async createContent(content: Omit<Content, 'id'>): Promise<Content> {
+    const response: AxiosResponse<Content> = await this.client.post('/content', content)
+    return response.data
+  }
+
+  async updateContent(id: number, content: Partial<Content>): Promise<void> {
+    await this.client.put(`/content/${id}`, content)
+  }
+
+  async deleteContent(id: number): Promise<void> {
+    await this.client.delete(`/content/${id}`)
+  }
+
+  // =============================================================================
+  // 👤 ABOUT
+  // =============================================================================
+
+  async getAbout(): Promise<AboutData> {
+    const response: AxiosResponse<AboutData> = await this.client.get('/about')
+    return response.data
+  }
+
+  async updateAbout(about: AboutData): Promise<void> {
+    await this.client.put('/about', about)
+  }
+
+  // =============================================================================
+  // 📞 CONTACT
+  // =============================================================================
+
+  async getContact(): Promise<ContactData> {
+    const response: AxiosResponse<ContactData> = await this.client.get('/contact')
+    return response.data
+  }
+
+  async updateContact(contact: ContactData): Promise<void> {
+    await this.client.put('/contact', contact)
+  }
+
+  // =============================================================================
+  // 🏥 HEALTH
+  // =============================================================================
+
+  async healthCheck(): Promise<{ status: string; timestamp: string; service: string }> {
+    const response = await this.client.get('/health')
+    return response.data
+  }
+}
+
+// =============================================================================
+// 📤 EXPORTS
+// =============================================================================
+
+export const apiClient = new ApiClient()
+export default apiClient 

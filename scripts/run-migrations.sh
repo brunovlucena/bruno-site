@@ -1,59 +1,70 @@
 #!/bin/bash
 
 # Bruno Site Database Migration Script
-# This script runs database migrations on the PostgreSQL pod
+# This script runs migrations against the local PostgreSQL database
 
-set -e  # Exit on any error
+set -e
 
-NAMESPACE="bruno"
-DATABASE="bruno_site"
-USER="postgres"
+# Database configuration
+DB_HOST="127.0.0.1"
+DB_PORT="5432"
+DB_NAME="bruno_site"
+DB_USER="postgres"
+DB_PASSWORD="secure-password"
 
-echo "🗄️ Starting database migration process..."
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
 
-# Get the postgres pod name
-echo "🔍 Finding PostgreSQL pod..."
-POSTGRES_POD=$(kubectl get pods -n $NAMESPACE -l app=postgres -o jsonpath='{.items[0].metadata.name}')
-echo "✅ Found PostgreSQL pod: $POSTGRES_POD"
+echo -e "${YELLOW}🚀 Bruno Site Database Migration${NC}"
+echo "=================================="
 
-# Wait for postgres to be ready
-echo "⏳ Waiting for PostgreSQL to be ready..."
-kubectl wait --for=condition=ready pod/$POSTGRES_POD -n $NAMESPACE --timeout=300s
-echo "✅ PostgreSQL is ready!"
+# Check if PostgreSQL is running
+echo -e "${YELLOW}📋 Checking if PostgreSQL is running...${NC}"
+if ! pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USER > /dev/null 2>&1; then
+    echo -e "${RED}❌ PostgreSQL is not running on $DB_HOST:$DB_PORT${NC}"
+    echo -e "${YELLOW}💡 Make sure to start the services with: make start${NC}"
+    exit 1
+fi
 
-# Test database connection
-echo "🔍 Testing database connection..."
-kubectl exec -n $NAMESPACE $POSTGRES_POD -- psql -U $USER -d $DATABASE -c "SELECT version();"
-echo "✅ Database connection successful!"
+echo -e "${GREEN}✅ PostgreSQL is running${NC}"
 
-# Copy migration files to postgres pod
-echo "📋 Copying migration files to PostgreSQL pod..."
-kubectl cp ./api/migrations $POSTGRES_POD:/tmp/migrations -n $NAMESPACE
-echo "✅ Migration files copied successfully!"
+# Set PGPASSWORD environment variable
+export PGPASSWORD=$DB_PASSWORD
 
 # Run migrations in order
-echo "🗄️ Running database migrations..."
+echo -e "${YELLOW}📦 Running migrations...${NC}"
 
-echo "📋 Running initial schema migration..."
-kubectl exec -n $NAMESPACE $POSTGRES_POD -- psql -U $USER -d $DATABASE -f /tmp/migrations/001_initial_schema.sql
+# Migration 1: Initial schema
+echo -e "${YELLOW}📋 Running initial schema migration...${NC}"
+psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f api/migrations/001_initial_schema.sql
+echo -e "${GREEN}✅ Initial schema migration completed${NC}"
 
-echo "📋 Running data population migration..."
-kubectl exec -n $NAMESPACE $POSTGRES_POD -- psql -U $USER -d $DATABASE -f /tmp/migrations/002_populate_data.sql
+# Migration 2: Populate data
+echo -e "${YELLOW}📋 Running data population migration...${NC}"
+psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f api/migrations/002_populate_data.sql
+echo -e "${GREEN}✅ Data population migration completed${NC}"
 
-echo "📋 Running project active migration..."
-kubectl exec -n $NAMESPACE $POSTGRES_POD -- psql -U $USER -d $DATABASE -f /tmp/migrations/003_add_project_active.sql
+# Migration 3: Add project active column
+echo -e "${YELLOW}📋 Running project active migration...${NC}"
+psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f api/migrations/003_add_project_active.sql
+echo -e "${GREEN}✅ Project active migration completed${NC}"
 
-echo "✅ Database migrations completed!"
+# Verify the data
+echo -e "${YELLOW}🔍 Verifying data...${NC}"
+echo -e "${YELLOW}📊 Projects:${NC}"
+psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c "SELECT id, title, type, featured, \"order\" FROM projects ORDER BY \"order\";"
 
-# Verify migration results
-echo "🔍 Verifying migration results..."
-kubectl exec -n $NAMESPACE $POSTGRES_POD -- psql -U $USER -d $DATABASE -c "\dt"
+echo -e "${YELLOW}📊 Skills count:${NC}"
+psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c "SELECT COUNT(*) as skills_count FROM skills;"
 
-echo "📊 Checking data counts..."
-kubectl exec -n $NAMESPACE $POSTGRES_POD -- psql -U $USER -d $DATABASE -c "SELECT COUNT(*) as projects_count FROM projects;"
-kubectl exec -n $NAMESPACE $POSTGRES_POD -- psql -U $USER -d $DATABASE -c "SELECT COUNT(*) as skills_count FROM skills;"
-kubectl exec -n $NAMESPACE $POSTGRES_POD -- psql -U $USER -d $DATABASE -c "SELECT COUNT(*) as experience_count FROM experience;"
+echo -e "${YELLOW}📊 Experience count:${NC}"
+psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c "SELECT COUNT(*) as experience_count FROM experience;"
 
-echo "🎉 Database migration completed successfully!"
-echo "🔄 You may need to restart the API deployment to pick up the database changes:"
-echo "   kubectl rollout restart deployment/api -n bruno"
+echo -e "${GREEN}✅ All migrations completed successfully!${NC}"
+echo -e "${GREEN}🎉 Database is ready for Bruno Site${NC}"
+
+# Unset PGPASSWORD for security
+unset PGPASSWORD
