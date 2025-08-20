@@ -32,7 +32,6 @@ jobs:
   build-api:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event.inputs.build_api == 'true'
-    needs: [test-api]
     permissions:
       contents: read
       packages: write
@@ -73,7 +72,6 @@ jobs:
   build-frontend:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event.inputs.build_frontend == 'true'
-    needs: [test-frontend]
     permissions:
       contents: read
       packages: write
