@@ -26,9 +26,6 @@ USER root
 RUN mkdir -p /tmp/cache/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp} && \
     chmod -R 755 /tmp/cache/nginx
 
-# Copy nginx configuration first
-COPY nginx.conf /etc/nginx/nginx.conf
-
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
