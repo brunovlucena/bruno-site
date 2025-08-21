@@ -42,26 +42,13 @@ spec:
               protocol: TCP
           env:
             - name: DATABASE_URL
-              value: "postgresql://{{ .Values.database.user }}:$(DB_PASSWORD)@{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}?sslmode=disable"
+              value: "postgresql://{{ .Values.database.user }}:{{ .Values.secrets.databasePassword }}@{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}?sslmode=disable"
             - name: REDIS_URL
               value: "redis://{{ .Values.redis.host }}:{{ .Values.redis.port }}"
             - name: PORT
               value: "8080"
             - name: CORS_ORIGIN
               value: "{{ .Values.corsOrigin }}"
-            {{- if .Values.database.existingSecret }}
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.database.existingSecret }}
-                  key: password
-            {{- else if .Values.secrets.databasePassword }}
-            - name: DB_PASSWORD
-              value: {{ .Values.secrets.databasePassword | quote }}
-            {{- else }}
-            - name: DB_PASSWORD
-              value: "secure-password"
-            {{- end }}
           livenessProbe:
             httpGet:
               path: /health
