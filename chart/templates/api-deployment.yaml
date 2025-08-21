@@ -58,6 +58,9 @@ spec:
             {{- else if .Values.secrets.databasePassword }}
             - name: DB_PASSWORD
               value: {{ .Values.secrets.databasePassword | quote }}
+            {{- else }}
+            - name: DB_PASSWORD
+              value: "secure-password"
             {{- end }}
           livenessProbe:
             httpGet:
