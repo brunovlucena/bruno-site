@@ -3,7 +3,8 @@
 
 replicaCount: 1
 
-imagePullSecrets: []
+imagePullSecrets:
+  - name: ghcr-secret
 nameOverride: ""
 fullnameOverride: ""
 
