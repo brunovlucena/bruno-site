@@ -127,7 +127,7 @@ data:
     DELETE FROM projects;
 
     -- Insert only Bruno Site and Knative Lambda projects
-    INSERT INTO projects (title, description, type, github_url, live_url, technologies, featured, "order") VALUES
+    INSERT INTO projects (title, description, type, github_url, live_url, technologies, featured, "order", github_active) VALUES
     (
         'Bruno Site',
         'Personal portfolio and homelab showcase website built with React, TypeScript, Go, and modern cloud-native technologies. Features real-time project updates, interactive chatbot, and comprehensive skill showcase.',
@@ -136,7 +136,8 @@ data:
         'https://www.youtube.com/watch?v=lkkGlVWvkLk',
         ARRAY['React', 'TypeScript', 'Go', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes', 'Nginx'],
         TRUE,
-        1
+        1,
+        TRUE
     ),
     (
         'Knative Lambda',
@@ -146,7 +147,8 @@ data:
         'https://www.youtube.com/watch?v=lkkGlVWvkLk',
         ARRAY['Knative', 'Kubernetes', 'Serverless', 'CloudEvents', 'Go'],
         TRUE,
-        2
+        2,
+        FALSE
     );
 
     -- Insert skills from about section
@@ -170,31 +172,31 @@ data:
     ('OpenStack', 'Cloud', 3, '☁️', 12),
 
     -- Observability
-    ('Prometheus', 'Observability', 5, '📊', 13),
-    ('Grafana', 'Observability', 5, '📈', 14),
-    ('Loki', 'Observability', 4, '📝', 15),
-    ('Tempo', 'Observability', 4, '⏱️', 16),
-    ('OpenTelemetry', 'Observability', 4, '👁️', 17),
+    ('Prometheus', 'Observability', 5, 'prometheus', 13),
+    ('Grafana', 'Observability', 5, 'grafana', 14),
+    ('Loki', 'Observability', 4, 'loki', 15),
+    ('Tempo', 'Observability', 4, 'tempo', 16),
+    ('OpenTelemetry', 'Observability', 4, 'opentelemetry', 17),
 
     -- Infrastructure
-    ('Terraform', 'Infrastructure', 5, '🏗️', 18),
-    ('Pulumi', 'Infrastructure', 4, '☁️', 19),
-    ('Docker', 'Infrastructure', 5, '🐳', 20),
-    ('Flux', 'Infrastructure', 4, '⚡', 21),
-    ('Helm', 'Infrastructure', 4, '⚓', 22),
+    ('Terraform', 'Infrastructure', 5, 'terraform', 18),
+    ('Pulumi', 'Infrastructure', 4, 'pulumi', 19),
+    ('Docker', 'Infrastructure', 5, 'docker', 20),
+    ('Flux', 'Infrastructure', 4, 'flux', 21),
+    ('Helm', 'Infrastructure', 4, 'helm', 22),
 
     -- Programming Languages
-    ('Go', 'Programming', 5, '🐹', 23),
-    ('Python', 'Programming', 4, '🐍', 24),
-    ('TypeScript', 'Programming', 4, '📘', 25),
-    ('JavaScript', 'Programming', 4, '📗', 26),
-    ('Bash', 'Programming', 4, '💻', 27),
+    ('Go', 'Programming', 5, 'go', 23),
+    ('Python', 'Programming', 4, 'python', 24),
+    ('TypeScript', 'Programming', 4, 'typescript', 25),
+    ('JavaScript', 'Programming', 4, 'javascript', 26),
+    ('Bash', 'Programming', 4, 'bash', 27),
 
     -- Databases & Messaging
-    ('PostgreSQL', 'Database', 5, '🐘', 28),
-    ('Redis', 'Database', 4, '🔴', 29),
-    ('RabbitMQ', 'Messaging', 4, '🐰', 30),
-    ('MongoDB', 'Database', 3, '🍃', 31),
+    ('PostgreSQL', 'Database', 5, 'postgresql', 28),
+    ('Redis', 'Database', 4, 'redis', 29),
+    ('RabbitMQ', 'Messaging', 4, 'rabbitmq', 30),
+    ('MongoDB', 'Database', 3, 'mongodb', 31),
 
     -- AI/ML
     ('Machine Learning', 'AI/ML', 4, '🤖', 32),
@@ -217,10 +219,10 @@ data:
     ('Metrics', 'Monitoring', 5, '📈', 45),
 
     -- Cloud Platforms
-    ('AWS', 'Cloud', 5, '☁️', 46),
-    ('Google Cloud Platform', 'Cloud', 4, '☁️', 47),
-    ('Azure', 'Cloud', 3, '☁️', 48),
-    ('Multi-cloud', 'Cloud', 4, '☁️', 49),
+    ('AWS', 'Cloud', 5, 'amazon', 46),
+    ('Google Cloud Platform', 'Cloud', 4, 'googlecloud', 47),
+    ('Azure', 'Cloud', 3, 'azure', 48),
+    ('Multi-cloud', 'Cloud', 4, 'multicloud', 49),
 
     -- Networking & Security
     ('Network Security', 'Security', 4, '🛡️', 50),
@@ -230,12 +232,19 @@ data:
     ('VPN', 'Security', 4, '🔐', 54),
 
     -- Tools & Platforms
-    ('GitHub', 'Tools', 5, '🐙', 55),
-    ('GitLab', 'Tools', 4, '🦊', 56),
-    ('Jenkins', 'Tools', 4, '🤖', 57),
-    ('ArgoCD', 'Tools', 4, '🚀', 58),
-    ('Knative', 'Platforms', 4, '☸️', 59),
-    ('Serverless', 'Platforms', 4, '⚡', 60);
+    ('GitHub', 'Tools', 5, 'github', 55),
+    ('GitLab', 'Tools', 4, 'gitlab', 56),
+    ('Jenkins', 'Tools', 4, 'jenkins', 57),
+    ('ArgoCD', 'Tools', 4, 'argocd', 58),
+    ('Knative', 'Platforms', 4, 'knative', 59),
+    ('Serverless', 'Platforms', 4, 'serverless', 60),
+    ('GitHub Actions', 'Tools', 5, 'githubactions', 61),
+    ('Atmos', 'Tools', 4, 'atmos', 62),
+    ('Vertex AI', 'AI/ML', 4, 'vertexai', 63),
+    ('RAG', 'AI/ML', 4, 'rag', 64),
+    ('CloudEvents', 'Platforms', 4, 'cloudevents', 65),
+    ('Security', 'Security', 5, 'security', 66),
+    ('Compliance', 'Security', 4, 'compliance', 67);
 
     -- Insert experience data
     INSERT INTO experience (title, company, start_date, end_date, current, description, technologies, "order") VALUES
@@ -246,7 +255,7 @@ data:
         NULL,
         TRUE,
         E'Key Responsibilities:\n\n- Cloud Native Infrastructure: Architect, build, and maintain highly available, scalable, and resilient cloud-native infrastructure using Kubernetes, AWS, GCP, Pulumi, and many others\n\n- Observability: Implement and optimize monitoring, logging, and tracing solutions (Prometheus, Loki, Tempo, Grafana, OpenTelemetry) to gain deep insights into system performance and behavior.\n\n- Chatbot for SRE: RAG, Vertex AI\n\n- Automation and CI/CD: Automate infrastructure provisioning, deployment, and configuration management using Terraform, Atmos, and GitHub Actions to accelerate development and reduce errors.\n\n- Serverless and Function-as-a-Service: Develop and deploy serverless applications on AWS Lambda\n\n- Serverless on K8s: Knative (CloudEvents, RabbitMQ), Golang\n\n- Security and Compliance: Ensure the security and compliance of systems and applications by implementing best practices and leveraging security tools.',
-        ARRAY['Kubernetes', 'AWS', 'GCP', 'Pulumi', 'Prometheus', 'Loki', 'Tempo', 'Grafana', 'OpenTelemetry', 'RAG', 'Vertex AI', 'Terraform', 'Atmos', 'GitHub Actions', 'AWS Lambda', 'Knative', 'CloudEvents', 'RabbitMQ', 'Golang', 'Security', 'Compliance'],
+        ARRAY['Kubernetes', 'AWS', 'GCP', 'Pulumi', 'Prometheus', 'Loki', 'Tempo', 'Grafana', 'OpenTelemetry', 'RAG', 'Vertex AI', 'Terraform', 'Atmos', 'GitHub Actions', 'AWS Lambda', 'Knative', 'CloudEvents', 'RabbitMQ', 'Golang', 'Linkerd', 'Security', 'Compliance'],
         6
     ),
     (

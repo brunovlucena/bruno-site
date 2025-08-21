@@ -47,10 +47,9 @@ echo -e "${YELLOW}📋 Running data population migration...${NC}"
 psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f api/migrations/002_populate_data.sql
 echo -e "${GREEN}✅ Data population migration completed${NC}"
 
-# Migration 3: Add project active column
-echo -e "${YELLOW}📋 Running project active migration...${NC}"
-psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f api/migrations/003_add_project_active.sql
-echo -e "${GREEN}✅ Project active migration completed${NC}"
+# Migration 3: Add project active column (merged into initial schema)
+echo -e "${YELLOW}📋 Skipping project active migration (already included in initial schema)...${NC}"
+echo -e "${GREEN}✅ Project active migration already applied${NC}"
 
 # Verify the data
 echo -e "${YELLOW}🔍 Verifying data...${NC}"

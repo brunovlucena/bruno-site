@@ -42,11 +42,10 @@ start:
 	@echo "🚀 Starting Bruno Site (Development)..."
 	@echo "Environment: $(ENV)"
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) up --build -d
-	# @echo "⏳ Waiting for services to be ready..."
-	# @timeout 60 bash -c 'until docker exec postgres pg_isready -U bruno_user -d bruno_site; do sleep 2; done' || true
-	# @timeout 30 bash -c 'until docker exec redis redis-cli ping; do sleep 2; done' || true
-	# @timeout 60 bash -c 'until curl -f http://localhost:8080/health; do sleep 3; done' || true
-	# @timeout 60 bash -c 'until curl -f http://localhost:3000; do sleep 3; done' || true
+	@echo "⏳ Waiting for database to be ready..."
+	@timeout 60 bash -c 'until docker exec postgres pg_isready -U postgres -d bruno_site; do sleep 2; done' || true
+	@echo "🗄️ Running database migrations..."
+	@make migrate || echo "⚠️ Migration failed, but continuing..."
 	@echo "✅ Bruno site is running!"
 	@echo ""
 	@echo "📋 Access Information:"
@@ -124,7 +123,8 @@ psql:
 # Run database migration
 migrate:
 	@echo "🗄️ Running database migration..."
-	@PGPASSWORD=secure-password psql -h 127.0.0.1 -p 5432 -U postgres -d bruno_site < scripts/update_projects.sql
+	@chmod +x scripts/run-migrations.sh
+	@./scripts/run-migrations.sh
 
 # Connect to Redis CLI
 redis-cli:
@@ -169,13 +169,13 @@ test-api:
 	@curl -s http://localhost:8080/health | jq . || curl -s http://localhost:8080/health
 	@echo ""
 	@echo "Projects:"
-	@curl -s http://localhost:8080/api/v1/projects | jq . || curl -s http://localhost:8080/api/v1/projects
+	@curl -s http://localhost:8080/api/projects | jq . || curl -s http://localhost:8080/api/projects
 	@echo ""
 	@echo "About:"
-	@curl -s http://localhost:8080/api/v1/about | jq . || curl -s http://localhost:8080/api/v1/about
+	@curl -s http://localhost:8080/api/about | jq . || curl -s http://localhost:8080/api/about
 	@echo ""
 	@echo "Contact:"
-	@curl -s http://localhost:8080/api/v1/contact | jq . || curl -s http://localhost:8080/api/v1/contact
+	@curl -s http://localhost:8080/api/contact | jq . || curl -s http://localhost:8080/api/contact
 
 # Run all tests
 test: test-api-unit test-frontend-unit test-e2e test-load

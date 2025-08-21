@@ -1040,6 +1040,28 @@ main {
 }
 
 /* Resume section styles - Terraform inspired */
+.resume {
+    padding: 2rem 0;
+}
+
+.resume .container h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+}
+
+.resume .container h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    letter-spacing: -0.025em;
+    line-height: 1.3;
+}
+
 .resume-header {
     display: flex;
     align-items: flex-start;
@@ -1078,15 +1100,16 @@ main {
 .resume-content {
     display: flex;
     flex-direction: column;
-    gap: 3rem;
+    gap: 4rem;
 }
 
 .resume-section {
     background-color: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: 1rem;
-    padding: 2rem;
+    padding: 3rem;
     transition: all 0.3s ease;
+    overflow: hidden;
 }
 
 .resume-section:hover {
@@ -1098,7 +1121,7 @@ main {
     font-size: 1.75rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 2rem;
+    margin-bottom: 5rem;
     letter-spacing: -0.025em;
     border-bottom: 2px solid var(--secondary-color);
     padding-bottom: 0.5rem;
@@ -1112,11 +1135,12 @@ main {
 }
 
 .experience-item {
-    padding: 1.5rem;
+    padding: 2rem;
     background-color: var(--background-primary);
     border: 1px solid var(--border-color);
     border-radius: 0.75rem;
     transition: all 0.3s ease;
+    overflow: hidden;
 }
 
 .experience-item:hover {
@@ -1130,7 +1154,9 @@ main {
     flex-wrap: wrap;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }
 
 .experience-title {
@@ -1138,15 +1164,22 @@ main {
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    line-height: 1.4;
 }
 
 .experience-company {
     font-size: 1rem;
     font-weight: 600;
     color: var(--secondary-color);
-    padding: 0.25rem 0.75rem;
+    padding: 0.5rem 1rem;
     background-color: rgba(124, 58, 237, 0.1);
     border-radius: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
 }
 
 .experience-period {
@@ -1181,9 +1214,13 @@ main {
 /* Experience description */
 .experience-description p {
     color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 1rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
     text-align: left;
+    word-wrap: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 .experience-technologies {
@@ -1196,32 +1233,52 @@ main {
 .technology-icons {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin: 0.5rem 0;
+    gap: 0.75rem;
+    margin: 1rem 0;
     align-items: center;
+    padding: 0.5rem 0;
 }
 
 .technology-icon {
     font-size: 1.5rem;
-    padding: 0.25rem;
-    border-radius: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
     background-color: rgba(124, 58, 237, 0.05);
     border: 1px solid rgba(124, 58, 237, 0.1);
     transition: all 0.2s ease;
-    cursor: help;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    overflow: visible;
+    text-decoration: none;
+    color: inherit;
 }
 
 .technology-icon:hover {
-    background-color: rgba(124, 58, 237, 0.1);
+    background-color: rgba(124, 58, 237, 0.15);
     border-color: var(--secondary-color);
-    transform: scale(1.1);
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
 }
 
 .technology-names {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: var(--text-secondary);
-    opacity: 0.8;
-    margin-top: 0.5rem;
+    opacity: 0.9;
+    margin-top: 1rem;
+    line-height: 2;
+    word-wrap: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.technology-names span {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    display: inline-block;
 }
 
 /* Skills grid */
@@ -1374,6 +1431,16 @@ main {
 }
 
 @media (max-width: 768px) {
+    .resume .container h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .resume .container h2 {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
     .resume-intro h2 {
         font-size: 2rem;
     }
@@ -1383,7 +1450,7 @@ main {
     }
     
     .resume-section {
-        padding: 1.5rem;
+        padding: 2rem;
     }
     
     .resume-section-title {
@@ -1391,7 +1458,7 @@ main {
     }
     
     .experience-item {
-        padding: 1.25rem;
+        padding: 1.5rem;
     }
     
     .skill-category {

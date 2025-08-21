@@ -37,24 +37,24 @@ export class ChatbotService {
       ]);
 
       console.log('📊 ChatbotService: Processing results...');
-      console.log('  - Projects status:', projectsData.status);
-      console.log('  - Skills status:', skillsData.status);
-      console.log('  - Experience status:', experienceData.status);
-      console.log('  - About status:', aboutData.status);
+      console.log('  - Projects status:', projectsData.status, 'value:', projectsData.status === 'fulfilled' ? projectsData.value : 'rejected');
+      console.log('  - Skills status:', skillsData.status, 'value:', skillsData.status === 'fulfilled' ? skillsData.value : 'rejected');
+      console.log('  - Experience status:', experienceData.status, 'value:', experienceData.status === 'fulfilled' ? experienceData.value : 'rejected');
+      console.log('  - About status:', aboutData.status, 'value:', aboutData.status === 'fulfilled' ? aboutData.value : 'rejected');
 
-      this.projects = projectsData.status === 'fulfilled' ? (projectsData.value as unknown as any[]) : [];
-      this.skills = skillsData.status === 'fulfilled' ? (skillsData.value as unknown as any[]) : [];
-      this.experience = experienceData.status === 'fulfilled' ? (experienceData.value as unknown as any[]) : [];
-      this.about = aboutData.status === 'fulfilled' ? (aboutData.value as unknown as any) : { key: 'about', value: { description: '' } };
+      this.projects = projectsData.status === 'fulfilled' ? (projectsData.value as unknown as any[]) || [] : [];
+      this.skills = skillsData.status === 'fulfilled' ? (skillsData.value as unknown as any[]) || [] : [];
+      this.experience = experienceData.status === 'fulfilled' ? (experienceData.value as unknown as any[]) || [] : [];
+      this.about = aboutData.status === 'fulfilled' ? (aboutData.value as unknown as any) || { key: 'about', value: { description: '' } } : { key: 'about', value: { description: '' } };
 
       console.log('✅ ChatbotService: Data loaded successfully:', {
-        projects: this.projects.length,
-        skills: this.skills.length,
-        experience: this.experience.length,
+        projects: this.projects?.length || 0,
+        skills: this.skills?.length || 0,
+        experience: this.experience?.length || 0,
         hasAbout: !!this.about?.value
       });
 
-      if (this.projects.length > 0) {
+      if (this.projects?.length > 0) {
         console.log('📋 ChatbotService: Sample project:', this.projects[0]);
       }
     } catch (error) {
@@ -128,7 +128,7 @@ export class ChatbotService {
   }
 
   private handleExperienceQuery(input: string): ChatbotResponse {
-    if (this.experience.length === 0) {
+    if (!this.experience || this.experience.length === 0) {
       return {
         text: "Bruno has 12+ years of experience in SRE, DevSecOps, and AI Engineering. He's worked with major cloud providers (AWS, GCP, Azure), Kubernetes, and has extensive experience in infrastructure automation and AI/ML technologies.",
         suggestions: ['Tell me about specific roles', 'What companies has he worked for?', 'Show me his skills']
@@ -147,7 +147,7 @@ export class ChatbotService {
   }
 
   private handleProjectsQuery(input: string): ChatbotResponse {
-    if (this.projects.length === 0) {
+    if (!this.projects || this.projects.length === 0) {
       return {
         text: "Bruno has worked on several interesting projects including cloud-native infrastructure, AI/ML implementations, and DevOps automation. Some highlights include Kubernetes cluster management, CI/CD pipelines, and AI model deployment.",
         suggestions: ['Tell me about his experience', 'What are his skills?', 'How can I contact him?']
@@ -164,7 +164,7 @@ export class ChatbotService {
   }
 
   private handleSkillsQuery(input: string): ChatbotResponse {
-    if (this.skills.length === 0) {
+    if (!this.skills || this.skills.length === 0) {
       return {
         text: "Bruno's key skills include Kubernetes, Docker, AWS/GCP/Azure, Terraform, Python, Go, AI/ML, CI/CD, monitoring, and security. He's also experienced with various AI frameworks and cloud-native technologies.",
         suggestions: ['Tell me about his experience', 'Show me his projects', 'How can I contact him?']
@@ -206,7 +206,7 @@ export class ChatbotService {
 
   private handleAboutQuery(input: string): ChatbotResponse {
     if (this.about?.value?.description) {
-      const aboutText = this.about.value.description.length > 200 
+      const aboutText = this.about.value.description?.length > 200 
         ? this.about.value.description.substring(0, 200) + '...'
         : this.about.value.description;
       

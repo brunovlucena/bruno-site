@@ -15,6 +15,7 @@ export interface Project {
   live_url: string
   technologies: string[]
   active: boolean
+  github_active: boolean
 }
 
 export interface Skill {

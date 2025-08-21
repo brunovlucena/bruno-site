@@ -302,6 +302,20 @@
   text-decoration: none;
 }
 
+.project-link-disabled {
+  background: #6c757d !important;
+  color: #adb5bd !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.project-link-disabled:hover {
+  background: #6c757d !important;
+  color: #adb5bd !important;
+  text-decoration: none !important;
+}
+
 .loading, .error, .no-projects {
   text-align: center;
   padding: 2rem;

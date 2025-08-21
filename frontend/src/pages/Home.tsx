@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { apiClient } from '../services/api'
-import { Project } from '../types'
+import { Project, Skill } from '../types'
 import { 
   SiReact, 
   SiTypescript, 
@@ -43,11 +43,12 @@ const Home: React.FC = () => {
       try {
         setLoading(true)
         const fetchedProjects = await apiClient.getProjects()
-        setProjects(fetchedProjects)
+        setProjects(fetchedProjects || [])
         setError(null)
       } catch (err) {
         console.error('Failed to fetch projects:', err)
         setError('Failed to load projects')
+        setProjects([]) // Ensure projects is always an array
       } finally {
         setLoading(false)
       }
@@ -88,6 +89,13 @@ const Home: React.FC = () => {
       'pulumi': SiPulumi,
       'prometheus': SiPrometheus,
       'grafana': SiGrafana,
+      'loki': FaStream,
+      'tempo': FaDatabase,
+      'opentelemetry': FaChartBar,
+      'terraform': SiTerraform,
+      'aws': SiAmazon,
+      'gcp': SiGooglecloud,
+      'rabbitmq': SiRabbitmq,
       'shield': FaShieldAlt,
       'certification': BiCertification,
     }
@@ -261,23 +269,28 @@ const Home: React.FC = () => {
             </div>
           )}
           
-          {!loading && !error && projects.length === 0 && (
+          {!loading && !error && (!projects || projects.length === 0) && (
             <div className="no-projects">
               <p>No homelab projects available at the moment.</p>
             </div>
           )}
           
-          {!loading && !error && projects.length > 0 && (
+          {!loading && !error && projects && projects.length > 0 && (
             <div className="projects-grid">
               {projects.map((project) => {
-                const IconComponent = getIconComponent(project.technologies[0] || 'github')
+                // Skip rendering if project is malformed
+                if (!project || !project.id || !project.title) {
+                  return null;
+                }
+                
+                const IconComponent = getIconComponent((project.technologies && project.technologies[0]) || 'github')
                 return (
                   <div key={project.id} className="project-card">
                     <div className="project-header">
                       <IconComponent className="project-icon" />
                       <h3>{project.title}</h3>
                     </div>
-                    <p className="project-description">{project.description}</p>
+                    <p className="project-description">{project.description || ''}</p>
                     
                     {/* Video Embed - if live_url is a video URL */}
                     {project.live_url && isVideoUrl(project.live_url) && (
@@ -293,17 +306,24 @@ const Home: React.FC = () => {
                     )}
                     
                     <div className="project-meta">
-                      <span className="project-type">{project.type}</span>
+                      <span className="project-type">{project.type || ''}</span>
                       {project.github_url && (
-                        <a 
-                          href={project.github_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="project-link"
-                        >
-                          <SiGithub className="project-link-icon" />
-                          <span>GitHub</span>
-                        </a>
+                        (project.github_active !== undefined ? project.github_active : true) ? (
+                          <a 
+                            href={project.github_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="project-link"
+                          >
+                            <SiGithub className="project-link-icon" />
+                            <span>GitHub</span>
+                          </a>
+                        ) : (
+                          <span className="project-link project-link-disabled">
+                            <SiGithub className="project-link-icon" />
+                            <span>GitHub</span>
+                          </span>
+                        )
                       )}
                     </div>
                   </div>

@@ -2,11 +2,12 @@
 -- Migration: 002_populate_data.sql
 
 -- Clear existing data
-DELETE FROM projects;
-DELETE FROM experience;
+TRUNCATE TABLE projects CASCADE;
+TRUNCATE TABLE experience CASCADE;
+TRUNCATE TABLE skills CASCADE;
 
 -- Insert only Bruno Site and Knative Lambda projects
-INSERT INTO projects (title, description, type, github_url, live_url, technologies, featured, "order") VALUES
+INSERT INTO projects (title, description, type, github_url, live_url, technologies, featured, "order", active, github_active) VALUES
 (
     'Bruno Site',
     'Personal portfolio and homelab showcase website built with React, TypeScript, Go, and modern cloud-native technologies. Features real-time project updates, interactive chatbot, and comprehensive skill showcase.',
@@ -15,7 +16,9 @@ INSERT INTO projects (title, description, type, github_url, live_url, technologi
     'https://www.youtube.com/watch?v=lkkGlVWvkLk',
     ARRAY['React', 'TypeScript', 'Go', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes', 'Nginx'],
     TRUE,
-    1
+    1,
+    TRUE,
+    TRUE
 ),
 (
     'Knative Lambda',
@@ -25,96 +28,105 @@ INSERT INTO projects (title, description, type, github_url, live_url, technologi
     'https://www.youtube.com/watch?v=lkkGlVWvkLk',
     ARRAY['Knative', 'Kubernetes', 'Serverless', 'CloudEvents', 'Go'],
     TRUE,
-    2
+    2,
+    TRUE,
+    FALSE
 );
 
 -- Insert skills from about section
-INSERT INTO skills (name, category, proficiency, icon, "order") VALUES
+INSERT INTO skills (name, category, proficiency, icon, "order", active) VALUES
 -- IT Security
-('IT Security', 'Security', 5, '🔒', 1),
-('Vulnerability Assessment', 'Security', 5, '🔍', 2),
-('Nessus', 'Security', 4, '🛡️', 3),
-('Security Auditing', 'Security', 4, '📋', 4),
+('IT Security', 'Security', 5, '🔒', 1, TRUE),
+('Vulnerability Assessment', 'Security', 5, '🔍', 2, TRUE),
+('Nessus', 'Security', 4, '🛡️', 3, TRUE),
+('Security Auditing', 'Security', 4, '📋', 4, TRUE),
 
 -- Project Management
-('Project Management', 'Management', 4, '📊', 5),
-('Team Leadership', 'Management', 4, '👥', 6),
-('Agile/Scrum', 'Management', 4, '🔄', 7),
+('Project Management', 'Management', 4, '📊', 5, TRUE),
+('Team Leadership', 'Management', 4, '👥', 6, TRUE),
+('Agile/Scrum', 'Management', 4, '🔄', 7, TRUE),
 
 -- Kubernetes & Cloud
-('Kubernetes', 'Cloud', 5, '☸️', 8),
-('AWS EKS', 'Cloud', 5, '☁️', 9),
-('GCP', 'Cloud', 4, '☁️', 10),
-('AWS Lambda', 'Cloud', 4, '⚡', 11),
-('OpenStack', 'Cloud', 3, '☁️', 12),
+('Kubernetes', 'Cloud', 5, '☸️', 8, TRUE),
+('AWS EKS', 'Cloud', 5, '☁️', 9, TRUE),
+('GCP', 'Cloud', 4, '☁️', 10, TRUE),
+('AWS Lambda', 'Cloud', 4, '⚡', 11, TRUE),
+('OpenStack', 'Cloud', 3, '☁️', 12, TRUE),
 
 -- Observability
-('Prometheus', 'Observability', 5, '📊', 13),
-('Grafana', 'Observability', 5, '📈', 14),
-('Loki', 'Observability', 4, '📝', 15),
-('Tempo', 'Observability', 4, '⏱️', 16),
-('OpenTelemetry', 'Observability', 4, '👁️', 17),
+('Prometheus', 'Observability', 5, 'prometheus', 13, TRUE),
+('Grafana', 'Observability', 5, 'grafana', 14, TRUE),
+('Loki', 'Observability', 4, 'loki', 15, TRUE),
+('Tempo', 'Observability', 4, 'tempo', 16, TRUE),
+('OpenTelemetry', 'Observability', 4, 'opentelemetry', 17, TRUE),
 
 -- Infrastructure
-('Terraform', 'Infrastructure', 5, '🏗️', 18),
-('Pulumi', 'Infrastructure', 4, '☁️', 19),
-('Docker', 'Infrastructure', 5, '🐳', 20),
-('Flux', 'Infrastructure', 4, '⚡', 21),
-('Helm', 'Infrastructure', 4, '⚓', 22),
+('Terraform', 'Infrastructure', 5, 'terraform', 18, TRUE),
+('Pulumi', 'Infrastructure', 4, 'pulumi', 19, TRUE),
+('Docker', 'Infrastructure', 5, 'docker', 20, TRUE),
+('Flux', 'Infrastructure', 4, 'flux', 21, TRUE),
+('Helm', 'Infrastructure', 4, 'helm', 22, TRUE),
 
 -- Programming Languages
-('Go', 'Programming', 5, '🐹', 23),
-('Python', 'Programming', 4, '🐍', 24),
-('TypeScript', 'Programming', 4, '📘', 25),
-('JavaScript', 'Programming', 4, '📗', 26),
-('Bash', 'Programming', 4, '💻', 27),
+('Go', 'Programming', 5, 'go', 23, TRUE),
+('Python', 'Programming', 4, 'python', 24, TRUE),
+('TypeScript', 'Programming', 4, 'typescript', 25, TRUE),
+('JavaScript', 'Programming', 4, 'javascript', 26, TRUE),
+('Bash', 'Programming', 4, 'bash', 27, TRUE),
 
 -- Databases & Messaging
-('PostgreSQL', 'Database', 5, '🐘', 28),
-('Redis', 'Database', 4, '🔴', 29),
-('RabbitMQ', 'Messaging', 4, '🐰', 30),
-('MongoDB', 'Database', 3, '🍃', 31),
+('PostgreSQL', 'Database', 5, 'postgresql', 28, TRUE),
+('Redis', 'Database', 4, 'redis', 29, TRUE),
+('RabbitMQ', 'Messaging', 4, 'rabbitmq', 30, TRUE),
+('MongoDB', 'Database', 3, 'mongodb', 31, TRUE),
 
 -- AI/ML
-('Machine Learning', 'AI/ML', 4, '🤖', 32),
-('TensorFlow', 'AI/ML', 4, '📊', 33),
-('Natural Language Processing', 'AI/ML', 4, '💬', 34),
-('Computer Vision', 'AI/ML', 3, '👁️', 35),
+('Machine Learning', 'AI/ML', 4, '🤖', 32, TRUE),
+('TensorFlow', 'AI/ML', 4, '📊', 33, TRUE),
+('Natural Language Processing', 'AI/ML', 4, '💬', 34, TRUE),
+('Computer Vision', 'AI/ML', 3, '👁️', 35, TRUE),
 
 -- DevOps & SRE
-('Site Reliability Engineering', 'DevOps', 5, '⚙️', 36),
-('DevSecOps', 'DevOps', 5, '🔒', 37),
-('CI/CD', 'DevOps', 5, '🔄', 38),
-('GitOps', 'DevOps', 4, '📦', 39),
-('Infrastructure as Code', 'DevOps', 5, '🏗️', 40),
+('Site Reliability Engineering', 'DevOps', 5, '⚙️', 36, TRUE),
+('DevSecOps', 'DevOps', 5, '🔒', 37, TRUE),
+('CI/CD', 'DevOps', 5, '🔄', 38, TRUE),
+('GitOps', 'DevOps', 4, '📦', 39, TRUE),
+('Infrastructure as Code', 'DevOps', 5, '🏗️', 40, TRUE),
 
 -- Monitoring & Alerting
-('Monitoring', 'Monitoring', 5, '📊', 41),
-('Alerting', 'Monitoring', 5, '🚨', 42),
-('Logging', 'Monitoring', 5, '📝', 43),
-('Tracing', 'Monitoring', 4, '🔍', 44),
-('Metrics', 'Monitoring', 5, '📈', 45),
+('Monitoring', 'Monitoring', 5, '📊', 41, TRUE),
+('Alerting', 'Monitoring', 5, '🚨', 42, TRUE),
+('Logging', 'Monitoring', 5, '📝', 43, TRUE),
+('Tracing', 'Monitoring', 4, '🔍', 44, TRUE),
+('Metrics', 'Monitoring', 5, '📈', 45, TRUE),
 
 -- Cloud Platforms
-('AWS', 'Cloud', 5, '☁️', 46),
-('Google Cloud Platform', 'Cloud', 4, '☁️', 47),
-('Azure', 'Cloud', 3, '☁️', 48),
-('Multi-cloud', 'Cloud', 4, '☁️', 49),
+('AWS', 'Cloud', 5, 'amazon', 46, TRUE),
+('Google Cloud Platform', 'Cloud', 4, 'googlecloud', 47, TRUE),
+('Azure', 'Cloud', 3, 'azure', 48, TRUE),
+('Multi-cloud', 'Cloud', 4, 'multicloud', 49, TRUE),
 
 -- Networking & Security
-('Network Security', 'Security', 4, '🛡️', 50),
-('Load Balancing', 'Networking', 4, '⚖️', 51),
-('API Gateway', 'Networking', 4, '🚪', 52),
-('Service Mesh', 'Networking', 4, '🕸️', 53),
-('VPN', 'Security', 4, '🔐', 54),
+('Network Security', 'Security', 4, '🛡️', 50, TRUE),
+('Load Balancing', 'Networking', 4, '⚖️', 51, TRUE),
+('API Gateway', 'Networking', 4, '🚪', 52, TRUE),
+('Service Mesh', 'Networking', 4, '🕸️', 53, TRUE),
+('VPN', 'Security', 4, '🔐', 54, TRUE),
 
 -- Tools & Platforms
-('GitHub', 'Tools', 5, '🐙', 55),
-('GitLab', 'Tools', 4, '🦊', 56),
-('Jenkins', 'Tools', 4, '🤖', 57),
-('ArgoCD', 'Tools', 4, '🚀', 58),
-('Knative', 'Platforms', 4, '☸️', 59),
-('Serverless', 'Platforms', 4, '⚡', 60);
+('GitHub', 'Tools', 5, 'github', 55, TRUE),
+('GitLab', 'Tools', 4, 'gitlab', 56, TRUE),
+('Jenkins', 'Tools', 4, 'jenkins', 57, TRUE),
+('ArgoCD', 'Tools', 4, 'argocd', 58, TRUE),
+('Knative', 'Platforms', 4, 'knative', 59, TRUE),
+('Serverless', 'Platforms', 4, 'serverless', 60, TRUE),
+('GitHub Actions', 'Tools', 5, 'githubactions', 61, TRUE),
+('Atmos', 'Tools', 4, 'atmos', 62, TRUE),
+('Vertex AI', 'AI/ML', 4, 'vertexai', 63, TRUE),
+('RAG', 'AI/ML', 4, 'rag', 64, TRUE),
+('CloudEvents', 'Platforms', 4, 'cloudevents', 65, TRUE),
+('Security', 'Security', 5, 'security', 66, TRUE),
+('Compliance', 'Security', 4, 'compliance', 67, TRUE);
 
 -- Insert experience data in chronological order (oldest to newest)
 INSERT INTO experience (title, company, start_date, end_date, current, description, technologies, "order", active) VALUES
@@ -223,12 +235,12 @@ Automation: Implemented automation tools (Saltstack) to streamline operations an
 - Serverless on K8s: Knative (CloudEvents, RabbitMQ), Golang 
 
 - Security and Compliance: Ensure the security and compliance of systems and applications by implementing best practices and leveraging security tools.',
-    ARRAY['Kubernetes', 'AWS', 'GCP', 'Pulumi', 'Prometheus', 'Loki', 'Tempo', 'Grafana', 'OpenTelemetry', 'RAG', 'Vertex AI', 'Terraform', 'Atmos', 'GitHub Actions', 'AWS Lambda', 'Knative', 'CloudEvents', 'RabbitMQ', 'Golang', 'Security', 'Compliance']::TEXT[],
+    ARRAY['Kubernetes', 'AWS', 'GCP', 'Pulumi', 'Prometheus', 'Loki', 'Tempo', 'Grafana', 'OpenTelemetry', 'RAG', 'Vertex AI', 'Terraform', 'Atmos', 'GitHub Actions', 'AWS Lambda', 'Knative', 'CloudEvents', 'RabbitMQ', 'Golang', 'Linkerd', 'Security', 'Compliance']::TEXT[],
     6,
     TRUE
 );
 
--- Insert content data
+-- Insert content data (upsert to handle existing data)
 INSERT INTO content (key, value) VALUES
 (
     'about',
@@ -237,7 +249,10 @@ INSERT INTO content (key, value) VALUES
 (
     'contact',
     '{"email": "bruno@lucena.cloud", "location": "Brazil", "linkedin": "https://www.linkedin.com/in/bvlucena", "github": "https://github.com/brunovlucena", "availability": "Open to new opportunities"}'
-);
+)
+ON CONFLICT (key) DO UPDATE SET 
+    value = EXCLUDED.value,
+    updated_at = CURRENT_TIMESTAMP;
 
 -- Verify all data
 SELECT 'Projects' as table_name, COUNT(*) as count FROM projects
