@@ -195,7 +195,7 @@ port-forward-nginx:
 	@echo "🚪 Port forwarding nginx-ingress for local testing..."
 	@echo "💡 Access your site at http://localhost (port 80) or https://localhost (port 443)"
 	@echo "💡 Make sure to add 'localhost lucena.cloud' to your /etc/hosts file"
-	@kubectl port-forward -n nginx-ingress svc/nginx-ingress-ingress-nginx-controller 80:80 443:443
+	@kubectl port-forward --address 0.0.0.0 -n nginx-ingress svc/nginx-ingress-ingress-nginx-controller 80:80 443:443
 
 # Run all tests
 test: test-api-unit test-frontend-unit test-e2e test-load

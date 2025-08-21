@@ -1,6 +1,5 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "bruno-site.fullname" . -}}
-{{- $svcPort := .Values.frontend.service.port -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -37,9 +36,15 @@ spec:
             {{- end }}
             backend:
               service:
+                {{- if eq .service "api" }}
+                name: {{ $fullName }}-api
+                port:
+                  number: {{ $.Values.api.service.port }}
+                {{- else }}
                 name: {{ $fullName }}-frontend
                 port:
                   number: {{ $.Values.frontend.service.port }}
+                {{- end }}
           {{- end }}
     {{- end }}
 {{- end }}
