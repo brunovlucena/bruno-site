@@ -16,6 +16,7 @@ type Project struct {
 	LiveURL          string   `json:"live_url"`
 	Technologies     []string `json:"technologies"`
 	Active           bool     `json:"active"`
+	GithubActive     bool     `json:"github_active"`
 }
 
 // 📄 Content represents dynamic content from database

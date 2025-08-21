@@ -20,7 +20,7 @@ import (
 
 func getProjects(c *gin.Context) {
 	query := `
-		SELECT id, title, description, description as short_description, type, github_url, live_url, technologies, active
+		SELECT id, title, description, description as short_description, type, github_url, live_url, technologies, active, github_active
 		FROM projects 
 		WHERE active = true
 		ORDER BY "order" ASC, id ASC
@@ -39,7 +39,7 @@ func getProjects(c *gin.Context) {
 		var githubURL, liveURL sql.NullString
 		var technologies pq.StringArray
 
-		if err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.ShortDescription, &p.Type, &githubURL, &liveURL, &technologies, &p.Active); err != nil {
+		if err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.ShortDescription, &p.Type, &githubURL, &liveURL, &technologies, &p.Active, &p.GithubActive); err != nil {
 			continue
 		}
 
@@ -71,12 +71,12 @@ func getProject(c *gin.Context) {
 	var technologies pq.StringArray
 
 	query := `
-		SELECT id, title, description, description as short_description, type, github_url, live_url, technologies, active
+		SELECT id, title, description, description as short_description, type, github_url, live_url, technologies, active, github_active
 		FROM projects 
 		WHERE id = $1 AND active = true
 	`
 
-	err := db.QueryRow(query, projectID).Scan(&p.ID, &p.Title, &p.Description, &p.ShortDescription, &p.Type, &githubURL, &liveURL, &technologies, &p.Active)
+	err := db.QueryRow(query, projectID).Scan(&p.ID, &p.Title, &p.Description, &p.ShortDescription, &p.Type, &githubURL, &liveURL, &technologies, &p.Active, &p.GithubActive)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
