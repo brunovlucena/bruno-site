@@ -22,7 +22,7 @@ securityContext: {}
 # API Configuration
 api:
   image:
-    repository: ghcr.io/brunovlucena/bruno-site-api
+    repository: ghcr.io/brunovlucena/bruno-site/api
     pullPolicy: IfNotPresent
     tag: "latest"
   service:
@@ -39,7 +39,7 @@ api:
 # Frontend Configuration
 frontend:
   image:
-    repository: ghcr.io/brunovlucena/bruno-site-frontend
+    repository: ghcr.io/brunovlucena/bruno-site/frontend
     pullPolicy: IfNotPresent
     tag: "latest"
   service:
