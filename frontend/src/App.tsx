@@ -7,6 +7,7 @@ import Header from './components/Header'
 import Home from './pages/Home'
 import Resume from './pages/Resume'
 import Chatbot from './components/Chatbot'
+import { ChatbotProvider } from './contexts/ChatbotContext'
 import './App.css'
 
 // Create a client
@@ -23,29 +24,31 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <div className="App">
-          <Header />
-          <main>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/resume" element={<Resume />} />
-            </Routes>
-          </main>
-          <Chatbot />
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-            }}
-          />
-        </div>
-      </Router>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ChatbotProvider>
+        <Router>
+          <div className="App">
+            <Header />
+            <main>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/resume" element={<Resume />} />
+              </Routes>
+            </main>
+            <Chatbot />
+            <Toaster 
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+              }}
+            />
+          </div>
+        </Router>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </ChatbotProvider>
     </QueryClientProvider>
   )
 }

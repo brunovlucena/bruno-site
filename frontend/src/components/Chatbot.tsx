@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ChatbotService from '../services/chatbot';
+import { useChatbot } from '../contexts/ChatbotContext';
 
 interface Message {
   id: string;
@@ -9,7 +10,7 @@ interface Message {
 }
 
 const Chatbot: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, closeChatbot, toggleChatbot } = useChatbot();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -74,7 +75,7 @@ const Chatbot: React.FC = () => {
       {/* Chat Button */}
       <button
         className="chatbot-toggle"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleChatbot}
         aria-label="Toggle chatbot"
       >
         {isOpen ? (
@@ -96,7 +97,7 @@ const Chatbot: React.FC = () => {
             <h3>Bruno's AI Assistant</h3>
             <button
               className="chatbot-close"
-              onClick={() => setIsOpen(false)}
+              onClick={closeChatbot}
               aria-label="Close chatbot"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -392,8 +392,16 @@ body {
 }
 
 .header-link-icon {
-    font-size: 1rem;
-    flex-shrink: 0;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Make header buttons look like links */
+.header-link[type="button"] {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .mobile-menu-toggle {

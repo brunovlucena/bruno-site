@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Search, FileText, Linkedin, Github, Mail } from 'lucide-react'
+import { useChatbot } from '../contexts/ChatbotContext'
 
 // =============================================================================
 // 📋 TYPES
@@ -11,6 +12,7 @@ interface HeaderLink {
   icon: React.ReactNode
   label: string
   external?: boolean
+  onClick?: () => void
 }
 
 // =============================================================================
@@ -18,6 +20,8 @@ interface HeaderLink {
 // =============================================================================
 
 const Header: React.FC = () => {
+  const { openChatbot } = useChatbot();
+  
   const navigationLinks: HeaderLink[] = [
     {
       to: '/?section=projects',
@@ -42,9 +46,10 @@ const Header: React.FC = () => {
       external: true,
     },
     {
-      to: '/contact',
+      to: '#',
       icon: <Mail className="header-link-icon" />,
       label: 'Contact',
+      onClick: openChatbot,
     },
   ]
 
@@ -55,6 +60,9 @@ const Header: React.FC = () => {
         target: '_blank',
         rel: 'noopener noreferrer',
       }),
+      ...(link.onClick && {
+        onClick: link.onClick,
+      }),
     }
 
     if (link.external) {
@@ -63,6 +71,15 @@ const Header: React.FC = () => {
           {link.icon}
           <span>{link.label}</span>
         </a>
+      )
+    }
+
+    if (link.onClick) {
+      return (
+        <button key={link.label} {...linkProps} type="button">
+          {link.icon}
+          <span>{link.label}</span>
+        </button>
       )
     }
 
