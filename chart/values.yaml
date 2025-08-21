@@ -78,7 +78,7 @@ ingress:
 
 autoscaling:
   enabled: true
-  minReplicas: 2
+  minReplicas: 1 
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
@@ -138,5 +138,5 @@ redis:
 
 # Secrets
 secrets:
-  databasePassword: ""
+  databasePassword: "bruno123"
   redisPassword: ""
