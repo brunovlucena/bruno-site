@@ -1,4 +1,3 @@
-{{- if .Values.frontend.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -44,4 +43,3 @@ data:
             root   /usr/share/nginx/html;
         }
     }
-{{- end }}
