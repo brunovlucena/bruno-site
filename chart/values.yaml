@@ -23,7 +23,7 @@ api:
   image:
     repository: ghcr.io/brunovlucena/bruno-site-api
     pullPolicy: IfNotPresent
-    tag: "dev"
+    tag: "latest"
   service:
     type: ClusterIP
     port: 8080
@@ -40,7 +40,7 @@ frontend:
   image:
     repository: ghcr.io/brunovlucena/bruno-site-frontend
     pullPolicy: IfNotPresent
-    tag: "dev"
+    tag: "latest"
   service:
     type: ClusterIP
     port: 80
