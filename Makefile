@@ -177,6 +177,26 @@ test-api:
 	@echo "Contact:"
 	@curl -s http://localhost:8080/api/contact | jq . || curl -s http://localhost:8080/api/contact
 
+# Setup domain and SSL
+setup-domain:
+	@echo "🌐 Setting up domain and SSL certificates..."
+	@./scripts/setup-domain.sh
+
+# Check SSL certificate status
+check-ssl:
+	@echo "🔒 Checking SSL certificate status..."
+	@kubectl get certificate -n bruno
+	@echo ""
+	@echo "📋 Certificate details:"
+	@kubectl describe certificate -n bruno bruno-site-tls || echo "Certificate not found yet"
+
+# Port forward nginx-ingress for local testing
+port-forward-nginx:
+	@echo "🚪 Port forwarding nginx-ingress for local testing..."
+	@echo "💡 Access your site at http://localhost (port 80) or https://localhost (port 443)"
+	@echo "💡 Make sure to add 'localhost lucena.cloud' to your /etc/hosts file"
+	@kubectl port-forward -n nginx-ingress svc/nginx-ingress-ingress-nginx-controller 80:80 443:443
+
 # Run all tests
 test: test-api-unit test-frontend-unit test-e2e test-load
 

@@ -5,6 +5,8 @@ metadata:
   labels:
     {{- include "bruno-site.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.domain }}
 spec:
   type: {{ .Values.frontend.service.type }}
   ports:

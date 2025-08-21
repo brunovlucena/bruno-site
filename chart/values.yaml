@@ -1,6 +1,9 @@
 # Default values for bruno-site
 # This is a YAML-formatted file.
 
+# Domain configuration
+domain: "lucena.cloud"
+
 replicaCount: 1
 
 imagePullSecrets:
