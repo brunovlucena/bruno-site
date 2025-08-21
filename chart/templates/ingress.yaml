@@ -36,7 +36,7 @@ spec:
             {{- end }}
             backend:
               service:
-                {{- if eq .service "api" }}
+                {{- if and .service (eq .service "api") }}
                 name: {{ $fullName }}-api
                 port:
                   number: {{ $.Values.api.service.port }}
