@@ -68,12 +68,8 @@ ingress:
   hosts:
     - host: lucena.cloud
       paths:
-        - path: /api
-          pathType: Prefix
-          service: api
         - path: /
           pathType: Prefix
-          service: frontend
   tls:
     - secretName: bruno-site-tls
       hosts:
