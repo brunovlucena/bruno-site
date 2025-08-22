@@ -11,13 +11,9 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
-  ingressClassName: nginx
-  tls:
-    - hosts:
-        - lucena.cloud
-      secretName: bruno-site-tls
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
-    - host: lucena.cloud
+    - host: {{ .Values.domain }}
       http:
         paths:
           - path: /
