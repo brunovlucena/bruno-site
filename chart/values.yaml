@@ -70,10 +70,10 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-  tls:
-    - secretName: bruno-site-tls
-      hosts:
-        - lucena.cloud
+  # tls:
+  #   - secretName: bruno-site-tls
+  #     hosts:
+  #       - lucena.cloud
 
 autoscaling:
   enabled: true
