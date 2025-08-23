@@ -60,20 +60,11 @@ frontend:
 ingress:
   enabled: true
   className: "ngrok"
-  # annotations:
-  #   kubernetes.io/ingress.class: nginx
-  #   cert-manager.io/cluster-issuer: letsencrypt-prod
-  #   nginx.ingress.kubernetes.io/ssl-redirect: "true"
-  #   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   hosts:
     - host: lucena.cloud
       paths:
         - path: /
           pathType: Prefix
-  # tls:
-  #   - secretName: bruno-site-tls
-  #     hosts:
-  #       - lucena.cloud
 
 autoscaling:
   enabled: true
