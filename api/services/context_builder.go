@@ -339,7 +339,7 @@ func (cb *ContextBuilder) parsePostgreSQLArray(arrayStr string) []string {
 func (cb *ContextBuilder) formatContextForLLM(context *PersonalContext, query string) string {
 	var builder strings.Builder
 
-	builder.WriteString("You are Bruno's AI assistant. Answer questions about Bruno Lucena based on this information:\n\n")
+	builder.WriteString("SYSTEM: Answer questions directly with facts. NO greetings, NO introductions. Maximum 2 sentences.\n\n")
 
 	// About section
 	if context.About.Description != "" {
@@ -390,16 +390,8 @@ func (cb *ContextBuilder) formatContextForLLM(context *PersonalContext, query st
 		builder.WriteString("PROFESSIONAL EXPERIENCE:\n")
 		for _, exp := range context.Experience {
 			builder.WriteString(fmt.Sprintf("- %s at %s (%s)\n", exp.Title, exp.Company, exp.Period))
-			if exp.Description != "" {
-				// Truncate long descriptions
-				desc := exp.Description
-				if len(desc) > 300 {
-					desc = desc[:300] + "..."
-				}
-				builder.WriteString(fmt.Sprintf("  %s\n", desc))
-			}
 			if len(exp.Technologies) > 0 {
-				builder.WriteString(fmt.Sprintf("  Technologies: %s\n", strings.Join(exp.Technologies, ", ")))
+				builder.WriteString(fmt.Sprintf("  Tech: %s\n", strings.Join(exp.Technologies, ", ")))
 			}
 		}
 		builder.WriteString("\n")
@@ -410,23 +402,14 @@ func (cb *ContextBuilder) formatContextForLLM(context *PersonalContext, query st
 		builder.WriteString("KEY PROJECTS:\n")
 		for _, project := range context.Projects {
 			builder.WriteString(fmt.Sprintf("- %s (%s)\n", project.Title, project.Type))
-			builder.WriteString(fmt.Sprintf("  %s\n", project.Description))
 			if len(project.Technologies) > 0 {
-				builder.WriteString(fmt.Sprintf("  Technologies: %s\n", strings.Join(project.Technologies, ", ")))
-			}
-			if project.GithubURL != "" {
-				builder.WriteString(fmt.Sprintf("  GitHub: %s\n", project.GithubURL))
+				builder.WriteString(fmt.Sprintf("  Tech: %s\n", strings.Join(project.Technologies, ", ")))
 			}
 		}
 		builder.WriteString("\n")
 	}
 
-	builder.WriteString("INSTRUCTIONS:\n")
-	builder.WriteString("- Answer as Bruno's AI assistant in first person about Bruno\n")
-	builder.WriteString("- Be conversational, helpful, and professional\n")
-	builder.WriteString("- Use the provided data to give accurate, specific answers\n")
-	builder.WriteString("- If asked about something not in the data, say you don't have that information\n")
-	builder.WriteString("- Keep responses concise but informative\n\n")
+	builder.WriteString("CRITICAL: Keep responses SHORT and DIRECT. Maximum 2-3 sentences only.\n\n")
 
 	builder.WriteString(fmt.Sprintf("USER QUESTION: %s\n", query))
 

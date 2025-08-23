@@ -35,17 +35,27 @@ type ChatResponse struct {
 	Timestamp string   `json:"timestamp"`
 }
 
-// OllamaRequest represents request format for Ollama API
+// OllamaRequest represents request format for Ollama Chat API
 type OllamaRequest struct {
-	Model  string `json:"model"`
-	Prompt string `json:"prompt"`
-	Stream bool   `json:"stream"`
+	Model    string        `json:"model"`
+	Messages []ChatMessage `json:"messages"`
+	Stream   bool          `json:"stream"`
 }
 
-// OllamaResponse represents response format from Ollama API
+type ChatMessage struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+// OllamaResponse represents response format from Ollama Chat API
 type OllamaResponse struct {
-	Response string `json:"response"`
-	Done     bool   `json:"done"`
+	Message OllamaMessage `json:"message"`
+	Done    bool          `json:"done"`
+}
+
+type OllamaMessage struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
 }
 
 // NewLLMService creates a new LLM service
@@ -98,8 +108,17 @@ func (llm *LLMService) callOllama(prompt string) (string, error) {
 	log.Printf("🦙 Calling Ollama API at %s", llm.ollamaURL)
 
 	requestBody := OllamaRequest{
-		Model:  llm.model,
-		Prompt: prompt,
+		Model: llm.model,
+		Messages: []ChatMessage{
+			{
+				Role:    "system",
+				Content: "You are a fact-based assistant. NEVER use greetings, introductions, or pleasantries. Answer questions immediately with facts only. Maximum 2 sentences. Start directly with the answer.",
+			},
+			{
+				Role:    "user",
+				Content: prompt,
+			},
+		},
 		Stream: false,
 	}
 
@@ -109,7 +128,7 @@ func (llm *LLMService) callOllama(prompt string) (string, error) {
 	}
 
 	resp, err := llm.httpClient.Post(
-		fmt.Sprintf("%s/api/generate", llm.ollamaURL),
+		fmt.Sprintf("%s/api/chat", llm.ollamaURL),
 		"application/json",
 		bytes.NewBuffer(jsonData),
 	)
@@ -128,7 +147,12 @@ func (llm *LLMService) callOllama(prompt string) (string, error) {
 		return "", fmt.Errorf("failed to decode response: %v", err)
 	}
 
-	return strings.TrimSpace(ollamaResp.Response), nil
+	response := strings.TrimSpace(ollamaResp.Message.Content)
+
+	// Clean up any double spaces and trim
+	response = strings.TrimSpace(response)
+
+	return response, nil
 }
 
 // HealthCheck checks if Ollama service is available

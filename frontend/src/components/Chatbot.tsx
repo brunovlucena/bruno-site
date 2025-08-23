@@ -21,7 +21,7 @@ const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Hello! I\'m Bruno\'s AI assistant. How can I help you today?',
+      text: 'How can I help you today?',
       isUser: false,
       timestamp: new Date()
     }

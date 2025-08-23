@@ -164,7 +164,7 @@ export class ChatbotService {
     // Greetings
     if (this.matchesKeywords(input, ['hello', 'hi', 'hey', 'good morning', 'good afternoon'])) {
       return {
-        text: "Hello! I'm Bruno's AI assistant. I can help you learn more about his experience, projects, skills, and how to get in touch. What would you like to know?",
+        text: "I can help you learn more about Bruno's experience, projects, skills, and how to get in touch. What would you like to know?",
         suggestions: ['Tell me about his experience', 'Show me his projects', 'What are his skills?', 'How can I contact him?']
       };
     }

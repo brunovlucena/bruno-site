@@ -203,7 +203,7 @@ func setupRouter() *gin.Engine {
 	// Prometheus metrics endpoint (secured)
 	router.GET("/metrics", security.MetricsAuthMiddleware(secConfig), gin.WrapH(promhttp.Handler()))
 
-	// API routes
+	// API routes (v1)
 	api := router.Group("/api/v1")
 	{
 		// Projects
@@ -245,6 +245,56 @@ func setupRouter() *gin.Engine {
 		// 🤖 AI Chat endpoint
 		api.POST("/chat", handleChat)
 		api.GET("/chat/health", handleChatHealth)
+
+		// 📊 Analytics endpoint
+		api.POST("/analytics/track", handleAnalyticsTrack)
+	}
+
+	// Legacy API routes (for frontend compatibility)
+	legacyApi := router.Group("/api")
+	{
+		// Projects
+		legacyApi.GET("/projects", getProjects)
+		legacyApi.GET("/projects/:id", getProject)
+		legacyApi.POST("/projects", createProject)
+		legacyApi.PUT("/projects/:id", updateProject)
+		legacyApi.DELETE("/projects/:id", deleteProject)
+
+		// Skills
+		legacyApi.GET("/skills", getSkills)
+		legacyApi.GET("/skills/:id", getSkill)
+		legacyApi.POST("/skills", createSkill)
+		legacyApi.PUT("/skills/:id", updateSkill)
+		legacyApi.DELETE("/skills/:id", deleteSkill)
+
+		// Experiences
+		legacyApi.GET("/experiences", getExperiences)
+		legacyApi.GET("/experiences/:id", getExperience)
+		legacyApi.POST("/experiences", createExperience)
+		legacyApi.PUT("/experiences/:id", updateExperience)
+		legacyApi.DELETE("/experiences/:id", deleteExperience)
+
+		// Content
+		legacyApi.GET("/content", getContent)
+		legacyApi.GET("/content/:type", getContentByType)
+		legacyApi.POST("/content", createContent)
+		legacyApi.PUT("/content/:id", updateContent)
+		legacyApi.DELETE("/content/:id", deleteContent)
+
+		// About
+		legacyApi.GET("/about", getAbout)
+		legacyApi.PUT("/about", updateAbout)
+
+		// Contact
+		legacyApi.GET("/contact", getContact)
+		legacyApi.PUT("/contact", updateContact)
+
+		// 🤖 AI Chat endpoint
+		legacyApi.POST("/chat", handleChat)
+		legacyApi.GET("/chat/health", handleChatHealth)
+
+		// 📊 Analytics endpoint
+		legacyApi.POST("/analytics/track", handleAnalyticsTrack)
 	}
 
 	return router

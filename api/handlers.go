@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -812,6 +813,29 @@ func updateContact(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Contact data updated successfully"})
+}
+
+// =============================================================================
+// 📊 ANALYTICS HANDLERS
+// =============================================================================
+
+func handleAnalyticsTrack(c *gin.Context) {
+	var trackData struct {
+		ProjectID int    `json:"project_id"`
+		IP        string `json:"ip"`
+		UserAgent string `json:"user_agent"`
+		Referrer  string `json:"referrer"`
+	}
+
+	if err := c.ShouldBindJSON(&trackData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Log the analytics data (in a real implementation, you might store this in a database)
+	log.Printf("📊 Analytics: Project %d viewed from IP %s", trackData.ProjectID, trackData.IP)
+
+	c.JSON(http.StatusOK, gin.H{"status": "tracked", "project_id": trackData.ProjectID})
 }
 
 // =============================================================================
