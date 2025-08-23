@@ -204,7 +204,7 @@ func setupRouter() *gin.Engine {
 	router.GET("/metrics", security.MetricsAuthMiddleware(secConfig), gin.WrapH(promhttp.Handler()))
 
 	// API routes
-	api := router.Group("/api")
+	api := router.Group("/api/v1")
 	{
 		// Projects
 		api.GET("/projects", getProjects)
@@ -319,7 +319,7 @@ func handleChatHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":    "healthy",
 		"provider":  "ollama",
-		"model":     getEnv("GEMMA_MODEL", "gemma2:2b"),
+		"model":     getEnv("GEMMA_MODEL", "gemma3n:e4b"),
 		"timestamp": time.Now().UTC(),
 	})
 }

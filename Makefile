@@ -5,7 +5,7 @@
 ENV ?= dev
 DOCKER_COMPOSE_FILE = docker-compose.yml
 
-.PHONY: help start stop restart build build-dev build-prd logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell frontend-dev frontend-dev-stop
+.PHONY: help start stop restart build build-dev build-prd logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell frontend-dev frontend-dev-stop pf-api
 
 # Default target
 help:
@@ -35,6 +35,7 @@ help:
 	@echo "  make frontend-dev   - Run frontend in development mode (hot reload)"
 	@echo "  make frontend-dev-stop - Stop frontend dev gracefully (prevents browser flicker)"
 	@echo "  make restart-fresh  - Restart with fresh database (clean + start)"
+	@echo "  make pf-api        - Port forward API service for local testing (Kubernetes)"
 	@echo ""
 
 # Start services (development)
@@ -63,6 +64,28 @@ stop:
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) down
 	@echo "✅ Services stopped"
 
+# Show production deployment info (Kubernetes)
+start-prd:
+	@echo "🚀 Production Deployment Information (Kubernetes)"
+	@echo "================================================="
+	@echo "📋 Production deployment uses Kubernetes with Helm charts"
+	@echo "📁 Chart location: ./chart/"
+	@echo "🔧 Deployment process:"
+	@echo "  1. Ensure Kubernetes cluster is running"
+	@echo "  2. Install/update Helm chart"
+	@echo "  3. Monitor deployment status"
+	@echo ""
+	@echo "🚀 To deploy to production:"
+	@echo "  helm upgrade --install bruno-site ./chart --namespace bruno"
+	@echo ""
+	@echo "📊 To check deployment status:"
+	@echo "  kubectl get pods -n bruno"
+	@echo "  kubectl get services -n bruno"
+	@echo ""
+	@echo "🔍 To view logs:"
+	@echo "  kubectl logs -f deployment/bruno-api -n bruno"
+	@echo "  kubectl logs -f deployment/bruno-frontend -n bruno"
+
 # Restart services
 restart: stop start
 
@@ -77,6 +100,24 @@ build:
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) build
 	@echo "✅ Images built successfully"
 
+# Show production build info (Kubernetes)
+build-prd:
+	@echo "🏗️ Production Build Information (Kubernetes)"
+	@echo "============================================="
+	@echo "📋 Production deployment uses Kubernetes with Helm charts"
+	@echo "📁 Chart location: ./chart/"
+	@echo "🔧 Build process:"
+	@echo "  1. Docker images are built with production Dockerfiles"
+	@echo "  2. Images are pushed to container registry"
+	@echo "  3. Kubernetes manifests are applied via Helm"
+	@echo ""
+	@echo "📦 To build for production:"
+	@echo "  docker build -f api/Dockerfile -t your-registry/bruno-api:prd ./api"
+	@echo "  docker build -f frontend/Dockerfile -t your-registry/bruno-frontend:prd ./frontend"
+	@echo ""
+	@echo "🚀 To deploy to production:"
+	@echo "  helm upgrade --install bruno-site ./chart --namespace bruno"
+
 # Show logs from all services
 logs:
 	@echo "📋 Recent logs from all services:"
@@ -85,17 +126,17 @@ logs:
 # Show API logs
 api-logs:
 	@echo "📋 API logs:"
-	@docker logs -f api --tail=50
+	@docker logs -f bruno-api --tail=50
 
 # Show frontend logs
 frontend-logs:
 	@echo "📋 Frontend logs:"
-	@docker logs -f frontend --tail=50
+	@docker logs -f bruno-frontend --tail=50
 
 # Show database logs
 db-logs:
 	@echo "📋 Database logs:"
-	@docker logs -f postgres --tail=50
+	@docker logs -f bruno-postgres --tail=50
 
 # Show service status
 status:
@@ -118,7 +159,7 @@ clean:
 # Connect to PostgreSQL
 psql:
 	@echo "🗄️ Connecting to PostgreSQL..."
-	@docker exec -it postgres psql -U postgres -d bruno_site
+	@docker exec -it bruno-postgres psql -U postgres -d bruno_site
 
 # Run database migration
 migrate:
@@ -129,17 +170,17 @@ migrate:
 # Connect to Redis CLI
 redis-cli:
 	@echo "⚡ Connecting to Redis CLI..."
-	@docker exec -it redis redis-cli
+	@docker exec -it bruno-redis redis-cli
 
 # Open shell in API container
 api-shell:
 	@echo "🔧 Opening shell in API container..."
-	@docker exec -it api /bin/sh
+	@docker exec -it bruno-api /bin/sh
 
 # Open shell in frontend container
 frontend-shell:
 	@echo "🔧 Opening shell in frontend container..."
-	@docker exec -it frontend /bin/sh
+	@docker exec -it bruno-frontend /bin/sh
 
 # Run frontend in development mode (hot reload)
 frontend-dev:
@@ -196,6 +237,14 @@ port-forward-nginx:
 	@echo "💡 Access your site at http://localhost (port 80) or https://localhost (port 443)"
 	@echo "💡 Make sure to add 'localhost lucena.cloud' to your /etc/hosts file"
 	@kubectl port-forward --address 0.0.0.0 -n nginx-ingress svc/nginx-ingress-ingress-nginx-controller 80:80 443:443
+
+# Port forward API service for local testing
+pf-api:
+	@echo "🚪 Port forwarding API service for local testing..."
+	@echo "💡 Access API at http://localhost:8080"
+	@echo "💡 Health check: http://localhost:8080/health"
+	@echo "💡 API endpoints: http://localhost:8080/api/v1/*"
+	@kubectl port-forward --address 0.0.0.0 -n bruno svc/bruno-site-api 8080:8080
 
 # Run all tests
 test: test-api-unit test-frontend-unit test-e2e test-load

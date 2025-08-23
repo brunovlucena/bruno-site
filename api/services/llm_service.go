@@ -52,7 +52,7 @@ type OllamaResponse struct {
 func NewLLMService(db *sql.DB) *LLMService {
 	service := &LLMService{
 		ollamaURL:      getEnv("OLLAMA_URL", "http://192.168.0.3:11434"),
-		model:          getEnv("GEMMA_MODEL", "gemma2:2b"),
+		model:          getEnv("GEMMA_MODEL", "gemma3n:e4b"),
 		contextBuilder: NewContextBuilder(db),
 		httpClient: &http.Client{
 			Timeout: 60 * time.Second,

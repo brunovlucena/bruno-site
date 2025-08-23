@@ -9,6 +9,13 @@ interface Message {
   timestamp: Date;
 }
 
+interface LLMStatus {
+  status: string;
+  model?: string;
+  provider?: string;
+  error?: string;
+}
+
 const Chatbot: React.FC = () => {
   const { isOpen, closeChatbot, toggleChatbot } = useChatbot();
   const [messages, setMessages] = useState<Message[]>([
@@ -21,10 +28,24 @@ const Chatbot: React.FC = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [llmStatus, setLlmStatus] = useState<LLMStatus | null>(null);
 
   useEffect(() => {
     // Initialize the chatbot service
     ChatbotService.initialize();
+    
+    // Check LLM status
+    const checkLLMStatus = async () => {
+      try {
+        const status = await ChatbotService.getLLMStatus();
+        setLlmStatus(status);
+      } catch (error) {
+        console.error('Failed to check LLM status:', error);
+        setLlmStatus({ status: 'error', error: 'Failed to check status' });
+      }
+    };
+    
+    checkLLMStatus();
   }, []);
 
   const handleSendMessage = async () => {
@@ -94,7 +115,6 @@ const Chatbot: React.FC = () => {
       {isOpen && (
         <div className="chatbot-window">
           <div className="chatbot-header">
-            <h3>Bruno's AI Assistant</h3>
             <button
               className="chatbot-close"
               onClick={closeChatbot}

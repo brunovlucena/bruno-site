@@ -19,16 +19,17 @@ The new chatbot uses a **RAG (Retrieval-Augmented Generation)** approach:
 # 1. Install Ollama
 curl -fsSL https://ollama.ai/install.sh | sh
 
-# 2. Pull Gemma3 model (choose one based on your hardware)
-ollama pull gemma2:2b    # Lightweight (2GB RAM)
-ollama pull gemma2:9b    # Better quality (8GB RAM)
-ollama pull gemma2:27b   # Best quality (16GB+ RAM)
+# 2. Pull Gemma3n model (choose one based on your hardware)
+ollama pull gemma3n:e4b  # Lightweight (4GB RAM) - Recommended
+ollama pull gemma3n:e8b  # Better quality (8GB RAM)
+ollama pull gemma3n:e12b # Best quality (12GB+ RAM)
 
 # 3. Start Ollama (runs on port 11434)
-ollama serve
+# Note: Ollama server should be running on 192.168.0.3:11434
+ollama serve --host 0.0.0.0:11434
 
 # 4. Test the model
-ollama run gemma2:2b
+ollama run gemma3n:e4b
 ```
 
 ## ⚙️ Environment Configuration
@@ -38,7 +39,7 @@ Add these environment variables to your `.env` file:
 ```bash
 # LLM Configuration
 OLLAMA_URL=http://192.168.0.3:11434
-GEMMA_MODEL=gemma2:2b           # or gemma2:9b, gemma2:27b
+GEMMA_MODEL=gemma3n:e4b         # or gemma3n:e8b, gemma3n:e12b
 ```
 
 ## 🔧 Backend Changes Made
@@ -77,7 +78,7 @@ Expected response:
 {
   "status": "healthy",
   "provider": "ollama",
-  "model": "gemma2:2b",
+  "model": "gemma3n:e4b",
   "timestamp": "2024-01-01T12:00:00Z"
 }
 ```
@@ -94,7 +95,7 @@ Expected response:
 {
   "response": "Bruno has extensive experience with Kubernetes...",
   "sources": ["PostgreSQL Database"],
-  "model": "gemma2:2b",
+  "model": "gemma3n:e4b",
   "timestamp": "2024-01-01T12:00:00Z"
 }
 ```
@@ -124,7 +125,7 @@ Expected response:
    USER QUESTION: [user's question]
    ```
 
-4. **LLM Processing**: Sends formatted prompt to Gemma3
+4. **LLM Processing**: Sends formatted prompt to Gemma3n
 5. **Response Generation**: Returns natural language response
 
 ### Fallback Strategy:
@@ -148,7 +149,7 @@ Expected response:
 
 3. **"LLM request timeout"**
    - Model might be too large for your hardware
-   - Try a smaller model (gemma2:2b instead of gemma2:9b)
+   - Try a smaller model (gemma3n:e4b instead of gemma3n:e8b)
 
 ### Debug Commands:
 
@@ -182,9 +183,9 @@ npm run dev
 ## 📊 Performance Considerations
 
 ### Model Selection:
-- **gemma2:2b**: Fast, low memory (2GB), good for development
-- **gemma2:9b**: Balanced performance and quality (8GB)
-- **gemma2:27b**: Best quality but requires 16GB+ RAM
+- **gemma3n:e4b**: Fast, low memory (4GB), good for development
+- **gemma3n:e8b**: Balanced performance and quality (8GB)
+- **gemma3n:e12b**: Best quality but requires 12GB+ RAM
 
 ### Optimization Tips:
 - Use Redis caching for frequent queries
@@ -207,4 +208,4 @@ Users can now ask natural questions like:
 - "Has he worked with Kubernetes in production?"
 - "What's his background in AI/ML?"
 
-The chatbot will provide detailed, contextual responses based on real data from your PostgreSQL database, powered by Gemma3's natural language understanding.
+The chatbot will provide detailed, contextual responses based on real data from your PostgreSQL database, powered by Gemma3n's natural language understanding.

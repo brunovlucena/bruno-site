@@ -98,13 +98,16 @@ export class ChatbotService {
           }
         };
       } catch (error) {
-        console.error('❌ LLM processing failed, falling back to rule-based:', error);
-        // Fall back to rule-based responses
-        return this.processWithRules(input);
+        console.error('❌ LLM processing failed:', error);
+        // Return error message instead of falling back to rule-based
+        return {
+          text: "I'm sorry, but the AI service is currently unavailable. The LLM model (Gemma3n:e4b) is not responding. Please try again later or contact Bruno directly for assistance.",
+          suggestions: ['Try again', 'Contact Bruno directly', 'Check back later']
+        };
       }
     }
     
-    // Use rule-based responses
+    // Use rule-based responses only when explicitly disabled
     return this.processWithRules(input);
   }
 
@@ -344,7 +347,13 @@ export class ChatbotService {
     try {
       const response = await fetch('/api/chat/health');
       const data = await response.json();
-      return response.ok && data.status === 'healthy';
+      const isHealthy = response.ok && data.status === 'healthy';
+      
+      if (!isHealthy) {
+        console.warn('⚠️ LLM health check failed:', data);
+      }
+      
+      return isHealthy;
     } catch (error) {
       console.error('❌ LLM health check failed:', error);
       return false;
@@ -355,10 +364,27 @@ export class ChatbotService {
   async getLLMStatus(): Promise<any> {
     try {
       const response = await fetch('/api/chat/health');
-      return await response.json();
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.warn('⚠️ LLM status check failed:', data);
+        return {
+          status: 'unhealthy',
+          error: data.error || 'Unknown error',
+          model: 'gemma3n:e4b',
+          provider: 'ollama'
+        };
+      }
+      
+      return data;
     } catch (error) {
       console.error('❌ Failed to get LLM status:', error);
-      return { status: 'error', error: error.message };
+      return { 
+        status: 'error', 
+        error: error.message,
+        model: 'gemma3n:e4b',
+        provider: 'ollama'
+      };
     }
   }
 }

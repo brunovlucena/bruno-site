@@ -2123,8 +2123,54 @@ a:focus {
     padding: 16px 20px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    min-height: 64px;
+    justify-content: flex-end;
+    min-height: 48px;
+}
+
+.chatbot-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.chatbot-title h3 {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.llm-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.llm-status.healthy {
+    color: #10b981;
+}
+
+.llm-status.unhealthy,
+.llm-status.error {
+    color: #ef4444;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.status-text {
+    font-weight: 500;
+}
+
+.model-info {
+    color: var(--text-secondary);
+    font-size: 0.7rem;
 }
 
 .chatbot-header-content {
