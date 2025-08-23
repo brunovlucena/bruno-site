@@ -26,6 +26,9 @@ import (
 
 	// 🔒 Security package
 	"bruno-api/security"
+
+	// 🤖 LLM services
+	"bruno-api/services"
 )
 
 // =============================================================================
@@ -36,6 +39,7 @@ var (
 	db          *sql.DB
 	redisClient *redis.Client
 	secConfig   security.SecurityConfig
+	llmService  *services.LLMService
 )
 
 // =============================================================================
@@ -62,6 +66,9 @@ func main() {
 
 	// Initialize security configuration
 	initSecurityConfig()
+
+	// Initialize LLM service
+	initLLMService()
 
 	// Initialize OpenTelemetry (if enabled)
 	initTracing()
@@ -140,6 +147,18 @@ func initSecurityConfig() {
 	}
 
 	log.Println("🔒 Security configuration initialized")
+}
+
+func initLLMService() {
+	llmService = services.NewLLMService(db)
+
+	// Test LLM service health
+	if err := llmService.HealthCheck(); err != nil {
+		log.Printf("⚠️ LLM service health check failed: %v", err)
+		log.Println("💡 Make sure Ollama is running and the model is available")
+	} else {
+		log.Println("🤖 LLM service initialized and healthy")
+	}
 }
 
 func initTracing() {
@@ -222,6 +241,10 @@ func setupRouter() *gin.Engine {
 		// Contact
 		api.GET("/contact", getContact)
 		api.PUT("/contact", updateContact)
+
+		// 🤖 AI Chat endpoint
+		api.POST("/chat", handleChat)
+		api.GET("/chat/health", handleChatHealth)
 	}
 
 	return router
@@ -243,5 +266,60 @@ func healthCheck(c *gin.Context) {
 		"status":    "healthy",
 		"timestamp": time.Now().UTC(),
 		"service":   "bruno-api",
+	})
+}
+
+// =============================================================================
+// 🤖 CHAT HANDLERS
+// =============================================================================
+
+func handleChat(c *gin.Context) {
+	var request services.ChatRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid request format",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	// Validate message is not empty
+	if strings.TrimSpace(request.Message) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Message cannot be empty",
+		})
+		return
+	}
+
+	// Process chat request
+	response, err := llmService.ProcessChat(request)
+	if err != nil {
+		log.Printf("❌ Chat processing error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to process chat request",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func handleChatHealth(c *gin.Context) {
+	if err := llmService.HealthCheck(); err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"status":    "unhealthy",
+			"error":     err.Error(),
+			"timestamp": time.Now().UTC(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "healthy",
+		"provider":  "ollama",
+		"model":     getEnv("GEMMA_MODEL", "gemma2:2b"),
+		"timestamp": time.Now().UTC(),
 	})
 }
