@@ -71,8 +71,7 @@ func (llm *LLMService) ProcessChat(request ChatRequest) (*ChatResponse, error) {
 	context, err := llm.contextBuilder.BuildContext(request.Message)
 	if err != nil {
 		log.Printf("⚠️ Error building context: %v", err)
-		// Continue with basic context
-		context = llm.getFallbackContext()
+		return nil, fmt.Errorf("failed to build context: %v", err)
 	}
 
 	// Generate response using Ollama
@@ -121,7 +120,7 @@ func (llm *LLMService) callOllama(prompt string) (string, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("Ollama API error (status %d): %s", resp.StatusCode, string(body))
+		return "", fmt.Errorf("ollama API error (status %d): %s", resp.StatusCode, string(body))
 	}
 
 	var ollamaResp OllamaResponse
@@ -132,74 +131,16 @@ func (llm *LLMService) callOllama(prompt string) (string, error) {
 	return strings.TrimSpace(ollamaResp.Response), nil
 }
 
-// getFallbackContext provides basic context when database query fails
-func (llm *LLMService) getFallbackContext() string {
-	return `You are Bruno's AI assistant. Answer questions about Bruno Lucena based on this information:
-
-ABOUT BRUNO:
-Senior Cloud Native Infrastructure Engineer with extensive experience in designing, implementing, and maintaining scalable, resilient cloud-native infrastructure. Passionate about automation, observability, and modern DevOps practices.
-
-KEY SKILLS:
-- Cloud Platforms: AWS, GCP, Azure
-- Container Orchestration: Kubernetes, Docker
-- Infrastructure as Code: Terraform, Pulumi
-- Programming: Go, Python, TypeScript
-- Observability: Prometheus, Grafana, Loki
-- DevOps: CI/CD, GitOps, SRE practices
-
-CURRENT ROLE:
-SRE/DevOps at Notifi (2023-present) - Architecting cloud-native infrastructure, implementing observability solutions, and building serverless applications.
-
-CONTACT:
-- Email: bruno@lucena.cloud
-- Location: Brazil
-- LinkedIn: https://www.linkedin.com/in/bvlucena
-- GitHub: https://github.com/brunovlucena
-
-INSTRUCTIONS:
-- Answer as Bruno's AI assistant in first person about Bruno
-- Be conversational, helpful, and professional
-- Use the provided data to give accurate answers
-- Keep responses concise but informative
-
-USER QUESTION: `
-}
-
-// Health check for LLM service
+// HealthCheck checks if Ollama service is available
 func (llm *LLMService) HealthCheck() error {
-	switch strings.ToLower(llm.provider) {
-	case "ollama":
-		return llm.checkOllamaHealth()
-	case "lmstudio":
-		return llm.checkLMStudioHealth()
-	default:
-		return fmt.Errorf("unsupported provider: %s", llm.provider)
-	}
-}
-
-func (llm *LLMService) checkOllamaHealth() error {
 	resp, err := llm.httpClient.Get(fmt.Sprintf("%s/api/tags", llm.ollamaURL))
 	if err != nil {
-		return fmt.Errorf("Ollama health check failed: %v", err)
+		return fmt.Errorf("ollama health check failed: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Ollama health check failed with status: %d", resp.StatusCode)
-	}
-
-	return nil
-}
-
-func (llm *LLMService) checkLMStudioHealth() error {
-	resp, err := llm.httpClient.Get(fmt.Sprintf("%s/v1/models", llm.lmstudioURL))
-	if err != nil {
-		return fmt.Errorf("LMStudio health check failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("LMStudio health check failed with status: %d", resp.StatusCode)
+		return fmt.Errorf("ollama health check failed with status: %d", resp.StatusCode)
 	}
 
 	return nil
