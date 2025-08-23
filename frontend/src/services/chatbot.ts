@@ -7,12 +7,25 @@ export interface ChatbotResponse {
   data?: any;
 }
 
+export interface LLMChatRequest {
+  message: string;
+  context?: string;
+}
+
+export interface LLMChatResponse {
+  response: string;
+  sources?: string[];
+  model: string;
+  timestamp: string;
+}
+
 export class ChatbotService {
   private static instance: ChatbotService;
   private projects: any[] = [];
   private skills: any[] = [];
   private experience: any[] = [];
   private about: any = null;
+  private useLLM: boolean = true; // Toggle between LLM and rule-based responses
 
   private constructor() {}
 
@@ -69,22 +82,67 @@ export class ChatbotService {
 
   async processMessage(userInput: string): Promise<ChatbotResponse> {
     const input = userInput.toLowerCase().trim();
+
+    // Use LLM for responses if enabled
+    if (this.useLLM) {
+      try {
+        console.log('🤖 Using LLM for response generation...');
+        const llmResponse = await this.processWithLLM(userInput);
+        return {
+          text: llmResponse.response,
+          suggestions: this.getContextualSuggestions(input),
+          data: {
+            model: llmResponse.model,
+            timestamp: llmResponse.timestamp,
+            sources: llmResponse.sources
+          }
+        };
+      } catch (error) {
+        console.error('❌ LLM processing failed, falling back to rule-based:', error);
+        // Fall back to rule-based responses
+        return this.processWithRules(input);
+      }
+    }
     
+    // Use rule-based responses
+    return this.processWithRules(input);
+  }
+
+  private async processWithLLM(userInput: string): Promise<LLMChatResponse> {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: userInput
+      } as LLMChatRequest),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(`LLM API error: ${errorData.error || response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  private processWithRules(input: string): ChatbotResponse {
     // Experience and work history
     if (this.matchesKeywords(input, ['experience', 'work', 'job', 'career', 'background'])) {
       return this.handleExperienceQuery(input);
     }
-    
+
     // Projects
     if (this.matchesKeywords(input, ['project', 'work', 'site', 'github'])) {
       return this.handleProjectsQuery(input);
     }
-    
+
     // Skills and technologies
     if (this.matchesKeywords(input, ['skill', 'technology', 'tech', 'stack', 'tools', 'languages'])) {
       return this.handleSkillsQuery(input);
     }
-    
+
     // Contact information
     if (this.matchesKeywords(input, ['contact', 'email', 'reach', 'get in touch', 'hire', 'available'])) {
       return this.handleContactQuery(input);
@@ -230,6 +288,78 @@ export class ChatbotService {
       'How can I contact him?',
       'Tell me about his background'
     ];
+  }
+
+  private getContextualSuggestions(input: string): string[] {
+    // Return contextual suggestions based on the input
+    if (this.matchesKeywords(input, ['experience', 'work', 'job'])) {
+      return [
+        'What companies has he worked for?',
+        'Tell me about his current role',
+        'What are his key achievements?'
+      ];
+    }
+
+    if (this.matchesKeywords(input, ['skills', 'technology', 'tech'])) {
+      return [
+        'What cloud platforms does he use?',
+        'Tell me about his programming skills',
+        'What DevOps tools does he know?'
+      ];
+    }
+
+    if (this.matchesKeywords(input, ['projects', 'github', 'work'])) {
+      return [
+        'Show me his featured projects',
+        'What technologies does he use?',
+        'Tell me about Bruno Site project'
+      ];
+    }
+
+    if (this.matchesKeywords(input, ['contact', 'hire', 'available'])) {
+      return [
+        'Is he available for new opportunities?',
+        'How can I reach him?',
+        'What\'s his LinkedIn profile?'
+      ];
+    }
+
+    // Default suggestions
+    return [
+      'Tell me about his experience',
+      'What are his skills?',
+      'Show me his projects',
+      'How can I contact him?'
+    ];
+  }
+
+  // Method to toggle between LLM and rule-based responses
+  setUseLLM(useLLM: boolean): void {
+    this.useLLM = useLLM;
+    console.log(`🔄 Chatbot mode switched to: ${useLLM ? 'LLM' : 'Rule-based'}`);
+  }
+
+  // Method to check LLM health
+  async checkLLMHealth(): Promise<boolean> {
+    try {
+      const response = await fetch('/api/chat/health');
+      const data = await response.json();
+      return response.ok && data.status === 'healthy';
+    } catch (error) {
+      console.error('❌ LLM health check failed:', error);
+      return false;
+    }
+  }
+
+  // Method to get LLM status
+  async getLLMStatus(): Promise<any> {
+    try {
+      const response = await fetch('/api/chat/health');
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to get LLM status:', error);
+      return { status: 'error', error: error.message };
+    }
   }
 }
 
