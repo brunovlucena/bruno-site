@@ -157,6 +157,12 @@ func (cb *ContextBuilder) containsKeywords(query string, keywords []string) bool
 // Data retrieval methods
 func (cb *ContextBuilder) getAboutInfo() (AboutInfo, error) {
 	var about AboutInfo
+
+	// Check if database connection is available
+	if cb.db == nil {
+		return about, fmt.Errorf("database connection not available")
+	}
+
 	var valueJSON string
 
 	err := cb.db.QueryRow("SELECT value FROM content WHERE key = 'about'").Scan(&valueJSON)
@@ -178,6 +184,12 @@ func (cb *ContextBuilder) getAboutInfo() (AboutInfo, error) {
 
 func (cb *ContextBuilder) getContactInfo() (ContactInfo, error) {
 	var contact ContactInfo
+
+	// Check if database connection is available
+	if cb.db == nil {
+		return contact, fmt.Errorf("database connection not available")
+	}
+
 	var valueJSON string
 
 	err := cb.db.QueryRow("SELECT value FROM content WHERE key = 'contact'").Scan(&valueJSON)
@@ -212,6 +224,11 @@ func (cb *ContextBuilder) getContactInfo() (ContactInfo, error) {
 func (cb *ContextBuilder) getRelevantSkills(query string) ([]SkillInfo, error) {
 	var skills []SkillInfo
 
+	// Check if database connection is available
+	if cb.db == nil {
+		return skills, fmt.Errorf("database connection not available")
+	}
+
 	// Get all active skills, ordered by proficiency and category
 	rows, err := cb.db.Query(`
 		SELECT name, category, proficiency 
@@ -239,6 +256,11 @@ func (cb *ContextBuilder) getRelevantSkills(query string) ([]SkillInfo, error) {
 
 func (cb *ContextBuilder) getRelevantExperience(query string) ([]ExpInfo, error) {
 	var experiences []ExpInfo
+
+	// Check if database connection is available
+	if cb.db == nil {
+		return experiences, fmt.Errorf("database connection not available")
+	}
 
 	rows, err := cb.db.Query(`
 		SELECT title, company, 
@@ -278,6 +300,11 @@ func (cb *ContextBuilder) getRelevantExperience(query string) ([]ExpInfo, error)
 
 func (cb *ContextBuilder) getRelevantProjects(query string) ([]ProjectInfo, error) {
 	var projects []ProjectInfo
+
+	// Check if database connection is available
+	if cb.db == nil {
+		return projects, fmt.Errorf("database connection not available")
+	}
 
 	rows, err := cb.db.Query(`
 		SELECT title, description, type, github_url, live_url, technologies, featured

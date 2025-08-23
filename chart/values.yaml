@@ -26,7 +26,7 @@ securityContext: {}
 api:
   image:
     repository: ghcr.io/brunovlucena/bruno-site/api
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     tag: "latest"
   service:
     type: ClusterIP
@@ -43,7 +43,7 @@ api:
 frontend:
   image:
     repository: ghcr.io/brunovlucena/bruno-site/frontend
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     tag: "latest"
   service:
     type: ClusterIP

@@ -6,7 +6,7 @@ ENV ?= dev
 DOCKER_COMPOSE_FILE = docker-compose.yml
 REGISTRY ?= ghcr.io/brunovlucena/bruno-site
 
-.PHONY: help start stop restart build build-push logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell frontend-dev migrate test-api test-api-unit test-frontend-unit test-e2e test-load test-coverage update-deps format lint pf-api pf-redis pf-postgres tp-intercept tp-intercept-with-mounts tp-stop tp-connect tp-disconnect tp-status tp-list restart-fresh
+.PHONY: help start stop restart build build-push logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell frontend-dev migrate test-api test-api-unit test-frontend-unit test-e2e test-load test-coverage update-deps format lint pf-api pf-redis pf-postgres tp-intercept tp-intercept-with-mounts tp-stop tp-connect tp-disconnect tp-status tp-list restart-fresh reconcile
 
 # Default target
 help:
@@ -41,6 +41,7 @@ help:
 	@echo "  make tp-disconnect - Disconnect from Kubernetes cluster"
 	@echo "  make tp-status     - Show Telepresence status"
 	@echo "  make tp-list       - List active intercepts"
+	@echo "  make reconcile     - Reconcile Flux HelmRelease for bruno-site"
 	@echo "  make test-api      - Test API endpoints"
 	@echo "  make test          - Run all tests"
 	@echo "  make format        - Format code"
@@ -87,26 +88,25 @@ build:
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) build
 	@echo "✅ Images built successfully"
 
-# Build and push images to registry
+# Build and push images to registry (latest tag only)
 build-push:
 	@echo "🏗️ Building and pushing Docker images..."
 	@echo "Environment: $(ENV)"
 	@echo "Registry: $(REGISTRY)"
-	@$(eval TAG := $(if $(filter prd,$(ENV)),prd,dev))
-	@echo "Tag: $(TAG)"
+	@echo "Tag: latest"
 	@echo "📦 Building API image..."
-	@docker build -t $(REGISTRY)/api:$(TAG) ./api
+	@docker build -t $(REGISTRY)/api:latest ./api
 	@echo "📦 Building Frontend image..."
 	@cp frontend/Dockerfile frontend/Dockerfile.temp
-	@docker build -t $(REGISTRY)/frontend:$(TAG) ./frontend
+	@docker build -t $(REGISTRY)/frontend:latest ./frontend
 	@mv frontend/Dockerfile.temp frontend/Dockerfile
 	@echo "🚀 Pushing images to registry..."
-	@docker push $(REGISTRY)/api:$(TAG)
-	@docker push $(REGISTRY)/frontend:$(TAG)
+	@docker push $(REGISTRY)/api:latest
+	@docker push $(REGISTRY)/frontend:latest
 	@echo "✅ Images built and pushed successfully!"
 	@echo "📋 Pushed images:"
-	@echo "  API: $(REGISTRY)/api:$(TAG)"
-	@echo "  Frontend: $(REGISTRY)/frontend:$(TAG)"
+	@echo "  API: $(REGISTRY)/api:latest"
+	@echo "  Frontend: $(REGISTRY)/frontend:latest"
 
 # Show logs from all services
 logs:
@@ -253,6 +253,15 @@ tp-status:
 tp-list:
 	@echo "📋 Active Telepresence intercepts:"
 	@telepresence list
+
+# Reconcile Flux HelmRelease for bruno-site
+reconcile:
+	@echo "🔄 Reconciling Flux Git source for bruno-site..."
+	@flux reconcile source git bruno-site -n flux-system
+	@echo "✅ Git source reconciliation completed"
+	@echo "🔄 Reconciling Flux HelmRelease for bruno-site..."
+	@flux reconcile helmrelease bruno-site -n bruno
+	@echo "✅ HelmRelease reconciliation completed"
 
 # Test API endpoints
 test-api:
