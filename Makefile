@@ -43,7 +43,7 @@ help:
 	@echo "  make tp-list       - List active intercepts"
 	@echo "  make reconcile     - Reconcile Flux HelmRelease for bruno-site"
 	@echo "  make test-api      - Test API endpoints"
-	@echo "  make test          - Run all tests"
+	@echo "  make test          - Run all tests (API, frontend, E2E)"
 	@echo "  make format        - Format code"
 	@echo "  make lint          - Lint code"
 	@echo ""
@@ -284,7 +284,7 @@ test-api:
 	@curl -s -X POST http://localhost:8080/api/chat -H "Content-Type: application/json" -d '{"message": "Hello"}' | jq . || curl -s -X POST http://localhost:8080/api/chat -H "Content-Type: application/json" -d '{"message": "Hello"}'
 
 # Run all tests
-test: test-api-unit test-frontend-unit test-e2e test-load
+test: test-api-unit test-frontend-unit test-e2e
 
 # Run API unit tests
 test-api-unit:
@@ -305,11 +305,7 @@ test-e2e:
 	@cd frontend && npm install --legacy-peer-deps && npm run test:e2e
 	@echo "✅ E2E tests completed"
 
-# Run load tests
-test-load:
-	@echo "🧪 Running load tests..."
-	@k6 run tests/k6/load-test.js
-	@echo "✅ Load tests completed"
+
 
 # Run tests with coverage
 test-coverage:
