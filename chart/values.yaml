@@ -139,3 +139,17 @@ redis:
 secrets:
   databasePassword: "bruno123"
   redisPassword: ""
+
+# K6 Load Testing Configuration
+k6:
+  enabled: false  # Set to true to enable load testing
+  parallelism: 1
+  arguments: "--out json=results.json --tag test_type=bruno-site --tag scenario=api_load_test"
+  runner:
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi

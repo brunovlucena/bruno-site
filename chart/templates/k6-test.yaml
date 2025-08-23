@@ -1,0 +1,26 @@
+{{- if .Values.k6.enabled }}
+apiVersion: k6.io/v1alpha1
+kind: TestRun
+metadata:
+  name: {{ include "bruno-site.fullname" . }}-load-test
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "bruno-site.labels" . | nindent 4 }}
+    app.kubernetes.io/component: load-test
+spec:
+  parallelism: {{ .Values.k6.parallelism | default 1 }}
+  arguments: {{ .Values.k6.arguments | default "--out json=results.json" }}
+  runner:
+    image: grafana/k6:latest
+    env:
+      - name: TARGET_URL
+        value: "http://{{ include "bruno-site.fullname" . }}-api.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.api.service.port | default 8080 }}"
+    {{- with .Values.k6.runner.resources }}
+    resources:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  script:
+    configMap:
+      name: {{ include "bruno-site.fullname" . }}-k6-test
+      file: load-test.js
+{{- end }}

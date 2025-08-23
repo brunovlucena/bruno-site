@@ -1,0 +1,148 @@
+{{- if .Values.k6.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "bruno-site.fullname" . }}-k6-test
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "bruno-site.labels" . | nindent 4 }}
+    app.kubernetes.io/component: load-test
+data:
+  load-test.js: |
+    import http from 'k6/http';
+    import { check, sleep } from 'k6';
+    import { Rate } from 'k6/metrics';
+
+    // Custom metrics
+    const errorRate = new Rate('errors');
+
+    export const options = {
+      stages: [
+        { duration: '20s', target: 3 },   // Ramp up to 3 users
+        { duration: '40s', target: 3 },    // Stay at 3 users
+        { duration: '20s', target: 0 },    // Ramp down to 0 users
+      ],
+      thresholds: {
+        http_req_duration: ['p(95)<800'], // 95% of requests must complete below 800ms
+        http_req_failed: ['rate<0.15'],   // Error rate must be less than 15%
+        'errors': ['rate<0.1'],           // Custom error rate
+      },
+    };
+
+    const BASE_URL = __ENV.TARGET_URL || 'http://localhost:8080';
+
+    export default function () {
+      const params = {
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'K6-Load-Test/1.0',
+        },
+        timeout: '10s',
+      };
+
+      // Test 1: Health Check (Critical)
+      const healthResponse = http.get(`${BASE_URL}/health`, params);
+      const healthCheck = check(healthResponse, {
+        'health check status is 200': (r) => r.status === 200,
+        'health check response time < 300ms': (r) => r.timings.duration < 300,
+        'health check has valid JSON': (r) => {
+          try {
+            JSON.parse(r.body);
+            return true;
+          } catch (e) {
+            return false;
+          }
+        },
+      });
+      errorRate.add(!healthCheck);
+
+      // Test 2: Metrics Endpoint (Monitoring)
+      const metricsResponse = http.get(`${BASE_URL}/metrics`, params);
+      const metricsCheck = check(metricsResponse, {
+        'metrics status is 200': (r) => r.status === 200,
+        'metrics response time < 500ms': (r) => r.timings.duration < 500,
+        'metrics contains prometheus data': (r) => r.body.includes('# HELP'),
+      });
+      errorRate.add(!metricsCheck);
+
+      // Test 3: API Endpoints (Core Functionality)
+      const endpoints = [
+        '/api/v1/projects',
+        '/api/about', 
+        '/api/contact',
+        '/api/skills',
+        '/api/experience'
+      ];
+
+      endpoints.forEach(endpoint => {
+        const response = http.get(`${BASE_URL}${endpoint}`, params);
+        const endpointCheck = check(response, {
+          [`${endpoint} status is 200`]: (r) => r.status === 200,
+          [`${endpoint} response time < 600ms`]: (r) => r.timings.duration < 600,
+          [`${endpoint} has valid JSON`]: (r) => {
+            try {
+              JSON.parse(r.body);
+              return true;
+            } catch (e) {
+              return false;
+            }
+          },
+        });
+        errorRate.add(!endpointCheck);
+      });
+
+      // Test 4: Chat API (AI Functionality)
+      const chatMessages = [
+        'Hello, how are you?',
+        'Tell me about your projects',
+        'What technologies do you use?',
+        'Can you help me with DevOps?'
+      ];
+
+      const randomMessage = chatMessages[Math.floor(Math.random() * chatMessages.length)];
+      const chatPayload = JSON.stringify({
+        message: randomMessage,
+        context: 'load-test'
+      });
+
+      const chatResponse = http.post(`${BASE_URL}/api/chat`, chatPayload, params);
+      const chatCheck = check(chatResponse, {
+        'chat status is 200': (r) => r.status === 200,
+        'chat response time < 3000ms': (r) => r.timings.duration < 3000,
+        'chat has valid JSON': (r) => {
+          try {
+            const data = JSON.parse(r.body);
+            return data.response && data.model;
+          } catch (e) {
+            return false;
+          }
+        },
+        'chat has AI response': (r) => {
+          try {
+            const data = JSON.parse(r.body);
+            return data.response && data.response.length > 10;
+          } catch (e) {
+            return false;
+          }
+        },
+      });
+      errorRate.add(!chatCheck);
+
+      // Test 5: Analytics Tracking (Optional)
+      const analyticsPayload = JSON.stringify({
+        project_id: Math.floor(Math.random() * 10) + 1,
+        user_agent: 'K6-Load-Test',
+        timestamp: new Date().toISOString()
+      });
+
+      const analyticsResponse = http.post(`${BASE_URL}/api/v1/analytics/track`, analyticsPayload, params);
+      const analyticsCheck = check(analyticsResponse, {
+        'analytics status is 200 or 201': (r) => r.status === 200 || r.status === 201,
+        'analytics response time < 400ms': (r) => r.timings.duration < 400,
+      });
+      errorRate.add(!analyticsCheck);
+
+      // Random sleep between requests to simulate real user behavior
+      sleep(Math.random() * 2 + 1);
+    }
+{{- end }}
