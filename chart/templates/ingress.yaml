@@ -3,6 +3,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "bruno-site.fullname" . }}
+  namespace: ngrok-operator
   labels:
     {{- include "bruno-site.labels" . | nindent 4 }}
 spec:
