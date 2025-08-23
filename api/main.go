@@ -91,7 +91,7 @@ func main() {
 // =============================================================================
 
 func initDatabase() error {
-	connStr := getEnv("DATABASE_URL", "postgres://bruno:bruno@localhost:5432/bruno?sslmode=disable")
+	connStr := getEnv("DATABASE_URL", "postgresql://postgres:secure-password@localhost:5432/bruno_site?sslmode=disable")
 
 	var err error
 	db, err = sql.Open("postgres", connStr)

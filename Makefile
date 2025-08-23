@@ -5,7 +5,7 @@
 ENV ?= dev
 DOCKER_COMPOSE_FILE = docker-compose.yml
 
-.PHONY: help start stop restart build build-dev build-prd logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell frontend-dev frontend-dev-stop pf-api
+.PHONY: help start stop restart build build-dev build-prd logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell frontend-dev frontend-dev-stop pf-api run-api tp-api tp-connect tp-disconnect tp-status
 
 # Default target
 help:
@@ -36,6 +36,11 @@ help:
 	@echo "  make frontend-dev-stop - Stop frontend dev gracefully (prevents browser flicker)"
 	@echo "  make restart-fresh  - Restart with fresh database (clean + start)"
 	@echo "  make pf-api        - Port forward API service for local testing (Kubernetes)"
+	@echo "  make run-api       - Run API server locally for development"
+	@echo "  make tp-connect    - Connect to Kubernetes cluster with Telepresence"
+	@echo "  make tp-api        - Intercept API service for local development"
+	@echo "  make tp-disconnect - Disconnect from Kubernetes cluster"
+	@echo "  make tp-status     - Show Telepresence status"
 	@echo ""
 
 # Start services (development)
@@ -245,6 +250,51 @@ pf-api:
 	@echo "💡 Health check: http://localhost:8080/health"
 	@echo "💡 API endpoints: http://localhost:8080/api/v1/*"
 	@kubectl port-forward --address 0.0.0.0 -n bruno svc/bruno-site-api 8080:8080
+
+# Port forward Redis service for local testing
+pf-redis:
+	@echo "🔴 Port forwarding Redis service for local testing..."
+	@echo "💡 Access Redis at localhost:6379"
+	@kubectl port-forward --address 0.0.0.0 -n bruno svc/bruno-site-redis 6379:6379
+
+# Port forward both database services for local testing
+pf-db:
+	@echo "🗄️ Port forwarding database services for local testing..."
+	@echo "💡 PostgreSQL: localhost:5432 (bruno_site/postgres/secure-password)"
+	@echo "💡 Redis: localhost:6379"
+	@kubectl port-forward --address 0.0.0.0 -n bruno svc/bruno-site-postgres 5432:5432 & \
+	kubectl port-forward --address 0.0.0.0 -n bruno svc/bruno-site-redis 6379:6379 & \
+	wait
+
+# Run API locally for development
+run-api:
+	@echo "🚀 Starting API server locally..."
+	@echo "💡 API will be available at http://localhost:8080"
+	@echo "💡 Press Ctrl+C to stop the API server"
+	@cd api && go run .
+
+# Telepresence intercept API for local development
+tp-api:
+	@echo "🔗 Setting up Telepresence intercept for API development..."
+	@echo "💡 This will route traffic from K8s to your local API"
+	@echo "💡 Make sure your API is running locally first (make run-api)"
+	@echo "💡 Press Ctrl+C to stop Telepresence intercept"
+	@telepresence intercept --file .telepresence.yaml
+
+# Telepresence connect to cluster
+tp-connect:
+	@echo "🔗 Connecting to Kubernetes cluster with Telepresence..."
+	@telepresence connect
+
+# Telepresence disconnect from cluster
+tp-disconnect:
+	@echo "🔗 Disconnecting from Kubernetes cluster..."
+	@telepresence disconnect
+
+# Telepresence status
+tp-status:
+	@echo "📊 Telepresence status:"
+	@telepresence status
 
 # Run all tests
 test: test-api-unit test-frontend-unit test-e2e test-load
