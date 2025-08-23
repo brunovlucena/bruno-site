@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient, Project, Skill, Experience, AboutData, ContactData, Content } from '../services/api'
 
 // =============================================================================
@@ -6,14 +6,18 @@ import { apiClient, Project, Skill, Experience, AboutData, ContactData, Content 
 // =============================================================================
 
 export const useProjects = () => {
-  return useQuery('projects', apiClient.getProjects, {
+  return useQuery({
+    queryKey: ['projects'],
+    queryFn: apiClient.getProjects,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   })
 }
 
 export const useProject = (id: number) => {
-  return useQuery(['project', id], () => apiClient.getProject(id), {
+  return useQuery({
+    queryKey: ['project', id],
+    queryFn: () => apiClient.getProject(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
   })
@@ -22,9 +26,10 @@ export const useProject = (id: number) => {
 export const useCreateProject = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(apiClient.createProject, {
+  return useMutation({
+    mutationFn: apiClient.createProject,
     onSuccess: () => {
-      queryClient.invalidateQueries('projects')
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
     },
   })
 }
@@ -32,24 +37,23 @@ export const useCreateProject = () => {
 export const useUpdateProject = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(
-    ({ id, project }: { id: number; project: Partial<Project> }) =>
+  return useMutation({
+    mutationFn: ({ id, project }: { id: number; project: Partial<Project> }) =>
       apiClient.updateProject(id, project),
-    {
-      onSuccess: (_, { id }) => {
-        queryClient.invalidateQueries('projects')
-        queryClient.invalidateQueries(['project', id])
-      },
-    }
-  )
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+      queryClient.invalidateQueries({ queryKey: ['project', id] })
+    },
+  })
 }
 
 export const useDeleteProject = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(apiClient.deleteProject, {
+  return useMutation({
+    mutationFn: apiClient.deleteProject,
     onSuccess: () => {
-      queryClient.invalidateQueries('projects')
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
     },
   })
 }
@@ -59,14 +63,18 @@ export const useDeleteProject = () => {
 // =============================================================================
 
 export const useSkills = () => {
-  return useQuery('skills', apiClient.getSkills, {
+  return useQuery({
+    queryKey: ['skills'],
+    queryFn: apiClient.getSkills,
     staleTime: 10 * 60 * 1000, // 10 minutes
-    cacheTime: 20 * 60 * 1000, // 20 minutes
+    gcTime: 20 * 60 * 1000, // 20 minutes
   })
 }
 
 export const useSkill = (id: number) => {
-  return useQuery(['skill', id], () => apiClient.getSkill(id), {
+  return useQuery({
+    queryKey: ['skill', id],
+    queryFn: () => apiClient.getSkill(id),
     enabled: !!id,
     staleTime: 10 * 60 * 1000,
   })
@@ -75,9 +83,10 @@ export const useSkill = (id: number) => {
 export const useCreateSkill = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(apiClient.createSkill, {
+  return useMutation({
+    mutationFn: apiClient.createSkill,
     onSuccess: () => {
-      queryClient.invalidateQueries('skills')
+      queryClient.invalidateQueries({ queryKey: ['skills'] })
     },
   })
 }
@@ -85,24 +94,23 @@ export const useCreateSkill = () => {
 export const useUpdateSkill = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(
-    ({ id, skill }: { id: number; skill: Partial<Skill> }) =>
+  return useMutation({
+    mutationFn: ({ id, skill }: { id: number; skill: Partial<Skill> }) =>
       apiClient.updateSkill(id, skill),
-    {
-      onSuccess: (_, { id }) => {
-        queryClient.invalidateQueries('skills')
-        queryClient.invalidateQueries(['skill', id])
-      },
-    }
-  )
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['skills'] })
+      queryClient.invalidateQueries({ queryKey: ['skill', id] })
+    },
+  })
 }
 
 export const useDeleteSkill = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(apiClient.deleteSkill, {
+  return useMutation({
+    mutationFn: apiClient.deleteSkill,
     onSuccess: () => {
-      queryClient.invalidateQueries('skills')
+      queryClient.invalidateQueries({ queryKey: ['skills'] })
     },
   })
 }
@@ -112,14 +120,18 @@ export const useDeleteSkill = () => {
 // =============================================================================
 
 export const useExperiences = () => {
-  return useQuery('experiences', apiClient.getExperiences, {
+  return useQuery({
+    queryKey: ['experiences'],
+    queryFn: apiClient.getExperiences,
     staleTime: 10 * 60 * 1000,
-    cacheTime: 20 * 60 * 1000,
+    gcTime: 20 * 60 * 1000,
   })
 }
 
 export const useExperience = (id: number) => {
-  return useQuery(['experience', id], () => apiClient.getExperience(id), {
+  return useQuery({
+    queryKey: ['experience', id],
+    queryFn: () => apiClient.getExperience(id),
     enabled: !!id,
     staleTime: 10 * 60 * 1000,
   })
@@ -128,9 +140,10 @@ export const useExperience = (id: number) => {
 export const useCreateExperience = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(apiClient.createExperience, {
+  return useMutation({
+    mutationFn: apiClient.createExperience,
     onSuccess: () => {
-      queryClient.invalidateQueries('experiences')
+      queryClient.invalidateQueries({ queryKey: ['experiences'] })
     },
   })
 }
@@ -138,24 +151,23 @@ export const useCreateExperience = () => {
 export const useUpdateExperience = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(
-    ({ id, experience }: { id: number; experience: Partial<Experience> }) =>
+  return useMutation({
+    mutationFn: ({ id, experience }: { id: number; experience: Partial<Experience> }) =>
       apiClient.updateExperience(id, experience),
-    {
-      onSuccess: (_, { id }) => {
-        queryClient.invalidateQueries('experiences')
-        queryClient.invalidateQueries(['experience', id])
-      },
-    }
-  )
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['experiences'] })
+      queryClient.invalidateQueries({ queryKey: ['experience', id] })
+    },
+  })
 }
 
 export const useDeleteExperience = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(apiClient.deleteExperience, {
+  return useMutation({
+    mutationFn: apiClient.deleteExperience,
     onSuccess: () => {
-      queryClient.invalidateQueries('experiences')
+      queryClient.invalidateQueries({ queryKey: ['experiences'] })
     },
   })
 }
@@ -165,14 +177,18 @@ export const useDeleteExperience = () => {
 // =============================================================================
 
 export const useContent = () => {
-  return useQuery('content', apiClient.getContent, {
+  return useQuery({
+    queryKey: ['content'],
+    queryFn: apiClient.getContent,
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   })
 }
 
 export const useContentByType = (type: string) => {
-  return useQuery(['content', type], () => apiClient.getContentByType(type), {
+  return useQuery({
+    queryKey: ['content', type],
+    queryFn: () => apiClient.getContentByType(type),
     enabled: !!type,
     staleTime: 5 * 60 * 1000,
   })
@@ -181,9 +197,10 @@ export const useContentByType = (type: string) => {
 export const useCreateContent = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(apiClient.createContent, {
+  return useMutation({
+    mutationFn: apiClient.createContent,
     onSuccess: () => {
-      queryClient.invalidateQueries('content')
+      queryClient.invalidateQueries({ queryKey: ['content'] })
     },
   })
 }
@@ -191,24 +208,23 @@ export const useCreateContent = () => {
 export const useUpdateContent = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(
-    ({ id, content }: { id: number; content: Partial<Content> }) =>
+  return useMutation({
+    mutationFn: ({ id, content }: { id: number; content: Partial<Content> }) =>
       apiClient.updateContent(id, content),
-    {
-      onSuccess: (_, { id }) => {
-        queryClient.invalidateQueries('content')
-        queryClient.invalidateQueries(['content', id])
-      },
-    }
-  )
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['content'] })
+      queryClient.invalidateQueries({ queryKey: ['content', id] })
+    },
+  })
 }
 
 export const useDeleteContent = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(apiClient.deleteContent, {
+  return useMutation({
+    mutationFn: apiClient.deleteContent,
     onSuccess: () => {
-      queryClient.invalidateQueries('content')
+      queryClient.invalidateQueries({ queryKey: ['content'] })
     },
   })
 }
@@ -218,18 +234,21 @@ export const useDeleteContent = () => {
 // =============================================================================
 
 export const useAbout = () => {
-  return useQuery('about', apiClient.getAbout, {
+  return useQuery({
+    queryKey: ['about'],
+    queryFn: apiClient.getAbout,
     staleTime: 10 * 60 * 1000,
-    cacheTime: 20 * 60 * 1000,
+    gcTime: 20 * 60 * 1000,
   })
 }
 
 export const useUpdateAbout = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(apiClient.updateAbout, {
+  return useMutation({
+    mutationFn: apiClient.updateAbout,
     onSuccess: () => {
-      queryClient.invalidateQueries('about')
+      queryClient.invalidateQueries({ queryKey: ['about'] })
     },
   })
 }
@@ -239,18 +258,21 @@ export const useUpdateAbout = () => {
 // =============================================================================
 
 export const useContact = () => {
-  return useQuery('contact', apiClient.getContact, {
+  return useQuery({
+    queryKey: ['contact'],
+    queryFn: apiClient.getContact,
     staleTime: 10 * 60 * 1000,
-    cacheTime: 20 * 60 * 1000,
+    gcTime: 20 * 60 * 1000,
   })
 }
 
 export const useUpdateContact = () => {
   const queryClient = useQueryClient()
   
-  return useMutation(apiClient.updateContact, {
+  return useMutation({
+    mutationFn: apiClient.updateContact,
     onSuccess: () => {
-      queryClient.invalidateQueries('contact')
+      queryClient.invalidateQueries({ queryKey: ['contact'] })
     },
   })
 }
@@ -260,7 +282,9 @@ export const useUpdateContact = () => {
 // =============================================================================
 
 export const useHealthCheck = () => {
-  return useQuery('health', apiClient.healthCheck, {
+  return useQuery({
+    queryKey: ['health'],
+    queryFn: apiClient.healthCheck,
     refetchInterval: 30 * 1000, // Check every 30 seconds
     refetchIntervalInBackground: true,
   })
