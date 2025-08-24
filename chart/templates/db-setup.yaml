@@ -1,4 +1,22 @@
 {{- if .Values.database.enabled }}
+# =============================================================================
+# 🗄️ DATABASE MIGRATIONS CONFIGMAP
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "bruno-site.fullname" . }}-migrations
+  labels:
+    {{- include "bruno-site.labels" . | nindent 4 }}
+    app.kubernetes.io/component: db-migrations
+data:
+  001_complete_schema.sql: |-
+{{ .Files.Get "api/migrations/001_complete_schema.sql" | nindent 4 }}
+
+---
+# =============================================================================
+# 🚀 DATABASE INITIALIZATION JOB
+# =============================================================================
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -25,22 +43,18 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "Waiting for PostgreSQL to be ready..."
+              echo "🗄️ Waiting for PostgreSQL to be ready..."
               until pg_isready -h {{ include "bruno-site.fullname" . }}-postgres -p {{ .Values.database.port }} -U {{ .Values.database.user }}; do
-                echo "PostgreSQL is not ready yet. Waiting..."
+                echo "⏳ PostgreSQL is not ready yet. Waiting..."
                 sleep 2
               done
-              echo "PostgreSQL is ready. Running migrations..."
+              echo "✅ PostgreSQL is ready. Running migrations..."
               
-              # Run initial schema
-              echo "Running 001_initial_schema.sql..."
-              psql -h {{ include "bruno-site.fullname" . }}-postgres -p {{ .Values.database.port }} -U {{ .Values.database.user }} -d {{ .Values.database.name }} -f /migrations/001_initial_schema.sql
+              # Run complete schema migration
+              echo "🔄 Running 001_complete_schema.sql..."
+              psql -h {{ include "bruno-site.fullname" . }}-postgres -p {{ .Values.database.port }} -U {{ .Values.database.user }} -d {{ .Values.database.name }} -f /migrations/001_complete_schema.sql
               
-              # Run data population
-              echo "Running 002_populate_data.sql..."
-              psql -h {{ include "bruno-site.fullname" . }}-postgres -p {{ .Values.database.port }} -U {{ .Values.database.user }} -d {{ .Values.database.name }} -f /migrations/002_populate_data.sql
-              
-              echo "Database initialization completed successfully!"
+              echo "✅ Database initialization completed successfully!"
           env:
             - name: PGPASSWORD
               {{- if .Values.database.existingSecret }}
