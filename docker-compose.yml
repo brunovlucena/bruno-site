@@ -74,7 +74,7 @@ services:
       - PORT=8080
       - CORS_ORIGIN=http://localhost:3000
       - GEMMA_MODEL=gemma3n:e4b
-      - OLLAMA_URL=http://0.0.0.0:11434
+      - OLLAMA_URL=http://192.168.0.3:11343
     ports:
       - "0.0.0.0:8080:8080"
     depends_on:

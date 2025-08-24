@@ -25,7 +25,7 @@ ollama pull gemma3n:e8b  # Better quality (8GB RAM)
 ollama pull gemma3n:e12b # Best quality (12GB+ RAM)
 
 # 3. Start Ollama (runs on port 11434)
-# Note: Ollama server should be running on 192.168.0.3:11434
+# Note: Ollama server should be running on 192.168.0.3:11343
 ollama serve --host 0.0.0.0:11434
 
 # 4. Test the model
@@ -38,7 +38,7 @@ Add these environment variables to your `.env` file:
 
 ```bash
 # LLM Configuration
-OLLAMA_URL=http://192.168.0.3:11434
+OLLAMA_URL=http://192.168.0.3:11343
 GEMMA_MODEL=gemma3n:e4b         # or gemma3n:e8b, gemma3n:e12b
 ```
 
@@ -155,7 +155,7 @@ Expected response:
 
 ```bash
 # Check if Ollama is running
-curl http://192.168.0.3:11434/api/tags
+curl http://192.168.0.3:11343/api/tags
 
 
 

@@ -61,7 +61,7 @@ type OllamaMessage struct {
 // NewLLMService creates a new LLM service
 func NewLLMService(db *sql.DB) *LLMService {
 	service := &LLMService{
-		ollamaURL:      getEnv("OLLAMA_URL", "http://192.168.0.3:11434"),
+		ollamaURL:      getEnv("OLLAMA_URL", "http://192.168.0.3:11343"),
 		model:          getEnv("GEMMA_MODEL", "gemma3n:e4b"),
 		contextBuilder: NewContextBuilder(db),
 		httpClient: &http.Client{
@@ -108,22 +108,34 @@ func (llm *LLMService) ProcessChat(request ChatRequest) (*ChatResponse, error) {
 	log.Printf("   📝 Message: %s", truncateString(request.Message, 100))
 	log.Printf("   🎯 Model: %s", llm.model)
 	log.Printf("   🌐 Ollama URL: %s", llm.ollamaURL)
+	log.Printf("   🔧 Environment: OLLAMA_URL=%s", os.Getenv("OLLAMA_URL"))
+	log.Printf("   🔧 Environment: GEMMA_MODEL=%s", os.Getenv("GEMMA_MODEL"))
 
 	// Build context from PostgreSQL data
 	log.Printf("🔧 [%s] Building context from database...", requestID)
 	context, err := llm.contextBuilder.BuildContext(request.Message)
 	if err != nil {
 		log.Printf("❌ [%s] Context building failed: %v", requestID, err)
+		log.Printf("   🔍 Database connection status: %v", llm.contextBuilder.db != nil)
 		return nil, fmt.Errorf("failed to build context: %v", err)
 	}
 	log.Printf("✅ [%s] Context built successfully (%d chars)", requestID, len(context))
+	log.Printf("   📄 Context preview: %s", truncateString(context, 200))
 
 	// Generate response using Ollama
 	log.Printf("🦙 [%s] Calling Ollama API...", requestID)
+	log.Printf("   🔍 Testing Ollama connectivity first...")
+	if err := llm.HealthCheck(); err != nil {
+		log.Printf("❌ [%s] Ollama health check failed before API call: %v", requestID, err)
+		log.Printf("   💡 This might indicate network connectivity issues")
+	}
+
 	response, err := llm.callOllama(context, requestID)
 
 	if err != nil {
 		log.Printf("❌ [%s] Ollama API call failed: %v", requestID, err)
+		log.Printf("   🔍 Error type: %T", err)
+		log.Printf("   🔍 Full error details: %+v", err)
 		return nil, fmt.Errorf("LLM request failed: %v", err)
 	}
 
@@ -149,6 +161,8 @@ func (llm *LLMService) callOllama(prompt string, requestID string) (string, erro
 	log.Printf("   📍 URL: %s/api/chat", llm.ollamaURL)
 	log.Printf("   🎯 Model: %s", llm.model)
 	log.Printf("   📝 Prompt length: %d chars", len(prompt))
+	log.Printf("   🔧 HTTP Client timeout: %v", llm.httpClient.Timeout)
+	log.Printf("   🔧 HTTP Client transport: %T", llm.httpClient.Transport)
 
 	requestBody := OllamaRequest{
 		Model: llm.model,
@@ -193,6 +207,9 @@ func (llm *LLMService) callOllama(prompt string, requestID string) (string, erro
 		log.Printf("   - Verify network connectivity")
 		log.Printf("   - Check firewall settings")
 		log.Printf("   - Test with: curl -X POST %s/api/chat", llm.ollamaURL)
+		log.Printf("   🔍 Error type: %T", err)
+		log.Printf("   🔍 Network error details: %+v", err)
+		log.Printf("   🔍 DNS resolution test: nslookup %s", strings.TrimPrefix(strings.TrimPrefix(llm.ollamaURL, "http://"), "https://"))
 		return "", fmt.Errorf("HTTP request failed: %v", err)
 	}
 	defer resp.Body.Close()
@@ -244,6 +261,8 @@ func (llm *LLMService) HealthCheck() error {
 	log.Printf("🏥 Starting Ollama health check...")
 	log.Printf("   📍 URL: %s/api/tags", llm.ollamaURL)
 	log.Printf("   ⏱️  Timeout: %v", llm.httpClient.Timeout)
+	log.Printf("   🔧 Environment OLLAMA_URL: %s", os.Getenv("OLLAMA_URL"))
+	log.Printf("   🔧 Service ollamaURL: %s", llm.ollamaURL)
 
 	startTime := time.Now()
 	resp, err := llm.httpClient.Get(fmt.Sprintf("%s/api/tags", llm.ollamaURL))
@@ -256,6 +275,9 @@ func (llm *LLMService) HealthCheck() error {
 		log.Printf("   - Verify URL is accessible: curl %s/api/tags", llm.ollamaURL)
 		log.Printf("   - Check network connectivity")
 		log.Printf("   - Verify firewall settings")
+		log.Printf("🔍 Error type: %T", err)
+		log.Printf("🔍 Network error details: %+v", err)
+		log.Printf("🔍 DNS resolution test: nslookup %s", strings.TrimPrefix(strings.TrimPrefix(llm.ollamaURL, "http://"), "https://"))
 		return fmt.Errorf("ollama health check failed: %v", err)
 	}
 	defer resp.Body.Close()

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -311,6 +312,14 @@ func getEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
+// Helper function to truncate strings for logging
+func truncateString(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	return s[:maxLen] + "..."
+}
+
 func healthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":    "healthy",
@@ -324,9 +333,20 @@ func healthCheck(c *gin.Context) {
 // =============================================================================
 
 func handleChat(c *gin.Context) {
+	startTime := time.Now()
+	requestID := fmt.Sprintf("chat_handler_%d", startTime.UnixNano())
+
+	log.Printf("🤖 [%s] Chat request received", requestID)
+	log.Printf("   📍 Remote IP: %s", c.ClientIP())
+	log.Printf("   📍 User Agent: %s", c.GetHeader("User-Agent"))
+	log.Printf("   📍 Content-Type: %s", c.GetHeader("Content-Type"))
+	log.Printf("   📍 Content-Length: %s", c.GetHeader("Content-Length"))
+
 	var request services.ChatRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Printf("❌ [%s] JSON binding failed: %v", requestID, err)
+		log.Printf("   📄 Request body: %s", c.Request.Body)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid request format",
 			"details": err.Error(),
@@ -334,24 +354,38 @@ func handleChat(c *gin.Context) {
 		return
 	}
 
+	log.Printf("✅ [%s] JSON binding successful", requestID)
+	log.Printf("   📝 Message: %s", truncateString(request.Message, 100))
+	log.Printf("   📝 Context: %s", truncateString(request.Context, 50))
+
 	// Validate message is not empty
 	if strings.TrimSpace(request.Message) == "" {
+		log.Printf("❌ [%s] Empty message received", requestID)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Message cannot be empty",
 		})
 		return
 	}
 
+	log.Printf("🔄 [%s] Processing chat request...", requestID)
+
 	// Process chat request
 	response, err := llmService.ProcessChat(request)
 	if err != nil {
-		log.Printf("❌ Chat processing error: %v", err)
+		log.Printf("❌ [%s] Chat processing error: %v", requestID, err)
+		log.Printf("   🔍 Error type: %T", err)
+		log.Printf("   🔍 Full error details: %+v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to process chat request",
 			"details": err.Error(),
 		})
 		return
 	}
+
+	duration := time.Since(startTime)
+	log.Printf("✅ [%s] Chat request completed successfully in %v", requestID, duration)
+	log.Printf("   📤 Response length: %d chars", len(response.Response))
+	log.Printf("   🎯 Model used: %s", response.Model)
 
 	c.JSON(http.StatusOK, response)
 }

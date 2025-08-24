@@ -166,11 +166,15 @@ const Home: React.FC = () => {
           <div className="about-header">
             <div className="about-intro">
               <div className="about-image-container">
-                <img 
-                  src="./assets/eu.png" 
-                  alt="Bruno Lucena" 
-                  className="about-image"
-                />
+                <picture>
+                  <source srcSet="./assets/eu.webp" type="image/webp" />
+                  <img 
+                    src="./assets/eu.png" 
+                    alt="Bruno Lucena" 
+                    className="about-image"
+                    loading="lazy"
+                  />
+                </picture>
               </div>
               <h2>About Me</h2>
               <p>Senior Cloud Native Infrastructure Engineer with 10+ years of experience designing, building, and scaling mission-critical cloud-native platforms. Expert in Kubernetes ecosystem, multi-cloud architectures (AWS/GCP), and modern observability stacks. Proven track record in Site Reliability Engineering (SRE), DevSecOps practices, and leading high-performing infrastructure teams. Specialized in AI/ML infrastructure, LLMOps, and building resilient systems that handle millions of requests. Passionate about automation, security-first approaches, and driving innovation in cloud-native technologies. Delivers enterprise-grade solutions with 99.9%+ uptime, optimized performance, and comprehensive security postures.</p>

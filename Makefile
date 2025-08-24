@@ -6,7 +6,7 @@ ENV ?= dev
 DOCKER_COMPOSE_FILE = docker-compose.yml
 REGISTRY ?= ghcr.io/brunovlucena/bruno-site
 
-.PHONY: help start stop restart build build-push logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell frontend-dev migrate test-api test-api-unit test-frontend-unit test-e2e test-load test-coverage update-deps format lint pf-api pf-redis pf-postgres tp-intercept tp-intercept-with-mounts tp-stop tp-connect tp-disconnect tp-status tp-list restart-fresh reconcile
+.PHONY: help start stop restart build build-push logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell frontend-dev migrate test-api test-api-unit test-frontend-unit test-e2e test-load test-coverage update-deps format lint pf-api pf-redis pf-postgres tp-intercept tp-intercept-with-mounts tp-stop tp-connect tp-disconnect tp-status tp-list restart-fresh reconcile optimize-images
 
 # Default target
 help:
@@ -45,6 +45,7 @@ help:
 	@echo "  make test                  - Run all tests (API, frontend, E2E)"
 	@echo "  make format                - Format code"
 	@echo "  make lint                  - Lint code"
+	@echo "  make optimize-images       - Optimize images for web performance"
 	@echo ""
 
 # Start services (development)
@@ -326,3 +327,49 @@ lint:
 	@cd api && go vet ./...
 	@cd frontend && npm run lint 2>/dev/null || echo "No lint script found in frontend"
 	@echo "✅ Code linted"
+
+# Cloudflare CDN Management
+cloudflare-setup:
+	@echo "🛡️ Setting up Cloudflare CDN..."
+	@chmod +x scripts/cloudflare-setup.sh
+	@./scripts/cloudflare-setup.sh
+
+cloudflare-purge:
+	@echo "🧹 Purging Cloudflare cache..."
+	@if [ -f .env.cloudflare ]; then \
+		source .env.cloudflare; \
+		curl -X POST "https://api.cloudflare.com/client/v4/zones/$$CLOUDFLARE_ZONE_ID/purge_cache" \
+			-H "Authorization: Bearer $$CLOUDFLARE_API_TOKEN" \
+			-H "Content-Type: application/json" \
+			-d '{"purge_everything": true}'; \
+		echo "✅ Cache purged successfully"; \
+	else \
+		echo "❌ .env.cloudflare file not found. Run 'make cloudflare-setup' first."; \
+	fi
+
+cloudflare-deploy:
+	@echo "🚀 Deploying to Cloudflare..."
+	@echo "Building frontend..."
+	@cd frontend && npm run build
+	@echo "Purging cache..."
+	@make cloudflare-purge
+	@echo "✅ Deployment completed"
+
+cloudflare-status:
+	@echo "📊 Cloudflare status..."
+	@if [ -f .env.cloudflare ]; then \
+		source .env.cloudflare; \
+		echo "Domain: $$CLOUDFLARE_DOMAIN"; \
+		echo "API: https://api.$$CLOUDFLARE_DOMAIN"; \
+		echo "WWW: https://www.$$CLOUDFLARE_DOMAIN"; \
+		curl -s -I "https://$$CLOUDFLARE_DOMAIN" | head -1 || echo "Domain not accessible"; \
+	else \
+		echo "❌ .env.cloudflare file not found. Run 'make cloudflare-setup' first."; \
+	fi
+
+# Optimize images for web performance
+optimize-images:
+	@echo "🖼️ Optimizing images for web performance..."
+	@cd scripts && npm install
+	@cd scripts && npm run optimize-images
+	@echo "✅ Image optimization completed!"
