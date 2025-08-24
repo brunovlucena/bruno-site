@@ -16,40 +16,39 @@ help:
 	@echo "Environment: $(ENV)"
 	@echo ""
 	@echo "Available commands:"
-	@echo "  make start      - Start all services (dev environment - Docker Compose)"
-	@echo "  make stop       - Stop all services"
-	@echo "  make restart    - Restart all services"
-	@echo "  make build      - Build all Docker images (dev environment)"
-	@echo "  make build-push - Build and push Docker images to ghcr.io/brunovlucena/bruno-site"
-	@echo "  make logs       - Show logs from all services"
-	@echo "  make api-logs   - Show API logs only"
-	@echo "  make frontend-logs - Show frontend logs only"
-	@echo "  make db-logs    - Show database logs only"
-	@echo "  make status     - Show service status"
-	@echo "  make clean      - Stop and remove all containers/volumes"
-	@echo "  make psql       - Connect to PostgreSQL database"
-	@echo "  make migrate    - Run database migration"
-	@echo "  make redis-cli  - Connect to Redis CLI"
-	@echo "  make api-shell  - Open shell in API container"
-	@echo "  make frontend-shell - Open shell in frontend container"
-	@echo "  make frontend-dev   - Run frontend in development mode (hot reload)"
-	@echo "  make restart-fresh  - Restart with fresh database (clean + start)"
-	@echo "  make pf-api        - Port forward API service for local testing (Kubernetes)"
-	@echo "  make tp-intercept  - Intercept both API and frontend services (no volume mounts)"
-	@echo "  make tp-intercept-with-mounts - Intercept with volume mounts (requires sshfs)"
-	@echo "  make tp-stop       - Stop all active intercepts"
-	@echo "  make tp-disconnect - Disconnect from Kubernetes cluster"
-	@echo "  make tp-status     - Show Telepresence status"
-	@echo "  make tp-list       - List active intercepts"
-	@echo "  make reconcile     - Reconcile Flux HelmRelease for bruno-site"
-	@echo "  make test-api      - Test API endpoints"
-	@echo "  make test          - Run all tests (API, frontend, E2E)"
-	@echo "  make format        - Format code"
-	@echo "  make lint          - Lint code"
+	@echo "  make up                    - Start all services (dev environment - Docker Compose)"
+	@echo "  make down                  - Stop all services"
+	@echo "  make restart               - Restart all services"
+	@echo "  make build-dev             - Build all Docker images (dev environment)"
+	@echo "  make logs                  - Show logs from all services"
+	@echo "  make logs-api              - Show API logs only"
+	@echo "  make logs-frontend         - Show frontend logs only"
+	@echo "  make logs-postgres         - Show database logs only"
+	@echo "  make status-services       - Show service status"
+	@echo "  make clean                 - Stop and remove all containers/volumes"
+	@echo "  make psql                  - Connect to PostgreSQL database"
+	@echo "  make migrate               - Run database migration"
+	@echo "  make redis-cli             - Connect to Redis CLI"
+	@echo "  make api-shell             - Open shell in API container"
+	@echo "  make frontend-shell        - Open shell in frontend container"
+	@echo "  make up-frontend-dev       - Run frontend in development mode (hot reload)"
+	@echo "  make restart-fresh         - Restart with fresh database (clean + start)"
+	@echo "  make pf-api                - Port forward API service for local testing (Kubernetes)"
+	@echo "  make tp-intercept          - Intercept both API and frontend services (no volume mounts)"
+	@echo "  make tp-intercept-mounts   - Intercept with volume mounts (requires sshfs)"
+	@echo "  make tp-stop               - Stop all active intercepts"
+	@echo "  make tp-disconnect         - Disconnect from Kubernetes cluster"
+	@echo "  make tp-status             - Show Telepresence status"
+	@echo "  make tp-list               - List active intercepts"
+	@echo "  make reconcile             - Reconcile Flux HelmRelease for bruno-site"
+	@echo "  make test-api-endpoints    - Test API endpoints"
+	@echo "  make test                  - Run all tests (API, frontend, E2E)"
+	@echo "  make format                - Format code"
+	@echo "  make lint                  - Lint code"
 	@echo ""
 
 # Start services (development)
-start:
+up:
 	@echo "🚀 Starting Bruno Site (Development)..."
 	@echo "Environment: $(ENV)"
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) up --build -d
@@ -69,19 +68,19 @@ start:
 	@echo "  Redis: localhost:6379"
 
 # Stop services
-stop:
+down:
 	@echo "🛑 Stopping Bruno Site..."
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) down
 	@echo "✅ Services stopped"
 
 # Restart services
-restart: stop start
+restart: down up
 
 # Restart with fresh database (clean and start)
-restart-fresh: clean start
+restart-fresh: clean up
 
 # Build all images (development)
-build:
+build-dev:
 	@echo "🏗️ Building Docker images (Development)..."
 	@echo "Environment: $(ENV)"
 	@cp frontend/Dockerfile.dev frontend/Dockerfile
@@ -89,24 +88,18 @@ build:
 	@echo "✅ Images built successfully"
 
 # Build and push images to registry (latest tag only)
-build-push:
+build-push-dev:
 	@echo "🏗️ Building and pushing Docker images..."
 	@echo "Environment: $(ENV)"
 	@echo "Registry: $(REGISTRY)"
-	@echo "Tag: latest"
-	@echo "📦 Building API image..."
-	@docker build -t $(REGISTRY)/api:latest ./api
-	@echo "📦 Building Frontend image..."
-	@cp frontend/Dockerfile frontend/Dockerfile.temp
-	@docker build -t $(REGISTRY)/frontend:latest ./frontend
-	@mv frontend/Dockerfile.temp frontend/Dockerfile
+	@echo "Tag: ${ENV}"
 	@echo "🚀 Pushing images to registry..."
-	@docker push $(REGISTRY)/api:latest
-	@docker push $(REGISTRY)/frontend:latest
+	@docker push $(REGISTRY)/api:${ENV}
+	@docker push $(REGISTRY)/frontend:${ENV}
 	@echo "✅ Images built and pushed successfully!"
 	@echo "📋 Pushed images:"
-	@echo "  API: $(REGISTRY)/api:latest"
-	@echo "  Frontend: $(REGISTRY)/frontend:latest"
+	@echo "  API: $(REGISTRY)/api:${ENV}"
+	@echo "  Frontend: $(REGISTRY)/frontend:${ENV}"
 
 # Show logs from all services
 logs:
@@ -114,22 +107,22 @@ logs:
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) logs -f
 
 # Show API logs
-api-logs:
+logs-api:
 	@echo "📋 API logs:"
 	@docker logs -f bruno-api --tail=50
 
 # Show frontend logs
-frontend-logs:
+logs-frontend:
 	@echo "📋 Frontend logs:"
 	@docker logs -f bruno-frontend --tail=50
 
 # Show database logs
-db-logs:
+logs-postgres:
 	@echo "📋 Database logs:"
 	@docker logs -f bruno-postgres --tail=50
 
 # Show service status
-status:
+status-services:
 	@echo "📊 Service Status:"
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) ps
 
@@ -167,7 +160,7 @@ frontend-shell:
 	@docker exec -it bruno-frontend /bin/sh
 
 # Run frontend in development mode (hot reload)
-frontend-dev:
+up-frontend-dev:
 	@echo "🚀 Starting frontend in development mode..."
 	@echo "📋 This will run the frontend with hot reload on http://localhost:5173"
 	@echo "🔗 It will connect to the API running in Docker on http://localhost:8080"
@@ -213,7 +206,7 @@ tp-intercept:
 	@wait
 
 # Telepresence intercept with volume mounts (requires sshfs)
-tp-intercept-with-mounts:
+tp-intercept-mounts:
 	@echo "🔗 Setting up Telepresence intercept with volume mounts..."
 	@echo "💡 This requires sshfs to be installed"
 	@echo "💡 Make sure both services are running locally first"
@@ -264,7 +257,7 @@ reconcile:
 	@echo "✅ HelmRelease reconciliation completed"
 
 # Test API endpoints
-test-api:
+test-api-endpoints:
 	@echo "🧪 Testing API endpoints..."
 	@echo "Health check:"
 	@curl -s http://localhost:8080/health | jq . || curl -s http://localhost:8080/health
@@ -304,8 +297,6 @@ test-e2e:
 	@echo "🧪 Running E2E tests..."
 	@cd frontend && npm install --legacy-peer-deps && npm run test:e2e
 	@echo "✅ E2E tests completed"
-
-
 
 # Run tests with coverage
 test-coverage:

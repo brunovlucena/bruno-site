@@ -41,7 +41,7 @@ services:
     image: postgres:16-alpine
     container_name: bruno-db-migrate
     environment:
-      - PGPASSWORD=secure-password
+      - PGPASSWORD=secure-password # TODO: Use environment variable
     volumes:
       - ./api/migrations:/migrations
     command: >
@@ -52,9 +52,7 @@ services:
           sleep 2
         done
         echo 'PostgreSQL is ready. Running migrations...'
-        psql -h postgres -p 5432 -U postgres -d bruno_site -f /migrations/001_initial_schema.sql
-        psql -h postgres -p 5432 -U postgres -d bruno_site -f /migrations/003_add_active_column.sql
-        psql -h postgres -p 5432 -U postgres -d bruno_site -f /migrations/002_populate_data.sql
+        psql -h postgres -p 5432 -U postgres -d bruno_site -f /migrations/001_complete_schema.sql
         echo 'Migrations completed successfully!'
       "
     depends_on:
@@ -76,7 +74,7 @@ services:
       - PORT=8080
       - CORS_ORIGIN=http://localhost:3000
       - GEMMA_MODEL=gemma3n:e4b
-      - OLLAMA_URL=http://192.168.0.3:11434
+      - OLLAMA_URL=http://0.0.0.0:11434
     ports:
       - "0.0.0.0:8080:8080"
     depends_on:
@@ -102,8 +100,9 @@ services:
       dockerfile: Dockerfile.dev
     container_name: bruno-frontend
     environment:
+      # 🌐 Frontend API base URL - configures where the React app makes API calls to the backend
       - VITE_API_URL=/api
-      - VITE_APP_ENV=production
+      - VITE_APP_ENV=development
     ports:
       - "0.0.0.0:3000:8080"
     depends_on:

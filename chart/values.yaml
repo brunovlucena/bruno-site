@@ -59,12 +59,9 @@ frontend:
 
 ingress:
   enabled: true
-  className: "ngrok"
+  className: "nginx"
   hosts:
     - host: lucena.cloud
-      paths:
-        - path: /
-          pathType: Prefix
 
 autoscaling:
   enabled: true
