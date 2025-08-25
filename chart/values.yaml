@@ -88,7 +88,7 @@ database:
   name: bruno_site
   user: postgres
   password: ""
-  existingSecret: "bruno-site-db-secret"
+  existingSecret: "bruno-site-db-secret"  # Created by Sealed Secrets
 
 # PostgreSQL configuration
 postgres:
@@ -110,7 +110,7 @@ redis:
   host: bruno-site-redis
   port: 6379
   password: ""
-  existingSecret: "bruno-site-redis-secret"
+  existingSecret: "bruno-site-redis-secret"  # Created by Sealed Secrets
   resources:
     limits:
       cpu: 200m
@@ -135,6 +135,9 @@ security:
     enabled: true
     username: "admin"  # Set via environment variable
     password: ""       # Set via Kubernetes secret
+    existingSecret: "bruno-site-metrics-secret"  # Created by Sealed Secrets
+
+# Sealed Secrets is managed at the infrastructure level
 
 # K6 Load Testing Configuration
 k6:
