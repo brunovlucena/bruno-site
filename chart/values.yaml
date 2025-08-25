@@ -88,7 +88,7 @@ database:
   name: bruno_site
   user: postgres
   password: ""
-  existingSecret: ""
+  existingSecret: "bruno-site-db-secret"
 
 # PostgreSQL configuration
 postgres:
@@ -110,7 +110,7 @@ redis:
   host: bruno-site-redis
   port: 6379
   password: ""
-  existingSecret: ""
+  existingSecret: "bruno-site-redis-secret"
   resources:
     limits:
       cpu: 200m
@@ -123,10 +123,18 @@ redis:
     size: 2Gi
     storageClass: ""
 
-# Secrets
+# Secrets - These should be provided via external secret management
+# DO NOT set actual passwords here - use Kubernetes secrets instead
 secrets:
-  databasePassword: "bruno123"
-  redisPassword: ""
+  databasePassword: ""  # Set via Kubernetes secret
+  redisPassword: ""     # Set via Kubernetes secret
+
+# Security Configuration
+security:
+  metrics:
+    enabled: true
+    username: "admin"  # Set via environment variable
+    password: ""       # Set via Kubernetes secret
 
 # K6 Load Testing Configuration
 k6:

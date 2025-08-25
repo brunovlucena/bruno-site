@@ -92,7 +92,7 @@ func main() {
 // =============================================================================
 
 func initDatabase() error {
-	connStr := getEnv("DATABASE_URL", "postgresql://postgres:secure-password@localhost:5432/bruno_site?sslmode=disable")
+	connStr := getEnv("DATABASE_URL", "postgresql://postgres:${POSTGRES_PASSWORD:-secure-password}@localhost:5432/bruno_site?sslmode=disable")
 
 	var err error
 	db, err = sql.Open("postgres", connStr)
@@ -308,6 +308,13 @@ func setupRouter() *gin.Engine {
 func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
+	}
+	return defaultValue
+}
+
+func getEnvBool(key string, defaultValue bool) bool {
+	if value := os.Getenv(key); value != "" {
+		return strings.ToLower(value) == "true"
 	}
 	return defaultValue
 }

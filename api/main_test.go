@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -378,12 +379,22 @@ func TestDatabaseConnection(t *testing.T) {
 
 // Test environment setup
 func TestMain(m *testing.M) {
-	// Set test environment
-	os.Setenv("GIN_MODE", "test")
+	// Setup test database connection
+	testDB, err := sql.Open("postgres", getTestDBURL())
+	if err != nil {
+		log.Fatalf("Failed to connect to test database: %v", err)
+	}
+	defer testDB.Close()
 
 	// Run tests
-	code := m.Run()
+	os.Exit(m.Run())
+}
 
-	// Cleanup
-	os.Exit(code)
+func getTestDBURL() string {
+	// Use environment variable for test database URL
+	if url := os.Getenv("TEST_DATABASE_URL"); url != "" {
+		return url
+	}
+	// Fallback to default test database URL
+	return "postgres://postgres:${POSTGRES_PASSWORD:-secure-password}@localhost:5432/bruno_site_test?sslmode=disable"
 }

@@ -41,13 +41,24 @@ jobs:
           go-version: '1.24'
           cache: true
 
-      - run: |
-          cd api
-          go mod download
-          go test -v -race -coverprofile=coverage.out ./...
+      - name: Setup PostgreSQL
+        uses: Harmon758/postgresql-action@v1.0.0
+        with:
+          postgresql version: '16'
+          postgresql db: bruno_site_test
+          postgresql user: postgres
+          postgresql password: ${{ secrets.POSTGRES_PASSWORD || 'secure-password' }}
+
+      - name: Run API Tests
         env:
-          DATABASE_URL: postgres://postgres:secure-password@localhost:5432/bruno_site_test?sslmode=disable
-          REDIS_URL: redis://localhost:6379
+          DATABASE_URL: postgres://postgres:${{ secrets.POSTGRES_PASSWORD || 'secure-password' }}@localhost:5432/bruno_site_test?sslmode=disable
+          TEST_DATABASE_URL: postgres://postgres:${{ secrets.POSTGRES_PASSWORD || 'secure-password' }}@localhost:5432/bruno_site_test?sslmode=disable
+          METRICS_USERNAME: ${{ secrets.METRICS_USERNAME || 'admin' }}
+          METRICS_PASSWORD: ${{ secrets.METRICS_PASSWORD || 'secure_password_change_me' }}
+        run: |
+          cd api
+          go test -v -coverprofile=coverage.out ./...
+          go tool cover -html=coverage.out -o coverage.html
 
       - uses: codecov/codecov-action@v3
         with:
@@ -67,12 +78,16 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - run: |
+      - name: Run Frontend Tests
+        env:
+          DATABASE_URL: postgres://postgres:${{ secrets.POSTGRES_PASSWORD || 'secure-password' }}@localhost:5432/bruno_site_test?sslmode=disable
+          TEST_DATABASE_URL: postgres://postgres:${{ secrets.POSTGRES_PASSWORD || 'secure-password' }}@localhost:5432/bruno_site_test?sslmode=disable
+          METRICS_USERNAME: ${{ secrets.METRICS_USERNAME || 'admin' }}
+          METRICS_PASSWORD: ${{ secrets.METRICS_PASSWORD || 'secure_password_change_me' }}
+        run: |
           cd frontend
-          npm ci --legacy-peer-deps
-          npm run lint
-          echo "Frontend tests temporarily disabled - skipping test execution"
-        continue-on-error: true
+          npm ci
+          npm run test
 
       - uses: codecov/codecov-action@v3
         with:

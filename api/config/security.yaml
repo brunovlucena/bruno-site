@@ -5,8 +5,8 @@ security:
   # Metrics endpoint authentication
   metrics:
     enabled: true
-    username: "admin"
-    password: "secure_password_change_me"  # Change this in production!
+    username: "${METRICS_USERNAME:-admin}"
+    password: "${METRICS_PASSWORD:-secure_password_change_me}"  # Set via environment variable
     
   # CORS (Cross-Origin Resource Sharing) settings
   cors:

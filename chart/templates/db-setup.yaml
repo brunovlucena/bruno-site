@@ -65,7 +65,10 @@ spec:
               {{- else if .Values.secrets.databasePassword }}
               value: {{ .Values.secrets.databasePassword | quote }}
               {{- else }}
-              value: "secure-password"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bruno-site.fullname" . }}-db-secret
+                  key: password
               {{- end }}
           volumeMounts:
             - name: migrations
