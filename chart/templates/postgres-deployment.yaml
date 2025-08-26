@@ -18,6 +18,40 @@ spec:
         {{- include "bruno-site.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: postgres
     spec:
+      initContainers:
+        - name: db-init
+          image: postgres:16-alpine
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "🗄️ Waiting for PostgreSQL to be ready..."
+              until pg_isready -h localhost -p 5432 -U {{ .Values.database.user }} -d {{ .Values.database.name }}; do
+                echo "⏳ PostgreSQL is not ready yet. Waiting..."
+                sleep 5
+              done
+              echo "✅ PostgreSQL is ready. Running migrations..."
+              
+              # Run complete schema migration
+              echo "🔄 Running 001_complete_schema.sql..."
+              psql -h localhost -p 5432 -U {{ .Values.database.user }} -d {{ .Values.database.name }} -f /migrations/001_complete_schema.sql
+              
+              echo "✅ Database initialization completed successfully!"
+          env:
+            - name: PGPASSWORD
+              {{- if .Values.database.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret }}
+                  key: password
+              {{- else if .Values.secrets.databasePassword }}
+              value: {{ .Values.secrets.databasePassword | quote }}
+              {{- else }}
+              value: "secure-password"
+              {{- end }}
+          volumeMounts:
+            - name: migrations
+              mountPath: /migrations
       containers:
         - name: postgres
           image: postgres:16-alpine
@@ -76,4 +110,7 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        - name: migrations
+          configMap:
+            name: {{ include "bruno-site.fullname" . }}-migrations
 {{- end }}
