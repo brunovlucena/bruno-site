@@ -13,6 +13,7 @@ import {
   SiRedis,
   SiKubernetes,
   SiFlux,
+  SiArgo,
   SiHelm,
   SiNginx,
   SiDocker,
@@ -81,6 +82,7 @@ const Home: React.FC = () => {
       'kubernetes': SiKubernetes,
       'knative': SiKnative,
       'flux': SiFlux,
+      'argocd': SiArgo,
       'helm': SiHelm,
       'nginx': SiNginx,
       'docker': SiDocker,
@@ -253,6 +255,14 @@ const Home: React.FC = () => {
             <div className="skill-tag">
               <SiRabbitmq className="skill-icon" style={{ color: '#FF6600' }} />
               <span>RabbitMQ</span>
+            </div>
+            <div className="skill-tag">
+              <SiFlux className="skill-icon" style={{ color: '#0B122A' }} />
+              <span>Flux</span>
+            </div>
+            <div className="skill-tag">
+              <SiArgo className="skill-icon" style={{ color: '#326CE5' }} />
+              <span>ArgoCD</span>
             </div>
           </div>
         </div>
