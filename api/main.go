@@ -100,18 +100,26 @@ func initDatabase() error {
 		return err
 	}
 
-	// Test connection
-	if err := db.Ping(); err != nil {
-		return err
-	}
-
 	// Configure connection pool
 	db.SetMaxOpenConns(25)
 	db.SetMaxIdleConns(5)
 	db.SetConnMaxLifetime(5 * time.Minute)
 
-	log.Println("✅ Database connected successfully")
-	return nil
+	// Retry connection with exponential backoff
+	maxRetries := 30
+	for i := 0; i < maxRetries; i++ {
+		if err := db.Ping(); err != nil {
+			log.Printf("⏳ Database connection attempt %d/%d failed: %v", i+1, maxRetries, err)
+			if i < maxRetries-1 {
+				time.Sleep(time.Duration(i+1) * 2 * time.Second)
+			}
+		} else {
+			log.Println("✅ Database connected successfully")
+			return nil
+		}
+	}
+
+	return fmt.Errorf("failed to connect to database after %d attempts", maxRetries)
 }
 
 func initRedis() error {
@@ -124,16 +132,24 @@ func initRedis() error {
 
 	redisClient = redis.NewClient(opts)
 
-	// Test connection
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := redisClient.Ping(ctx).Err(); err != nil {
-		return err
+	// Retry connection with exponential backoff
+	maxRetries := 30
+	for i := 0; i < maxRetries; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		if err := redisClient.Ping(ctx).Err(); err != nil {
+			cancel()
+			log.Printf("⏳ Redis connection attempt %d/%d failed: %v", i+1, maxRetries, err)
+			if i < maxRetries-1 {
+				time.Sleep(time.Duration(i+1) * 2 * time.Second)
+			}
+		} else {
+			cancel()
+			log.Println("✅ Redis connected successfully")
+			return nil
+		}
 	}
 
-	log.Println("✅ Redis connected successfully")
-	return nil
+	return fmt.Errorf("failed to connect to Redis after %d attempts", maxRetries)
 }
 
 func initSecurityConfig() {
