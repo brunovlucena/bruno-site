@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -99,7 +100,9 @@ func initDatabase() error {
 	password := getEnv("PGPASSWORD", "secure-password")
 	dbname := getEnv("DATABASE_NAME", "bruno_site")
 
-	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", user, password, host, port, dbname)
+	// URL-encode the password to handle special characters
+	encodedPassword := url.QueryEscape(password)
+	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", user, encodedPassword, host, port, dbname)
 
 	var err error
 	db, err = sql.Open("postgres", connStr)
