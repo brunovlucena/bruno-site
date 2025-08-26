@@ -41,7 +41,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false, // Disable in production for smaller bundle
-    minify: 'terser',
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks: {
