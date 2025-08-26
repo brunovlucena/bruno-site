@@ -196,7 +196,7 @@ INSERT INTO projects (title, description, type, github_url, live_url, technologi
     'Personal homelab infrastructure project using Flux, Pulumi, and Kubernetes for managing a complete cloud-native environment. Features automated deployments, monitoring, and infrastructure as code practices.',
     'Infrastructure',
     'https://github.com/brunovlucena/home',
-    'https://github.com/brunovlucena/home',
+    'https://www.youtube.com/watch?v=lkkGlVWvkLk',
     ARRAY['Flux', 'Pulumi', 'Kubernetes', 'Docker', 'Helm', 'Prometheus', 'Grafana', 'Loki', 'Tempo', 'Alloy', 'Cert-Manager', 'Nginx'],
     TRUE,
     3,
