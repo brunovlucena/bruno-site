@@ -129,16 +129,6 @@ secrets:
   databasePassword: ""  # Set via Kubernetes secret
   redisPassword: ""     # Set via Kubernetes secret
 
-# Security Configuration
-security:
-  metrics:
-    enabled: true
-    username: "admin"  # Set via environment variable
-    password: ""       # Set via Kubernetes secret
-    existingSecret: "bruno-site-metrics-secret"  # Created by Sealed Secrets
-
-# Sealed Secrets is managed at the infrastructure level
-
 # K6 Load Testing Configuration
 k6:
   enabled: false  # Set to true to enable load testing

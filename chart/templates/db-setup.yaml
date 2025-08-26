@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/component: db-migrations
 data:
   001_complete_schema.sql: |-
-{{ .Files.Get "api/migrations/001_complete_schema.sql" | nindent 4 }}
+{{ .Files.Get "migrations/001_complete_schema.sql" | nindent 4 }}
 
 ---
 # =============================================================================
@@ -71,7 +71,7 @@ spec:
               {{- else }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "bruno-site.fullname" . }}-db-secret
+                  name: {{ include "bruno-site.name" . }}-db-secret
                   key: password
               {{- end }}
           volumeMounts:
