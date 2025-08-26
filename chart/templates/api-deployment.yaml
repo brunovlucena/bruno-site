@@ -30,6 +30,43 @@ spec:
       serviceAccountName: {{ include "bruno-site.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "⏳ Waiting for PostgreSQL to be ready..."
+              until pg_isready -h {{ .Values.database.host }} -p {{ .Values.database.port }} -U {{ .Values.database.user }}; do
+                echo "PostgreSQL is not ready yet. Waiting..."
+                sleep 5
+              done
+              echo "✅ PostgreSQL is ready!"
+          env:
+            - name: PGPASSWORD
+              {{- if .Values.database.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret }}
+                  key: password
+              {{- else if .Values.secrets.databasePassword }}
+              value: {{ .Values.secrets.databasePassword | quote }}
+              {{- else }}
+              value: "secure-password"
+              {{- end }}
+        - name: wait-for-redis
+          image: redis:7.2-alpine
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "⏳ Waiting for Redis to be ready..."
+              until redis-cli -h {{ .Values.redis.host }} -p {{ .Values.redis.port }} ping; do
+                echo "Redis is not ready yet. Waiting..."
+                sleep 5
+              done
+              echo "✅ Redis is ready!"
       containers:
         - name: {{ .Chart.Name }}-api
           securityContext:
@@ -60,18 +97,36 @@ spec:
               {{- else }}
               value: "secure-password"
               {{- end }}
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+            successThreshold: 1
           livenessProbe:
             httpGet:
               path: /health
               port: http
+              scheme: HTTP
             initialDelaySeconds: 30
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
           readinessProbe:
             httpGet:
               path: /health
               port: http
-            initialDelaySeconds: 5
+              scheme: HTTP
+            initialDelaySeconds: 10
             periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
