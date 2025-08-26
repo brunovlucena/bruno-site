@@ -172,7 +172,7 @@ INSERT INTO projects (title, description, type, github_url, live_url, technologi
     'Personal portfolio and homelab showcase website built with React, TypeScript, Go, and modern cloud-native technologies. Features real-time project updates, interactive chatbot, and comprehensive skill showcase.',
     'Portfolio Website',
     'https://github.com/brunovlucena/bruno-site',
-    'https://www.youtube.com/watch?v=lkkGlVWvkLk',
+    'https://youtu.be/RalxXaLAsVU',
     ARRAY['React', 'TypeScript', 'Go', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes', 'Nginx'],
     TRUE,
     1,
@@ -184,7 +184,7 @@ INSERT INTO projects (title, description, type, github_url, live_url, technologi
     'Serverless functions and cloud-native development platform using Knative for scalable, event-driven applications with Kubernetes.',
     'Serverless',
     'https://github.com/brunovlucena/knative-lambda',
-    'https://www.youtube.com/watch?v=lkkGlVWvkLk',
+    'https://www.youtube.com/watch?v=cTTxlCr8N2Q',
     ARRAY['Knative', 'Kubernetes', 'Serverless', 'CloudEvents', 'Go'],
     TRUE,
     2,
@@ -196,7 +196,7 @@ INSERT INTO projects (title, description, type, github_url, live_url, technologi
     'Personal homelab infrastructure project using Flux, Pulumi, and Kubernetes for managing a complete cloud-native environment. Features automated deployments, monitoring, and infrastructure as code practices.',
     'Infrastructure',
     'https://github.com/brunovlucena/home',
-    'https://www.youtube.com/watch?v=lkkGlVWvkLk',
+    'https://youtu.be/RalxXaLAsVU',
     ARRAY['Flux', 'Pulumi', 'Kubernetes', 'Docker', 'Helm', 'Prometheus', 'Grafana', 'Loki', 'Tempo', 'Alloy', 'Cert-Manager', 'Nginx'],
     TRUE,
     3,
@@ -346,7 +346,7 @@ Automation: Implemented automation tools (Saltstack) to streamline operations an
     FALSE,
     'Key Responsibilities:
 
-- Cloud Migration and Modernization: Led the migration of legacy infrastructure from VMware ESXi to a Kubernetes-based platform on OpenStack.
+- Cloud Migration and Modernization: Took part in the migration of legacy infrastructure from VMware ESXi to a Multi-Tenant Kubernetes-based solution on top of OpenStack.
 
 - Infrastructure as Code: Implemented infrastructure as code practices using Terraform to automate provisioning and configuration management.
  

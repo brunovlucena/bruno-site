@@ -6,7 +6,7 @@ ENV ?= dev
 DOCKER_COMPOSE_FILE = docker-compose.yml
 REGISTRY ?= ghcr.io/brunovlucena/bruno-site
 
-.PHONY: help start stop restart build build-push logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell frontend-dev migrate test-api test-api-unit test-frontend-unit test-e2e test-load test-coverage update-deps format lint pf-api pf-redis pf-postgres tp-intercept tp-intercept-with-mounts tp-stop tp-connect tp-disconnect tp-status tp-list restart-fresh reconcile optimize-images
+.PHONY: help start stop restart build build-push logs clean status api-logs frontend-logs db-logs psql redis-cli api-shell frontend-shell frontend-dev migrate migrate-k8s test-api test-api-unit test-frontend-unit test-e2e test-load test-coverage update-deps format lint pf-api pf-redis pf-postgres tp-intercept tp-intercept-with-mounts tp-stop tp-connect tp-disconnect tp-status tp-list restart-fresh reconcile optimize-images
 
 # Default target
 help:
@@ -28,6 +28,7 @@ help:
 	@echo "  make clean                 - Stop and remove all containers/volumes"
 	@echo "  make psql                  - Connect to PostgreSQL database"
 	@echo "  make migrate               - Run database migration"
+	@echo "  make migrate-k8s           - Run database migration in Kubernetes"
 	@echo "  make redis-cli             - Connect to Redis CLI"
 	@echo "  make api-shell             - Open shell in API container"
 	@echo "  make frontend-shell        - Open shell in frontend container"
@@ -139,11 +140,19 @@ psql:
 	@echo "🗄️ Connecting to PostgreSQL..."
 	@docker exec -it bruno-postgres psql -U postgres -d bruno_site
 
-# Run database migration
-migrate:
-	@echo "🗄️ Running database migration..."
-	@chmod +x scripts/run-migrations.sh
-	@./scripts/run-migrations.sh
+# Run database migration in Kubernetes
+migrate-k8s:
+	@echo "🗄️ Running database migration in Kubernetes..."
+	@echo "💡 This will run the migration against the Kubernetes PostgreSQL instance"
+	@echo "⏳ Setting up port forwarding to PostgreSQL..."
+	@kubectl port-forward --address 0.0.0.0 -n bruno svc/bruno-site-postgres 5432:5432 &
+	@echo "⏳ Waiting for port forwarding to establish..."
+	@sleep 3
+	@echo "🗄️ Running migration SQL..."
+	@PGPASSWORD=secure-password psql -h 0.0.0.0 -p 5432 -U postgres -d bruno_site -f api/migrations/001_complete_schema.sql
+	@echo "✅ Migration completed successfully!"
+	@echo "🛑 Stopping port forwarding..."
+	@pkill -f "kubectl port-forward.*bruno-site-postgres" || true
 
 # Connect to Redis CLI
 redis-cli:
