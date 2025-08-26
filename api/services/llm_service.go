@@ -61,7 +61,7 @@ type OllamaMessage struct {
 // NewLLMService creates a new LLM service
 func NewLLMService(db *sql.DB) *LLMService {
 	service := &LLMService{
-		ollamaURL:      getEnv("OLLAMA_URL", "http://192.168.0.3:11343"),
+		ollamaURL:      getEnv("OLLAMA_URL", "http://192.168.0.3:11434"),
 		model:          getEnv("GEMMA_MODEL", "gemma3n:e4b"),
 		contextBuilder: NewContextBuilder(db),
 		httpClient: &http.Client{
