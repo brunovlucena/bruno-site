@@ -1,5 +1,5 @@
 # Build stage
-FROM node:22-alpine AS builder
+FROM node:24 AS builder
 
 # Set working directory
 WORKDIR /app
@@ -7,10 +7,8 @@ WORKDIR /app
 # Copy package files first for better caching
 COPY package*.json ./
 
-# Install all dependencies with better error handling and fallback
-RUN npm cache clean --force && \
-    npm ci --no-audit --no-fund --verbose || \
-    npm install --no-audit --no-fund --verbose
+# Install all dependencies
+RUN npm install
 
 # Copy source code
 COPY . .
