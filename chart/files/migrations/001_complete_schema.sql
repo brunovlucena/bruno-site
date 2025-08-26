@@ -302,6 +302,25 @@ INSERT INTO skills (name, category, proficiency, icon, "order", active) VALUES
 -- Insert experience data in chronological order (oldest to newest)
 INSERT INTO experience (title, company, start_date, end_date, current, description, technologies, "order", active) VALUES
 (
+    'IT Security Analyst',
+    'Tempest Security Intelligence',
+    '2011-01-01',
+    '2013-10-31',
+    FALSE,
+    'Key Responsibilities:
+
+- Vulnerability Assessment: Conduct in-depth vulnerability assessments to identify and mitigate security risks within complex IT environments.
+
+- Vulnerability Research: Stay abreast of the latest security threats and vulnerabilities, conducting thorough research to understand their impact and potential exploits.
+
+- Automation Development: Develop and maintain automated tools and scripts (e.g., Bash, Ruby) to streamline vulnerability scanning and reporting processes.
+
+- Nessus Plugin Development: Create and customize Nessus Scanner Plugins (NASL) to enhance vulnerability detection capabilities and tailor them to specific security needs.',
+    ARRAY['Vulnerability Assessment', 'Security Research', 'Bash', 'Ruby', 'Nessus', 'NASL', 'Security Automation', 'Vulnerability Scanning', 'Security Tools']::TEXT[],
+    1,
+    TRUE
+),
+(
     'Operations Engineer',
     'Crealytics',
     '2017-08-01',
@@ -310,13 +329,14 @@ INSERT INTO experience (title, company, start_date, end_date, current, descripti
     'Key Responsibilities:
 
 - Cloud Operations: Managed and maintained complex cloud infrastructure on AWS and GCP.
-Automation: Implemented automation tools (Saltstack) to streamline operations and reduce manual effort.
+
+- Automation: Implemented automation tools (Saltstack) to streamline operations and reduce manual effort.
 
 - Monitoring and Logging: Deployed and configured monitoring and logging solutions (Prometheus, ELK) to ensure system health and performance.
 
 - Distributed Systems: Worked with distributed systems technologies like Mesos, Consul, Kafka, and Linkerd to build scalable and resilient applications.',
     ARRAY['AWS', 'GCP', 'Saltstack', 'Prometheus', 'ELK', 'Mesos', 'Consul', 'Kafka', 'Linkerd', 'Distributed Systems', 'Cloud Operations', 'Automation', 'Monitoring', 'Logging']::TEXT[],
-    1,
+    2,
     TRUE
 ),
 (
@@ -335,7 +355,7 @@ Automation: Implemented automation tools (Saltstack) to streamline operations an
 
 - Collaboration: Worked closely with development teams to improve deployment processes and reduce downtime.',
     ARRAY['Kubernetes', 'Bare-metal', 'Saltstack', 'Chef', 'Prometheus', 'ELK', 'Automation', 'CI/CD', 'Monitoring', 'Logging', 'Infrastructure', 'Collaboration']::TEXT[],
-    2,
+    3,
     TRUE
 ),
 (
@@ -352,7 +372,7 @@ Automation: Implemented automation tools (Saltstack) to streamline operations an
  
 - Automation and CI/CD: Developed and maintained automation scripts (Bash, Golang, Ansible, Helm) to streamline operations and improve efficiency.',
     ARRAY['Cloud Migration', 'VMware ESXi', 'Kubernetes', 'OpenStack', 'Terraform', 'Bash', 'Golang', 'Ansible', 'Helm', 'Infrastructure as Code', 'Automation', 'CI/CD']::TEXT[],
-    3,
+    4,
     TRUE
 ),
 (
@@ -371,7 +391,7 @@ Automation: Implemented automation tools (Saltstack) to streamline operations an
 
 - Problem-Solving and Troubleshooting: Quickly identified and resolved complex infrastructure issues, minimizing downtime and service disruptions.',
     ARRAY['AWS', 'EKS', 'Kops', 'Kubernetes', 'Terraform', 'GitHub Actions', 'GitLab CI/CD', 'Prometheus', 'Loki', 'Grafana', 'Thanos', 'EFK', 'Infrastructure', 'Automation', 'CI/CD', 'Observability', 'Troubleshooting']::TEXT[],
-    4,
+    5,
     TRUE
 ),
 (
@@ -382,9 +402,10 @@ Automation: Implemented automation tools (Saltstack) to streamline operations an
     FALSE,
     'The SRE chapter lead is the line manager for the chapter members, responsible for developing people and the things happening in the SRE chapter but still is a member of the infrastructure & Operations Team and does day-to-day work.',
     ARRAY['SRE', 'Team Leadership', 'People Management', 'Infrastructure', 'Operations']::TEXT[],
-    5,
+    6,
     TRUE
 ),
+
 (
     'SRE/DevOps',
     'Notifi',
@@ -406,8 +427,8 @@ Automation: Implemented automation tools (Saltstack) to streamline operations an
 - Serverless on K8s: Knative (CloudEvents, RabbitMQ), Golang 
 
 - Security and Compliance: Ensure the security and compliance of systems and applications by implementing best practices and leveraging security tools.',
-    ARRAY['Kubernetes', 'AWS', 'GCP', 'Pulumi', 'Prometheus', 'Loki', 'Tempo', 'Grafana', 'OpenTelemetry', 'RAG', 'Vertex AI', 'Terraform', 'Atmos', 'GitHub Actions', 'AWS Lambda', 'Knative', 'CloudEvents', 'RabbitMQ', 'Golang', 'Linkerd', 'Security', 'Compliance']::TEXT[],
-    6,
+    ARRAY['Kubernetes', 'AWS', 'GCP', 'Pulumi', 'Prometheus', 'Loki', 'Tempo', 'Grafana', 'OpenTelemetry', 'RAG', 'Vertex AI', 'Terraform', 'Atmos', 'GitHub Actions', 'AWS Lambda', 'Knative', 'CloudEvents', 'RabbitMQ', 'Golang', 'Security', 'Compliance']::TEXT[],
+    8,
     TRUE
 );
 
