@@ -105,11 +105,7 @@ spec:
             - name: DATABASE_NAME
               value: "{{ .Values.database.name }}"
             - name: REDIS_URL
-              {{- if .Values.redis.existingSecret }}
-              value: "redis://:$(REDIS_PASSWORD)@{{ .Values.redis.host }}:{{ .Values.redis.port }}"
-              {{- else }}
               value: "redis://{{ .Values.redis.host }}:{{ .Values.redis.port }}"
-              {{- end }}
             - name: REDIS_PASSWORD
               {{- if .Values.redis.existingSecret }}
               valueFrom:
