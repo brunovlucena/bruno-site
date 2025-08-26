@@ -1,14 +1,11 @@
 {{- if .Values.database.enabled }}
 # =============================================================================
-# 🚀 DATABASE INITIALIZATION JOB
-# =============================================================================
-# =============================================================================
-# 🚀 DATABASE INITIALIZATION JOB
+# 🗄️ DATABASE INITIALIZATION JOB
 # =============================================================================
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "bruno-site.fullname" . }}-db-init
+  name: {{ include "bruno-site.fullname" . }}-db-init-{{ now | date "20060102150405" }}
   labels:
     {{- include "bruno-site.labels" . | nindent 4 }}
     app.kubernetes.io/component: db-init
@@ -16,7 +13,9 @@ metadata:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "10"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/resource-policy": keep
 spec:
+  backoffLimit: 3
   template:
     metadata:
       labels:
@@ -26,7 +25,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: db-init
-          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
+          image: postgres:16-alpine
           command:
             - /bin/sh
             - -c
@@ -44,7 +43,7 @@ spec:
               
               # Run complete schema migration
               echo "🔄 Running 001_complete_schema.sql..."
-              psql -h {{ include "bruno-site.fullname" . }}-postgres -p {{ .Values.database.port }} -U {{ .Values.database.user }} -d {{ .Values.database.name }} -f /app/migrations/001_complete_schema.sql
+              psql -h {{ include "bruno-site.fullname" . }}-postgres -p {{ .Values.database.port }} -U {{ .Values.database.user }} -d {{ .Values.database.name }} -f /migrations/001_complete_schema.sql
               
               echo "✅ Database initialization completed successfully!"
           env:
@@ -62,4 +61,11 @@ spec:
                   name: {{ include "bruno-site.name" . }}-db-secret
                   key: password
               {{- end }}
+          volumeMounts:
+            - name: migrations
+              mountPath: /migrations
+      volumes:
+        - name: migrations
+          configMap:
+            name: {{ include "bruno-site.fullname" . }}-migrations
 {{- end }}
