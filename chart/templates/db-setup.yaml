@@ -1,19 +1,7 @@
 {{- if .Values.database.enabled }}
 # =============================================================================
-# 🗄️ DATABASE MIGRATIONS CONFIGMAP
+# 🚀 DATABASE INITIALIZATION JOB
 # =============================================================================
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ include "bruno-site.fullname" . }}-migrations
-  labels:
-    {{- include "bruno-site.labels" . | nindent 4 }}
-    app.kubernetes.io/component: db-migrations
-data:
-  001_complete_schema.sql: |-
-{{ .Files.Get "migrations/001_complete_schema.sql" | nindent 4 }}
-
----
 # =============================================================================
 # 🚀 DATABASE INITIALIZATION JOB
 # =============================================================================
@@ -38,7 +26,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: db-init
-          image: postgres:16-alpine
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
           command:
             - /bin/sh
             - -c
@@ -56,7 +44,7 @@ spec:
               
               # Run complete schema migration
               echo "🔄 Running 001_complete_schema.sql..."
-              psql -h {{ include "bruno-site.fullname" . }}-postgres -p {{ .Values.database.port }} -U {{ .Values.database.user }} -d {{ .Values.database.name }} -f /migrations/001_complete_schema.sql
+              psql -h {{ include "bruno-site.fullname" . }}-postgres -p {{ .Values.database.port }} -U {{ .Values.database.user }} -d {{ .Values.database.name }} -f /app/migrations/001_complete_schema.sql
               
               echo "✅ Database initialization completed successfully!"
           env:
@@ -74,12 +62,4 @@ spec:
                   name: {{ include "bruno-site.name" . }}-db-secret
                   key: password
               {{- end }}
-          volumeMounts:
-            - name: migrations
-              mountPath: /migrations
-              readOnly: true
-      volumes:
-        - name: migrations
-          configMap:
-            name: {{ include "bruno-site.fullname" . }}-migrations
 {{- end }}
