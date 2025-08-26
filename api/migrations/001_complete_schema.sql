@@ -165,7 +165,7 @@ TRUNCATE TABLE projects CASCADE;
 TRUNCATE TABLE experience CASCADE;
 TRUNCATE TABLE skills CASCADE;
 
--- Insert only Bruno Site and Knative Lambda projects
+-- Insert Bruno Site, Knative Lambda, and Home Infrastructure projects
 INSERT INTO projects (title, description, type, github_url, live_url, technologies, featured, "order", active, github_active) VALUES
 (
     'Bruno Site',
@@ -190,6 +190,18 @@ INSERT INTO projects (title, description, type, github_url, live_url, technologi
     2,
     TRUE,
     FALSE
+),
+(
+    'Home Infrastructure',
+    'Personal homelab infrastructure project using Flux, Pulumi, and Kubernetes for managing a complete cloud-native environment. Features automated deployments, monitoring, and infrastructure as code practices.',
+    'Infrastructure',
+    'https://github.com/brunovlucena/home',
+    'https://github.com/brunovlucena/home',
+    ARRAY['Flux', 'Pulumi', 'Kubernetes', 'Docker', 'Helm', 'Prometheus', 'Grafana', 'Loki', 'Tempo', 'Alloy', 'Cert-Manager', 'Nginx'],
+    TRUE,
+    3,
+    TRUE,
+    TRUE
 );
 
 -- Insert skills from about section
