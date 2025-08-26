@@ -19,7 +19,7 @@ import (
 // Test setup helpers
 func setupTestDB(t *testing.T) *sql.DB {
 	// Use test database or mock
-	db, err := sql.Open("postgres", "postgres://postgres:secure-password@localhost:5432/bruno_site_test?sslmode=disable")
+	db, err := sql.Open("postgres", getTestDBURL())
 	if err != nil {
 		t.Skipf("Skipping test - database not available: %v", err)
 	}
@@ -396,5 +396,5 @@ func getTestDBURL() string {
 		return url
 	}
 	// Fallback to default test database URL
-	return "postgres://postgres:${POSTGRES_PASSWORD:-secure-password}@localhost:5432/bruno_site_test?sslmode=disable"
+	return "postgres://postgres:secure-password@localhost:5432/bruno_site_test?sslmode=disable"
 }
