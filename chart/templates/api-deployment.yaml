@@ -82,15 +82,21 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
-            - name: DATABASE_URL
-              value: "postgresql://{{ .Values.database.user }}:$(DATABASE_PASSWORD)@{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}?sslmode=disable"
+            - name: DATABASE_HOST
+              value: "{{ .Values.database.host }}"
+            - name: DATABASE_PORT
+              value: "{{ .Values.database.port }}"
+            - name: DATABASE_USER
+              value: "{{ .Values.database.user }}"
+            - name: DATABASE_NAME
+              value: "{{ .Values.database.name }}"
             - name: REDIS_URL
               value: "redis://{{ .Values.redis.host }}:{{ .Values.redis.port }}"
             - name: PORT
               value: "8080"
             - name: CORS_ORIGIN
               value: "{{ .Values.corsOrigin }}"
-            - name: DATABASE_PASSWORD
+            - name: PGPASSWORD
               {{- if .Values.database.existingSecret }}
               valueFrom:
                 secretKeyRef:

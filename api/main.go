@@ -92,7 +92,14 @@ func main() {
 // =============================================================================
 
 func initDatabase() error {
-	connStr := getEnv("DATABASE_URL", "postgresql://postgres:${POSTGRES_PASSWORD:-secure-password}@localhost:5432/bruno_site?sslmode=disable")
+	// Construct connection string from individual environment variables
+	host := getEnv("DATABASE_HOST", "localhost")
+	port := getEnv("DATABASE_PORT", "5432")
+	user := getEnv("DATABASE_USER", "postgres")
+	password := getEnv("PGPASSWORD", "secure-password")
+	dbname := getEnv("DATABASE_NAME", "bruno_site")
+
+	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", user, password, host, port, dbname)
 
 	var err error
 	db, err = sql.Open("postgres", connStr)
