@@ -64,13 +64,25 @@ spec:
             - -c
             - |
               echo "⏳ Waiting for Redis to be ready..."
+              {{- if .Values.redis.existingSecret }}
+              until redis-cli -h {{ .Values.redis.host }} -p {{ .Values.redis.port }} -a "$REDIS_PASSWORD" ping; do
+              {{- else }}
               until redis-cli -h {{ .Values.redis.host }} -p {{ .Values.redis.port }} ping; do
+              {{- end }}
                 echo "Redis is not ready yet. Waiting..."
                 sleep 5
               done
               echo "✅ Redis is ready!"
               # Additional wait to ensure Redis is fully ready
               sleep 5
+          {{- if .Values.redis.existingSecret }}
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.redis.existingSecret }}
+                  key: password
+          {{- end }}
       containers:
         - name: {{ .Chart.Name }}-api
           securityContext:
@@ -91,7 +103,22 @@ spec:
             - name: DATABASE_NAME
               value: "{{ .Values.database.name }}"
             - name: REDIS_URL
+              {{- if .Values.redis.existingSecret }}
+              value: "redis://:$(REDIS_PASSWORD)@{{ .Values.redis.host }}:{{ .Values.redis.port }}"
+              {{- else }}
               value: "redis://{{ .Values.redis.host }}:{{ .Values.redis.port }}"
+              {{- end }}
+            - name: REDIS_PASSWORD
+              {{- if .Values.redis.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.redis.existingSecret }}
+                  key: password
+              {{- else if .Values.secrets.redisPassword }}
+              value: {{ .Values.secrets.redisPassword | quote }}
+              {{- else }}
+              value: ""
+              {{- end }}
             - name: PORT
               value: "8080"
             - name: CORS_ORIGIN
