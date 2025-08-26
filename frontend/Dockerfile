@@ -9,8 +9,8 @@ COPY package*.json ./
 
 # Install all dependencies with better error handling and fallback
 RUN npm cache clean --force && \
-    npm ci --legacy-peer-deps --no-audit --no-fund --force --verbose || \
-    npm install --legacy-peer-deps --no-audit --no-fund --force --verbose
+    npm ci --no-audit --no-fund --verbose || \
+    npm install --no-audit --no-fund --verbose
 
 # Copy source code
 COPY . .

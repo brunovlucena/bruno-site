@@ -24,9 +24,7 @@
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.8.0",
-    "@testing-library/react": "^18.2.0",
-    "@testing-library/user-event": "^14.6.1",
+
     "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^8.40.0",
     "@typescript-eslint/parser": "^8.40.0",
@@ -38,26 +36,18 @@
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "msw": "^2.10.5",
-    "playwright": "^1.55.0",
+
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.12",
     "terser": "^5.43.1",
     "typescript": "^5.9.2",
-    "vite": "^7.1.3",
-    "vitest": "^3.2.4",
-    "@vitest/coverage-v8": "^3.2.4"
+    "vite": "^7.1.3"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "test:watch": "vitest --watch",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "preview": "vite preview"
   },
   "browserslist": {
     "production": [
