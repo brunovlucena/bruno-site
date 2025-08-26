@@ -22,14 +22,24 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -a -installsuffix cgo \
     -o main .
 
-# Final stage - use scratch for minimal size
-FROM scratch
+# Final stage - use alpine for database tools
+FROM alpine:latest
+
+# Install PostgreSQL client and other necessary tools
+RUN apk update && apk add --no-cache \
+    postgresql-client \
+    bash \
+    curl \
+    && rm -rf /var/cache/apk/*
 
 # Copy ca-certificates from builder
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copy the binary
 COPY --from=builder /app/main /app/main
+
+# Copy migration files
+COPY --from=builder /app/migrations /app/migrations
 
 # Expose port
 EXPOSE 8080
