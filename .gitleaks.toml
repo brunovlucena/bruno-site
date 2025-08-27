@@ -1,0 +1,335 @@
+# GitLeaks configuration for Bruno Site
+# This file configures GitLeaks to detect secrets and sensitive information
+
+[allowlist]
+description = "Allowlist for false positives"
+paths = [
+    '''\.md$''',
+    '''\.txt$''',
+    '''\.json$''',
+    '''\.yaml$''',
+    '''\.yml$''',
+    '''\.toml$''',
+    '''\.example$''',
+    '''\.sample$''',
+    '''test.*''',
+    '''example.*''',
+    '''sample.*''',
+    '''mock.*''',
+    '''fixture.*''',
+    '''VULNERABILITY_ANALYSIS_REPORT\.md''',
+    '''README\.md''',
+    '''\.gitignore''',
+    '''Dockerfile''',
+    '''docker-compose\.yml''',
+    '''env\.example''',
+    '''\.github/.*''',
+    '''scripts/.*''',
+    '''docs/.*''',
+    '''tests/.*''',
+    '''chart/.*''',
+    '''frontend/public/.*''',
+    '''frontend/src/assets/.*'''
+]
+
+commits = [
+    "allowlisted-commit-hash-here"
+]
+
+regexes = [
+    '''(?i)(test|example|sample|mock|fake|dummy).*password''',
+    '''(?i)(test|example|sample|mock|fake|dummy).*secret''',
+    '''(?i)(test|example|sample|mock|fake|dummy).*key''',
+    '''(?i)(test|example|sample|mock|fake|dummy).*token''',
+    '''(?i)(test|example|sample|mock|fake|dummy).*api_key''',
+    '''(?i)(test|example|sample|mock|fake|dummy).*private_key''',
+    '''(?i)(test|example|sample|mock|fake|dummy).*access_key''',
+    '''(?i)(test|example|sample|mock|fake|dummy).*secret_key'''
+]
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+regex = '''(?i)(api[_-]?key|apikey|api_key)['\"]?\s*[:=]\s*['"]?[a-zA-Z0-9]{32,45}['"]?'''
+tags = ["key", "api"]
+severity = "HIGH"
+
+[[rules]]
+id = "aws-access-key-id"
+description = "AWS Access Key ID"
+regex = '''AKIA[0-9A-Z]{16}'''
+tags = ["key", "AWS"]
+severity = "HIGH"
+
+[[rules]]
+id = "aws-secret-access-key"
+description = "AWS Secret Access Key"
+regex = '''(?i)aws[_-]?(secret[_-]?)?access[_-]?key[_-]?id['\"]?\s*[:=]\s*['"]?[A-Za-z0-9/+=]{20}['"]?'''
+tags = ["key", "AWS"]
+severity = "CRITICAL"
+
+[[rules]]
+id = "github-personal-access-token"
+description = "GitHub Personal Access Token"
+regex = '''ghp_[a-zA-Z0-9]{36}'''
+tags = ["key", "GitHub"]
+severity = "HIGH"
+
+[[rules]]
+id = "github-oauth-token"
+description = "GitHub OAuth Token"
+regex = '''gho_[a-zA-Z0-9]{36}'''
+tags = ["key", "GitHub"]
+severity = "HIGH"
+
+[[rules]]
+id = "github-app-token"
+description = "GitHub App Token"
+regex = '''ghu_[a-zA-Z0-9]{36}'''
+tags = ["key", "GitHub"]
+severity = "HIGH"
+
+[[rules]]
+id = "github-refresh-token"
+description = "GitHub Refresh Token"
+regex = '''ghr_[a-zA-Z0-9]{36}'''
+tags = ["key", "GitHub"]
+severity = "HIGH"
+
+[[rules]]
+id = "private-key"
+description = "Private Key"
+regex = '''-----BEGIN[^-]+PRIVATE KEY-----'''
+tags = ["key", "private"]
+severity = "HIGH"
+
+[[rules]]
+id = "rsa-private-key"
+description = "RSA Private Key"
+regex = '''-----BEGIN RSA PRIVATE KEY-----'''
+tags = ["key", "RSA", "private"]
+severity = "HIGH"
+
+[[rules]]
+id = "dsa-private-key"
+description = "DSA Private Key"
+regex = '''-----BEGIN DSA PRIVATE KEY-----'''
+tags = ["key", "DSA", "private"]
+severity = "HIGH"
+
+[[rules]]
+id = "ec-private-key"
+description = "EC Private Key"
+regex = '''-----BEGIN EC PRIVATE KEY-----'''
+tags = ["key", "EC", "private"]
+severity = "HIGH"
+
+[[rules]]
+id = "pgp-private-key"
+description = "PGP Private Key"
+regex = '''-----BEGIN PGP PRIVATE KEY BLOCK-----'''
+tags = ["key", "PGP", "private"]
+severity = "HIGH"
+
+[[rules]]
+id = "database-url"
+description = "Database URL with credentials"
+regex = '''(?i)(mongodb|postgresql|mysql|redis)://[a-zA-Z0-9._%+-]+:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'''
+tags = ["database", "url"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "postgresql-connection-string"
+description = "PostgreSQL Connection String"
+regex = '''(?i)postgresql://[a-zA-Z0-9._%+-]+:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'''
+tags = ["database", "postgresql"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "redis-connection-string"
+description = "Redis Connection String"
+regex = '''(?i)redis://[a-zA-Z0-9._%+-]+:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'''
+tags = ["database", "redis"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "jwt-token"
+description = "JWT Token"
+regex = '''eyJ[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*'''
+tags = ["token", "JWT"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "password-in-url"
+description = "Password in URL"
+regex = '''[a-zA-Z]{3,10}://[^/\\s:@]*?:[^/\\s:@]*?@[^/\\s:@]*'''
+tags = ["password", "url"]
+severity = "HIGH"
+
+[[rules]]
+id = "email-password"
+description = "Email with password"
+regex = '''(?i)(email|mail|username)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["email", "password"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "docker-registry-password"
+description = "Docker Registry Password"
+regex = '''(?i)(docker|registry)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["docker", "registry", "password"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "kubernetes-secret"
+description = "Kubernetes Secret"
+regex = '''(?i)(kubernetes|k8s)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["kubernetes", "secret"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "cloudflare-api-token"
+description = "Cloudflare API Token"
+regex = '''(?i)(cloudflare|cf)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["cloudflare", "api", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "snyk-token"
+description = "Snyk Token"
+regex = '''(?i)(snyk)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["snyk", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "trivy-token"
+description = "Trivy Token"
+regex = '''(?i)(trivy)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["trivy", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "gitleaks-token"
+description = "GitLeaks Token"
+regex = '''(?i)(gitleaks)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["gitleaks", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "github-token"
+description = "GitHub Token"
+regex = '''(?i)(github|gh)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["github", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "gitlab-token"
+description = "GitLab Token"
+regex = '''(?i)(gitlab|gl)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["gitlab", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "bitbucket-token"
+description = "Bitbucket Token"
+regex = '''(?i)(bitbucket|bb)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["bitbucket", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "slack-token"
+description = "Slack Token"
+regex = '''(?i)(slack)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["slack", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "discord-token"
+description = "Discord Token"
+regex = '''(?i)(discord)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["discord", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "telegram-token"
+description = "Telegram Token"
+regex = '''(?i)(telegram|tg)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["telegram", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "twilio-token"
+description = "Twilio Token"
+regex = '''(?i)(twilio)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["twilio", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "stripe-token"
+description = "Stripe Token"
+regex = '''(?i)(stripe)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["stripe", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "paypal-token"
+description = "PayPal Token"
+regex = '''(?i)(paypal)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["paypal", "token"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "google-api-key"
+description = "Google API Key"
+regex = '''AIza[0-9A-Za-z\\-_]{35}'''
+tags = ["key", "Google", "API"]
+severity = "HIGH"
+
+[[rules]]
+id = "firebase-api-key"
+description = "Firebase API Key"
+regex = '''AIza[0-9A-Za-z\\-_]{35}'''
+tags = ["key", "Firebase", "API"]
+severity = "HIGH"
+
+[[rules]]
+id = "openai-api-key"
+description = "OpenAI API Key"
+regex = '''sk-[a-zA-Z0-9]{48}'''
+tags = ["key", "OpenAI", "API"]
+severity = "HIGH"
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API Key"
+regex = '''sk-ant-[a-zA-Z0-9]{48}'''
+tags = ["key", "Anthropic", "API"]
+severity = "HIGH"
+
+[[rules]]
+id = "cohere-api-key"
+description = "Cohere API Key"
+regex = '''[a-zA-Z0-9]{40}'''
+tags = ["key", "Cohere", "API"]
+severity = "HIGH"
+
+[[rules]]
+id = "huggingface-api-key"
+description = "Hugging Face API Key"
+regex = '''hf_[a-zA-Z0-9]{39}'''
+tags = ["key", "HuggingFace", "API"]
+severity = "HIGH"
+
+[[rules]]
+id = "ollama-api-key"
+description = "Ollama API Key"
+regex = '''(?i)(ollama)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["ollama", "API"]
+severity = "MEDIUM"
+
+[[rules]]
+id = "bruno-api-key"
+description = "Bruno API Key"
+regex = '''(?i)(bruno)[\s]*[:=][\s]*[a-zA-Z0-9._%+-]+'''
+tags = ["bruno", "API"]
+severity = "MEDIUM"

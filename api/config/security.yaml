@@ -10,8 +10,18 @@ security:
     
   # CORS (Cross-Origin Resource Sharing) settings
   cors:
+    # 🚨 SECURITY: Remove wildcard origins in production
+    # Development origins (localhost only)
     allowed_origins:
-      - "*"  # In production, specify exact domains
+      - "http://localhost:3000"
+      - "http://localhost:8080"
+      - "http://127.0.0.1:3000"
+      - "http://127.0.0.1:8080"
+    # Production origins (add your actual domains)
+    # allowed_origins_production:
+    #   - "https://yourdomain.com"
+    #   - "https://www.yourdomain.com"
+    #   - "https://api.yourdomain.com"
     allowed_methods:
       - "GET"
       - "POST"
@@ -23,8 +33,11 @@ security:
       - "Content-Type"
       - "Accept"
       - "Authorization"
+      - "X-Requested-With"
+      - "X-CSRF-Token"
     expose_headers:
       - "Content-Length"
+      - "X-Total-Count"
     allow_credentials: true
     max_age: "12h"
     

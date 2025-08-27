@@ -48,6 +48,16 @@ help:
 	@echo "  make lint                  - Lint code"
 	@echo "  make optimize-images       - Optimize images for web performance"
 	@echo ""
+	@echo "🔒 Security Commands:"
+	@echo "  make security-install-tools - Install security scanning tools"
+	@echo "  make security-scan         - Run comprehensive security scan"
+	@echo "  make security-scan-local   - Run basic local security scan"
+	@echo "  make security-scan-containers - Scan Docker containers"
+	@echo "  make security-scan-deps    - Scan dependencies"
+	@echo "  make security-scan-code    - Scan code for security issues"
+	@echo "  make security-scan-secrets - Scan for secrets"
+	@echo "  make security-report       - Generate security report"
+	@echo ""
 
 # Start services (development)
 up:
@@ -382,3 +392,124 @@ optimize-images:
 	@cd scripts && npm install
 	@cd scripts && npm run optimize-images
 	@echo "✅ Image optimization completed!"
+
+# 🔒 Security Scanning Commands
+.PHONY: security-scan security-scan-local security-scan-containers security-scan-deps security-scan-code security-scan-secrets security-install-tools security-report
+
+# Install security scanning tools
+security-install-tools:
+	@echo "🔧 Installing security scanning tools..."
+	@which trivy || (echo "Installing Trivy..." && curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.48.0)
+	@which gosec || (echo "Installing GoSec..." && go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest)
+	@which gitleaks || (echo "Installing GitLeaks..." && curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sh -s -- -b /usr/local/bin v8.18.0)
+	@which trufflehog || (echo "Installing TruffleHog..." && pip install trufflehog)
+	@echo "✅ Security tools installed"
+
+# Run comprehensive security scan
+security-scan: security-scan-containers security-scan-deps security-scan-code security-scan-secrets security-report
+
+# Scan Docker containers for vulnerabilities
+security-scan-containers:
+	@echo "🔍 Scanning Docker containers for vulnerabilities..."
+	@which trivy || (echo "❌ Trivy not found. Run 'make security-install-tools' first." && exit 1)
+	@echo "Scanning API container..."
+	@docker build -t bruno-site-api:scan ./api
+	@trivy image --severity CRITICAL,HIGH,MEDIUM --format table bruno-site-api:scan || true
+	@echo "Scanning Frontend container..."
+	@docker build -t bruno-site-frontend:scan ./frontend
+	@trivy image --severity CRITICAL,HIGH,MEDIUM --format table bruno-site-frontend:scan || true
+	@echo "✅ Container security scan completed"
+
+# Scan dependencies for vulnerabilities
+security-scan-deps:
+	@echo "📦 Scanning dependencies for vulnerabilities..."
+	@which trivy || (echo "❌ Trivy not found. Run 'make security-install-tools' first." && exit 1)
+	@echo "Scanning Go dependencies..."
+	@cd api && trivy fs --severity CRITICAL,HIGH,MEDIUM --format table . || true
+	@echo "Scanning Node.js dependencies..."
+	@cd frontend && trivy fs --severity CRITICAL,HIGH,MEDIUM --format table . || true
+	@echo "✅ Dependency security scan completed"
+
+# Scan code for security issues
+security-scan-code:
+	@echo "🔍 Scanning code for security issues..."
+	@which gosec || (echo "❌ GoSec not found. Run 'make security-install-tools' first." && exit 1)
+	@echo "Scanning Go code..."
+	@cd api && gosec -fmt=json -out=../gosec-results.json ./... || true
+	@echo "Scanning JavaScript/TypeScript code..."
+	@cd frontend && npm audit --audit-level=high || true
+	@echo "✅ Code security scan completed"
+
+# Scan for secrets and sensitive information
+security-scan-secrets:
+	@echo "🔐 Scanning for secrets and sensitive information..."
+	@which gitleaks || (echo "❌ GitLeaks not found. Run 'make security-install-tools' first." && exit 1)
+	@which trufflehog || (echo "❌ TruffleHog not found. Run 'make security-install-tools' first." && exit 1)
+	@echo "Running GitLeaks scan..."
+	@gitleaks detect --source . --report-format json --report-path gitleaks-results.json || true
+	@echo "Running TruffleHog scan..."
+	@trufflehog --only-verified --format json . > trufflehog-results.json || true
+	@echo "✅ Secrets scan completed"
+
+# Generate security report
+security-report:
+	@echo "📊 Generating security report..."
+	@echo "🔒 Bruno Site Security Scan Report" > security-report.md
+	@echo "==================================" >> security-report.md
+	@echo "" >> security-report.md
+	@echo "**Scan Date:** $$(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> security-report.md
+	@echo "**Repository:** Bruno Site" >> security-report.md
+	@echo "**Branch:** $$(git branch --show-current)" >> security-report.md
+	@echo "**Commit:** $$(git rev-parse HEAD)" >> security-report.md
+	@echo "" >> security-report.md
+	@echo "## Scan Results Summary" >> security-report.md
+	@echo "" >> security-report.md
+	@echo "### Container Security" >> security-report.md
+	@echo "- Status: Completed" >> security-report.md
+	@echo "- Check results above for vulnerabilities" >> security-report.md
+	@echo "" >> security-report.md
+	@echo "### Dependency Security" >> security-report.md
+	@echo "- Status: Completed" >> security-report.md
+	@echo "- Check results above for vulnerabilities" >> security-report.md
+	@echo "" >> security-report.md
+	@echo "### Code Security" >> security-report.md
+	@echo "- Status: Completed" >> security-report.md
+	@echo "- Check results above for issues" >> security-report.md
+	@echo "" >> security-report.md
+	@echo "### Secrets Detection" >> security-report.md
+	@echo "- Status: Completed" >> security-report.md
+	@echo "- Check results above for exposed secrets" >> security-report.md
+	@echo "" >> security-report.md
+	@echo "## Next Steps" >> security-report.md
+	@echo "1. Review any detected vulnerabilities" >> security-report.md
+	@echo "2. Address critical and high severity issues immediately" >> security-report.md
+	@echo "3. Update dependencies with known vulnerabilities" >> security-report.md
+	@echo "4. Review and fix any exposed secrets" >> security-report.md
+	@echo "5. Run 'make security-scan' regularly" >> security-report.md
+	@echo "" >> security-report.md
+	@echo "## Files Generated" >> security-report.md
+	@echo "- gosec-results.json: Go security scan results" >> security-report.md
+	@echo "- gitleaks-results.json: Secrets detection results" >> security-report.md
+	@echo "- trufflehog-results.json: Additional secrets scan results" >> security-report.md
+	@echo "- security-report.md: This report" >> security-report.md
+	@echo "" >> security-report.md
+	@echo "✅ Security report generated: security-report.md"
+
+# Local security scan (without installing tools)
+security-scan-local:
+	@echo "🔒 Running local security scan..."
+	@echo "This scan uses tools that should be pre-installed:"
+	@echo "- Docker (for container scanning)"
+	@echo "- npm (for dependency scanning)"
+	@echo "- git (for repository info)"
+	@echo ""
+	@echo "For comprehensive scanning, run 'make security-install-tools' first"
+	@echo ""
+	@echo "Scanning containers..."
+	@docker build -t bruno-site-api:local-scan ./api 2>/dev/null || echo "⚠️ Could not build API container"
+	@docker build -t bruno-site-frontend:local-scan ./frontend 2>/dev/null || echo "⚠️ Could not build Frontend container"
+	@echo ""
+	@echo "Scanning dependencies..."
+	@cd frontend && npm audit --audit-level=high 2>/dev/null || echo "⚠️ npm audit failed"
+	@echo ""
+	@echo "✅ Local security scan completed"

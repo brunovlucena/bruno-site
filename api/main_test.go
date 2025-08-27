@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -395,6 +396,10 @@ func getTestDBURL() string {
 	if url := os.Getenv("TEST_DATABASE_URL"); url != "" {
 		return url
 	}
-	// Fallback to default test database URL
-	return "postgres://postgres:secure-password@localhost:5432/bruno_site_test?sslmode=disable"
+	// Fallback to default test database URL with SSL mode from environment
+	sslMode := os.Getenv("TEST_DATABASE_SSL_MODE")
+	if sslMode == "" {
+		sslMode = "disable" // Default to disable for local testing
+	}
+	return fmt.Sprintf("postgres://postgres:secure-password@localhost:5432/bruno_site_test?sslmode=%s", sslMode)
 }

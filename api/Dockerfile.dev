@@ -23,7 +23,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -o main .
 
 # Development stage - use alpine with debug tools
-FROM alpine:latest
+FROM alpine:3.21
 
 # Install debug tools and runtime dependencies
 RUN apk update && apk add --no-cache \

@@ -39,6 +39,11 @@ This Bruno site system demonstrates:
 git clone <repository-url>
 cd bruno-dev
 
+# 🚨 CRITICAL: Configure secure credentials first!
+# See [Security Setup Guide](./SETUP_SECURITY.md) for details
+cp env.example .env
+# Edit .env with your secure passwords
+
 # Start all services
 docker-compose up -d
 
@@ -54,6 +59,8 @@ open http://localhost:3000
 - **[⚡ Performance Plan](./PERFORMANCE_OPTIMIZATION_PLAN.md)** - Performance optimization strategies
 
 ### Infrastructure & Security
+- **[🔐 Security Setup Guide](./SETUP_SECURITY.md)** - **CRITICAL**: Configure secure credentials
+- **[🔒 Security Documentation](./SECURITY.md)** - Comprehensive security overview
 - **[☁️ Cloudflare Setup](./CLOUDFLARE_SETUP_GUIDE.md)** - CDN and security configuration
 - **[🔒 Security Report](./PENETRATION_TEST_REPORT.md)** - Security assessment and findings
 - **[🛡️ Security Improvements](./SECURITY_IMPROVEMENTS_SUMMARY.md)** - Security enhancements
