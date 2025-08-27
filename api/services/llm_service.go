@@ -6,11 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"bruno-api/utils"
 )
 
 // LLMService handles communication with Ollama
@@ -69,10 +70,11 @@ func NewLLMService(db *sql.DB) *LLMService {
 		},
 	}
 
-	log.Printf("🤖 LLM Service initialized")
-	log.Printf("   📍 Ollama URL: %s", service.ollamaURL)
-	log.Printf("   🎯 Model: %s", service.model)
-	log.Printf("   ⏱️  Timeout: %v", service.httpClient.Timeout)
+	utils.SecureLog.Info("LLM Service initialized", map[string]interface{}{
+		"ollama_url": service.ollamaURL,
+		"model":      service.model,
+		"timeout":    service.httpClient.Timeout.String(),
+	})
 
 	// Test connection on startup
 	go service.testConnectionOnStartup()
@@ -82,20 +84,19 @@ func NewLLMService(db *sql.DB) *LLMService {
 
 // testConnectionOnStartup tests the Ollama connection in background
 func (llm *LLMService) testConnectionOnStartup() {
-	log.Printf("🔍 Testing Ollama connection on startup...")
+	utils.SecureLog.Info("Testing Ollama connection on startup")
 
 	// Wait a bit for the service to fully start
 	time.Sleep(2 * time.Second)
 
 	if err := llm.HealthCheck(); err != nil {
-		log.Printf("❌ Ollama connection test failed: %v", err)
-		log.Printf("💡 Troubleshooting tips:")
-		log.Printf("   1. Check if Ollama is running: curl %s/api/tags", llm.ollamaURL)
-		log.Printf("   2. Verify network connectivity to %s", llm.ollamaURL)
-		log.Printf("   3. Check if model %s is available", llm.model)
-		log.Printf("   4. Verify firewall settings")
+		utils.SecureLog.Error("Ollama connection test failed", err, map[string]interface{}{
+			"ollama_url": llm.ollamaURL,
+			"model":      llm.model,
+		})
+		utils.SecureLog.Info("Troubleshooting tips: Check if Ollama is running, verify network connectivity, check model availability, verify firewall settings")
 	} else {
-		log.Printf("✅ Ollama connection test successful")
+		utils.SecureLog.Info("Ollama connection test successful")
 	}
 }
 
@@ -104,38 +105,46 @@ func (llm *LLMService) ProcessChat(request ChatRequest) (*ChatResponse, error) {
 	startTime := time.Now()
 	requestID := fmt.Sprintf("chat_%d", startTime.UnixNano())
 
-	log.Printf("🚀 [%s] Starting chat processing", requestID)
-	log.Printf("   📝 Message: %s", truncateString(request.Message, 100))
-	log.Printf("   🎯 Model: %s", llm.model)
-	log.Printf("   🌐 Ollama URL: %s", llm.ollamaURL)
-	log.Printf("   🔧 Environment: OLLAMA_URL=%s", os.Getenv("OLLAMA_URL"))
-	log.Printf("   🔧 Environment: GEMMA_MODEL=%s", os.Getenv("GEMMA_MODEL"))
+	utils.SecureLog.Info("Starting chat processing", map[string]interface{}{
+		"request_id":     requestID,
+		"message_length": len(request.Message),
+		"model":          llm.model,
+	})
 
 	// Build context from PostgreSQL data
-	log.Printf("🔧 [%s] Building context from database...", requestID)
+	utils.SecureLog.Info("Building context from database", map[string]interface{}{
+		"request_id": requestID,
+	})
 	context, err := llm.contextBuilder.BuildContext(request.Message)
 	if err != nil {
-		log.Printf("❌ [%s] Context building failed: %v", requestID, err)
-		log.Printf("   🔍 Database connection status: %v", llm.contextBuilder.db != nil)
+		utils.SecureLog.Error("Context building failed", err, map[string]interface{}{
+			"request_id":   requestID,
+			"db_connected": llm.contextBuilder.db != nil,
+		})
 		return nil, fmt.Errorf("failed to build context: %v", err)
 	}
-	log.Printf("✅ [%s] Context built successfully (%d chars)", requestID, len(context))
-	log.Printf("   📄 Context preview: %s", truncateString(context, 200))
+	utils.SecureLog.Info("Context built successfully", map[string]interface{}{
+		"request_id":     requestID,
+		"context_length": len(context),
+	})
 
 	// Generate response using Ollama
-	log.Printf("🦙 [%s] Calling Ollama API...", requestID)
-	log.Printf("   🔍 Testing Ollama connectivity first...")
+	utils.SecureLog.Info("Calling Ollama API", map[string]interface{}{
+		"request_id": requestID,
+	})
 	if err := llm.HealthCheck(); err != nil {
-		log.Printf("❌ [%s] Ollama health check failed before API call: %v", requestID, err)
-		log.Printf("   💡 This might indicate network connectivity issues")
+		utils.SecureLog.Warning("Ollama health check failed before API call", map[string]interface{}{
+			"request_id": requestID,
+			"error":      err.Error(),
+		})
 	}
 
 	response, err := llm.callOllama(context, requestID)
 
 	if err != nil {
-		log.Printf("❌ [%s] Ollama API call failed: %v", requestID, err)
-		log.Printf("   🔍 Error type: %T", err)
-		log.Printf("   🔍 Full error details: %+v", err)
+		utils.SecureLog.Error("Ollama API call failed", err, map[string]interface{}{
+			"request_id": requestID,
+		})
 		return nil, fmt.Errorf("LLM request failed: %v", err)
 	}
 
@@ -148,21 +157,24 @@ func (llm *LLMService) ProcessChat(request ChatRequest) (*ChatResponse, error) {
 	}
 
 	duration := time.Since(startTime)
-	log.Printf("✅ [%s] Chat processing completed in %v", requestID, duration)
-	log.Printf("   📤 Response length: %d chars", len(response))
-	log.Printf("   🎯 Model used: %s", llm.model)
+	utils.SecureLog.Info("Chat processing completed", map[string]interface{}{
+		"request_id":      requestID,
+		"duration":        duration.String(),
+		"response_length": len(response),
+		"model":           llm.model,
+	})
 
 	return chatResponse, nil
 }
 
 // callOllama sends request to Ollama API with enhanced logging
 func (llm *LLMService) callOllama(prompt string, requestID string) (string, error) {
-	log.Printf("🦙 [%s] Preparing Ollama request", requestID)
-	log.Printf("   📍 URL: %s/api/chat", llm.ollamaURL)
-	log.Printf("   🎯 Model: %s", llm.model)
-	log.Printf("   📝 Prompt length: %d chars", len(prompt))
-	log.Printf("   🔧 HTTP Client timeout: %v", llm.httpClient.Timeout)
-	log.Printf("   🔧 HTTP Client transport: %T", llm.httpClient.Transport)
+	utils.SecureLog.Info("Preparing Ollama request", map[string]interface{}{
+		"request_id":    requestID,
+		"model":         llm.model,
+		"prompt_length": len(prompt),
+		"timeout":       llm.httpClient.Timeout.String(),
+	})
 
 	requestBody := OllamaRequest{
 		Model: llm.model,
@@ -181,16 +193,21 @@ func (llm *LLMService) callOllama(prompt string, requestID string) (string, erro
 
 	jsonData, err := json.Marshal(requestBody)
 	if err != nil {
-		log.Printf("❌ [%s] Failed to marshal request: %v", requestID, err)
+		utils.SecureLog.Error("Failed to marshal request", err, map[string]interface{}{
+			"request_id": requestID,
+		})
 		return "", fmt.Errorf("failed to marshal request: %v", err)
 	}
-	log.Printf("📦 [%s] Request payload size: %d bytes", requestID, len(jsonData))
+	utils.SecureLog.Info("Request payload prepared", map[string]interface{}{
+		"request_id":   requestID,
+		"payload_size": len(jsonData),
+	})
 
 	// Log request details (without sensitive data)
-	log.Printf("📤 [%s] Sending HTTP POST request", requestID)
-	log.Printf("   🔗 URL: %s/api/chat", llm.ollamaURL)
-	log.Printf("   📋 Headers: Content-Type=application/json")
-	log.Printf("   ⏱️  Timeout: %v", llm.httpClient.Timeout)
+	utils.SecureLog.Info("Sending HTTP POST request", map[string]interface{}{
+		"request_id": requestID,
+		"timeout":    llm.httpClient.Timeout.String(),
+	})
 
 	startTime := time.Now()
 	resp, err := llm.httpClient.Post(
@@ -201,101 +218,104 @@ func (llm *LLMService) callOllama(prompt string, requestID string) (string, erro
 	requestDuration := time.Since(startTime)
 
 	if err != nil {
-		log.Printf("❌ [%s] HTTP request failed after %v: %v", requestID, requestDuration, err)
-		log.Printf("💡 [%s] Connection troubleshooting:", requestID)
-		log.Printf("   - Check if Ollama is running on %s", llm.ollamaURL)
-		log.Printf("   - Verify network connectivity")
-		log.Printf("   - Check firewall settings")
-		log.Printf("   - Test with: curl -X POST %s/api/chat", llm.ollamaURL)
-		log.Printf("   🔍 Error type: %T", err)
-		log.Printf("   🔍 Network error details: %+v", err)
-		log.Printf("   🔍 DNS resolution test: nslookup %s", strings.TrimPrefix(strings.TrimPrefix(llm.ollamaURL, "http://"), "https://"))
+		utils.SecureLog.Error("HTTP request failed", err, map[string]interface{}{
+			"request_id": requestID,
+			"duration":   requestDuration.String(),
+		})
 		return "", fmt.Errorf("HTTP request failed: %v", err)
 	}
 	defer resp.Body.Close()
 
-	log.Printf("📥 [%s] Received response in %v", requestID, requestDuration)
-	log.Printf("   📊 Status: %d %s", resp.StatusCode, resp.Status)
-	log.Printf("   📋 Headers: %v", resp.Header)
+	utils.SecureLog.Info("Received response", map[string]interface{}{
+		"request_id":  requestID,
+		"duration":    requestDuration.String(),
+		"status_code": resp.StatusCode,
+		"status":      resp.Status,
+	})
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		log.Printf("❌ [%s] Ollama API error response:", requestID)
-		log.Printf("   📊 Status: %d", resp.StatusCode)
-		log.Printf("   📝 Body: %s", string(body))
-		log.Printf("💡 [%s] Error troubleshooting:", requestID)
-		log.Printf("   - Check if model '%s' is available", llm.model)
-		log.Printf("   - Verify Ollama service status")
-		log.Printf("   - Check Ollama logs for errors")
+		utils.SecureLog.Error("Ollama API error response", fmt.Errorf("status %d: %s", resp.StatusCode, string(body)), map[string]interface{}{
+			"request_id":  requestID,
+			"status_code": resp.StatusCode,
+			"model":       llm.model,
+		})
 		return "", fmt.Errorf("ollama API error (status %d): %s", resp.StatusCode, string(body))
 	}
 
 	// Read and parse response
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("❌ [%s] Failed to read response body: %v", requestID, err)
+		utils.SecureLog.Error("Failed to read response body", err, map[string]interface{}{
+			"request_id": requestID,
+		})
 		return "", fmt.Errorf("failed to read response body: %v", err)
 	}
-	log.Printf("📦 [%s] Response body size: %d bytes", requestID, len(body))
+	utils.SecureLog.Info("Response body read", map[string]interface{}{
+		"request_id": requestID,
+		"body_size":  len(body),
+	})
 
 	var ollamaResp OllamaResponse
 	if err := json.Unmarshal(body, &ollamaResp); err != nil {
-		log.Printf("❌ [%s] Failed to unmarshal response: %v", requestID, err)
-		log.Printf("   📝 Raw response: %s", string(body))
+		utils.SecureLog.Error("Failed to unmarshal response", err, map[string]interface{}{
+			"request_id": requestID,
+		})
 		return "", fmt.Errorf("failed to decode response: %v", err)
 	}
 
 	response := strings.TrimSpace(ollamaResp.Message.Content)
 	response = strings.TrimSpace(response)
 
-	log.Printf("✅ [%s] Ollama response processed successfully", requestID)
-	log.Printf("   📝 Response length: %d chars", len(response))
-	log.Printf("   🎯 Model: %s", llm.model)
-	log.Printf("   ⏱️  Total time: %v", requestDuration)
+	utils.SecureLog.Info("Ollama response processed successfully", map[string]interface{}{
+		"request_id":      requestID,
+		"response_length": len(response),
+		"model":           llm.model,
+		"total_time":      requestDuration.String(),
+	})
 
 	return response, nil
 }
 
 // HealthCheck checks if Ollama service is available with enhanced logging
 func (llm *LLMService) HealthCheck() error {
-	log.Printf("🏥 Starting Ollama health check...")
-	log.Printf("   📍 URL: %s/api/tags", llm.ollamaURL)
-	log.Printf("   ⏱️  Timeout: %v", llm.httpClient.Timeout)
-	log.Printf("   🔧 Environment OLLAMA_URL: %s", os.Getenv("OLLAMA_URL"))
-	log.Printf("   🔧 Service ollamaURL: %s", llm.ollamaURL)
+	utils.SecureLog.Info("Starting Ollama health check", map[string]interface{}{
+		"timeout": llm.httpClient.Timeout.String(),
+	})
 
 	startTime := time.Now()
 	resp, err := llm.httpClient.Get(fmt.Sprintf("%s/api/tags", llm.ollamaURL))
 	duration := time.Since(startTime)
 
 	if err != nil {
-		log.Printf("❌ Health check failed after %v: %v", duration, err)
-		log.Printf("💡 Troubleshooting tips:")
-		log.Printf("   - Check if Ollama is running: ollama serve")
-		log.Printf("   - Verify URL is accessible: curl %s/api/tags", llm.ollamaURL)
-		log.Printf("   - Check network connectivity")
-		log.Printf("   - Verify firewall settings")
-		log.Printf("🔍 Error type: %T", err)
-		log.Printf("🔍 Network error details: %+v", err)
-		log.Printf("🔍 DNS resolution test: nslookup %s", strings.TrimPrefix(strings.TrimPrefix(llm.ollamaURL, "http://"), "https://"))
+		utils.SecureLog.Error("Health check failed", err, map[string]interface{}{
+			"duration": duration.String(),
+		})
 		return fmt.Errorf("ollama health check failed: %v", err)
 	}
 	defer resp.Body.Close()
 
-	log.Printf("📥 Health check response received in %v", duration)
-	log.Printf("   📊 Status: %d %s", resp.StatusCode, resp.Status)
+	utils.SecureLog.Info("Health check response received", map[string]interface{}{
+		"duration":    duration.String(),
+		"status_code": resp.StatusCode,
+		"status":      resp.Status,
+	})
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		log.Printf("❌ Health check failed with status %d: %s", resp.StatusCode, string(body))
+		utils.SecureLog.Error("Health check failed with status", fmt.Errorf("status %d: %s", resp.StatusCode, string(body)), map[string]interface{}{
+			"status_code": resp.StatusCode,
+		})
 		return fmt.Errorf("ollama health check failed with status: %d", resp.StatusCode)
 	}
 
 	// Try to parse the response to get model information
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("⚠️ Health check succeeded but failed to read response: %v", err)
-		log.Printf("✅ Ollama is responding (status 200)")
+		utils.SecureLog.Warning("Health check succeeded but failed to read response", map[string]interface{}{
+			"error": err.Error(),
+		})
+		utils.SecureLog.Info("Ollama is responding (status 200)")
 		return nil
 	}
 
@@ -308,31 +328,35 @@ func (llm *LLMService) HealthCheck() error {
 	}
 
 	if err := json.Unmarshal(body, &modelsResponse); err != nil {
-		log.Printf("⚠️ Health check succeeded but failed to parse models: %v", err)
-		log.Printf("✅ Ollama is responding (status 200)")
+		utils.SecureLog.Warning("Health check succeeded but failed to parse models", map[string]interface{}{
+			"error": err.Error(),
+		})
+		utils.SecureLog.Info("Ollama is responding (status 200)")
 		return nil
 	}
 
-	log.Printf("✅ Ollama health check successful")
-	log.Printf("   📋 Available models: %d", len(modelsResponse.Models))
+	utils.SecureLog.Info("Ollama health check successful", map[string]interface{}{
+		"available_models": len(modelsResponse.Models),
+	})
 
 	// Check if our model is available
 	modelFound := false
 	for _, model := range modelsResponse.Models {
 		if model.Name == llm.model {
 			modelFound = true
-			log.Printf("   ✅ Required model '%s' found (%d bytes)", model.Name, model.Size)
+			utils.SecureLog.Info("Required model found", map[string]interface{}{
+				"model":      model.Name,
+				"size_bytes": model.Size,
+			})
 			break
 		}
 	}
 
 	if !modelFound {
-		log.Printf("⚠️ Required model '%s' not found in available models", llm.model)
-		log.Printf("   📋 Available models:")
-		for _, model := range modelsResponse.Models {
-			log.Printf("      - %s (%d bytes)", model.Name, model.Size)
-		}
-		log.Printf("💡 To install the model: ollama pull %s", llm.model)
+		utils.SecureLog.Warning("Required model not found in available models", map[string]interface{}{
+			"required_model":   llm.model,
+			"available_models": len(modelsResponse.Models),
+		})
 	}
 
 	return nil

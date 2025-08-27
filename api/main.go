@@ -12,7 +12,6 @@ import (
 	"time"
 
 	// 🌐 Web framework and middleware
-	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 
@@ -31,6 +30,9 @@ import (
 
 	// 🤖 LLM services
 	"bruno-api/services"
+
+	// 🔐 Secure logging utilities
+	"bruno-api/utils"
 )
 
 // =============================================================================
@@ -82,8 +84,11 @@ func main() {
 	port := getEnv("PORT", "8080")
 
 	// Start server
-	log.Printf("🚀 Server starting on port %s", port)
+	utils.SecureLog.Info("Server starting", map[string]interface{}{
+		"port": port,
+	})
 	if err := router.Run(":" + port); err != nil {
+		utils.SecureLog.Error("Failed to start server", err, nil)
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
@@ -100,9 +105,48 @@ func initDatabase() error {
 	password := getEnv("PGPASSWORD", "secure-password")
 	dbname := getEnv("DATABASE_NAME", "bruno_site")
 
+	// 🔒 SECURITY: SSL mode configuration
+	// Default to 'require' for production, 'disable' for development
+	env := getEnv("APP_ENV", "development")
+	sslMode := getEnv("DATABASE_SSL_MODE", "")
+
+	if sslMode == "" {
+		switch env {
+		case "production":
+			sslMode = "require" // 🔒 Production must use SSL
+		case "staging":
+			sslMode = "require" // 🔒 Staging should use SSL
+		default:
+			sslMode = "disable" // Development can use plain text for local testing
+		}
+	}
+
+	// Validate SSL mode
+	validSSLModes := []string{"disable", "require", "verify-ca", "verify-full"}
+	validMode := false
+	for _, mode := range validSSLModes {
+		if sslMode == mode {
+			validMode = true
+			break
+		}
+	}
+	if !validMode {
+		return fmt.Errorf("invalid DATABASE_SSL_MODE: %s. Valid modes: %v", sslMode, validSSLModes)
+	}
+
 	// URL-encode the password to handle special characters
 	encodedPassword := url.QueryEscape(password)
-	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", user, encodedPassword, host, port, dbname)
+	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s", user, encodedPassword, host, port, dbname, sslMode)
+
+	// Log SSL configuration (without sensitive data)
+	utils.SecureLog.Info("Database connection configuration", map[string]interface{}{
+		"host":     host,
+		"port":     port,
+		"database": dbname,
+		"user":     user,
+		"ssl_mode": sslMode,
+		"env":      env,
+	})
 
 	var err error
 	db, err = sql.Open("postgres", connStr)
@@ -119,12 +163,12 @@ func initDatabase() error {
 	maxRetries := 30
 	for i := 0; i < maxRetries; i++ {
 		if err := db.Ping(); err != nil {
-			log.Printf("⏳ Database connection attempt %d/%d failed: %v", i+1, maxRetries, err)
+			utils.SecureLog.LogDatabaseConnection(i+1, maxRetries, host, port, dbname, err)
 			if i < maxRetries-1 {
 				time.Sleep(time.Duration(i+1) * 2 * time.Second)
 			}
 		} else {
-			log.Println("✅ Database connected successfully")
+			utils.SecureLog.LogDatabaseConnection(i+1, maxRetries, host, port, dbname, nil)
 			return nil
 		}
 	}
@@ -142,19 +186,34 @@ func initRedis() error {
 
 	redisClient = redis.NewClient(opts)
 
+	// Extract host and port for logging (without credentials)
+	host := "localhost"
+	port := "6379"
+	if strings.HasPrefix(redisURL, "redis://") {
+		parts := strings.Split(strings.TrimPrefix(redisURL, "redis://"), "@")
+		if len(parts) > 1 {
+			hostPort := strings.Split(parts[1], "/")[0]
+			hostPortParts := strings.Split(hostPort, ":")
+			if len(hostPortParts) >= 2 {
+				host = hostPortParts[0]
+				port = hostPortParts[1]
+			}
+		}
+	}
+
 	// Retry connection with exponential backoff
 	maxRetries := 30
 	for i := 0; i < maxRetries; i++ {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		if err := redisClient.Ping(ctx).Err(); err != nil {
 			cancel()
-			log.Printf("⏳ Redis connection attempt %d/%d failed: %v", i+1, maxRetries, err)
+			utils.SecureLog.LogRedisConnection(i+1, maxRetries, host, port, err)
 			if i < maxRetries-1 {
 				time.Sleep(time.Duration(i+1) * 2 * time.Second)
 			}
 		} else {
 			cancel()
-			log.Println("✅ Redis connected successfully")
+			utils.SecureLog.LogRedisConnection(i+1, maxRetries, host, port, nil)
 			return nil
 		}
 	}
@@ -163,17 +222,68 @@ func initRedis() error {
 }
 
 func initSecurityConfig() {
+	// 🛡️ SECURITY: Environment-specific CORS configuration
+	env := getEnv("APP_ENV", "development")
+	var allowedOrigins []string
+
+	switch env {
+	case "production":
+		// 🚨 CRITICAL: Production must have specific origins, never wildcards
+		origins := getEnv("ALLOWED_ORIGINS", "")
+		if origins == "" || origins == "*" {
+			utils.SecureLog.Error("CRITICAL: ALLOWED_ORIGINS not configured for production", nil, map[string]interface{}{
+				"env":     env,
+				"message": "Production environment requires explicit ALLOWED_ORIGINS configuration",
+			})
+			// Fallback to secure defaults - adjust these for your actual domains
+			allowedOrigins = []string{
+				"https://yourdomain.com",
+				"https://www.yourdomain.com",
+			}
+		} else {
+			allowedOrigins = strings.Split(origins, ",")
+		}
+	case "staging":
+		// Staging environment - more permissive but still controlled
+		origins := getEnv("ALLOWED_ORIGINS", "")
+		if origins == "" {
+			allowedOrigins = []string{
+				"https://staging.yourdomain.com",
+				"http://localhost:3000", // For testing
+			}
+		} else {
+			allowedOrigins = strings.Split(origins, ",")
+		}
+	default:
+		// Development environment - localhost only
+		origins := getEnv("ALLOWED_ORIGINS", "")
+		if origins == "" || origins == "*" {
+			allowedOrigins = []string{
+				"http://localhost:3000",
+				"http://localhost:8080",
+				"http://127.0.0.1:3000",
+				"http://127.0.0.1:8080",
+			}
+		} else {
+			allowedOrigins = strings.Split(origins, ",")
+		}
+	}
+
 	// Initialize security configuration from environment variables
 	secConfig = security.SecurityConfig{
 		EnableMetricsAuth: getEnv("ENABLE_METRICS_AUTH", "true") == "true",
 		MetricsUsername:   getEnv("METRICS_USERNAME", "admin"),
 		MetricsPassword:   getEnv("METRICS_PASSWORD", "secure_password_change_me"),
-		AllowedOrigins:    strings.Split(getEnv("ALLOWED_ORIGINS", "*"), ","),
+		AllowedOrigins:    allowedOrigins,
 		EnableCSP:         getEnv("ENABLE_CSP", "true") == "true",
 		CSPPolicy:         getEnv("CSP_POLICY", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"),
 	}
 
-	log.Println("🔒 Security configuration initialized")
+	utils.SecureLog.Info("Security configuration initialized", map[string]interface{}{
+		"env":                   env,
+		"allowed_origins_count": len(allowedOrigins),
+		"cors_configured":       true,
+	})
 }
 
 func initLLMService() {
@@ -181,17 +291,19 @@ func initLLMService() {
 
 	// Test LLM service health
 	if err := llmService.HealthCheck(); err != nil {
-		log.Printf("⚠️ LLM service health check failed: %v", err)
-		log.Println("💡 Make sure Ollama is running and the model is available")
+		utils.SecureLog.Warning("LLM service health check failed", map[string]interface{}{
+			"error": err.Error(),
+		})
+		utils.SecureLog.Info("Make sure Ollama is running and the model is available")
 	} else {
-		log.Println("🤖 LLM service initialized and healthy")
+		utils.SecureLog.Info("LLM service initialized and healthy")
 	}
 }
 
 func initTracing() {
 	// OpenTelemetry initialization (currently disabled)
 	// This can be enabled when needed for distributed tracing
-	log.Println("ℹ️  OpenTelemetry tracing disabled")
+	utils.SecureLog.Info("OpenTelemetry tracing disabled")
 }
 
 // =============================================================================
@@ -215,14 +327,25 @@ func setupRouter() *gin.Engine {
 	router.Use(security.EnhancedSecurityHeaders(secConfig))
 	router.Use(security.SQLInjectionProtectionMiddleware())
 	router.Use(security.RateLimitMiddleware())
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     secConfig.AllowedOrigins,
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
+	// 🛡️ SECURITY: Use custom CORS middleware with validation
+	corsConfig := security.CORSConfig{
+		AllowedOrigins:   secConfig.AllowedOrigins,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "X-CSRF-Token"},
+		ExposeHeaders:    []string{"Content-Length", "X-Total-Count"},
 		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+		MaxAge:           "12h",
+	}
+
+	// Validate CORS configuration
+	if err := security.ValidateCORSConfig(corsConfig); err != nil {
+		utils.SecureLog.Error("CORS configuration validation failed", err, map[string]interface{}{
+			"config": corsConfig,
+		})
+		log.Fatalf("CORS configuration error: %v", err)
+	}
+
+	router.Use(security.CORSMiddleware(corsConfig))
 
 	// Health check endpoint
 	router.GET("/health", healthCheck)

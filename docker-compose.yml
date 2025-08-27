@@ -1,16 +1,20 @@
 services:
+  # 🛡️ SECURITY: All database ports are now restricted to localhost (127.0.0.1) only
+  # This prevents external access to PostgreSQL and Redis databases
   # PostgreSQL Database
   postgres:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     container_name: bruno-postgres
     environment:
       POSTGRES_DB: bruno_site
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure-password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # 🛡️ SECURITY: Restrict PostgreSQL to localhost only
+      POSTGRES_HOST_AUTH_METHOD: md5
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "0.0.0.0:5432:5432"
+      - "127.0.0.1:5432:5432"
     networks:
       - bruno-network
     healthcheck:
@@ -22,10 +26,11 @@ services:
 
   # Redis Cache
   redis:
-    image: redis:7.2-alpine
+    image: redis:8.2-alpine
     container_name: bruno-redis
+    command: redis-server --bind 127.0.0.1 --protected-mode yes --requirepass ${REDIS_PASSWORD:-}
     ports:
-      - "0.0.0.0:6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -38,10 +43,10 @@ services:
 
   # Database Migration Service
   db-migrate:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     container_name: bruno-db-migrate
     environment:
-      - PGPASSWORD=${POSTGRES_PASSWORD:-secure-password}
+      - PGPASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - ./api/migrations:/migrations
     command: >
@@ -69,16 +74,19 @@ services:
       dockerfile: Dockerfile.dev
     container_name: bruno-api
     environment:
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-secure-password}@postgres:5432/bruno_site?sslmode=disable
-      - REDIS_URL=redis://redis:6379
+      # 🛡️ SECURITY: Environment and CORS configuration
+      - APP_ENV=development
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:8080
+      # Database and services
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/bruno_site?sslmode=disable
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-}@redis:6379
       - PORT=8080
-      - CORS_ORIGIN=http://localhost:3000
       - GEMMA_MODEL=gemma3n:e4b
       - OLLAMA_URL=http://192.168.0.3:11434
-      - METRICS_USERNAME=${METRICS_USERNAME:-admin}
-      - METRICS_PASSWORD=${METRICS_PASSWORD:-secure_password_change_me}
+      - METRICS_USERNAME=${METRICS_USERNAME}
+      - METRICS_PASSWORD=${METRICS_PASSWORD}
     ports:
-      - "0.0.0.0:8080:8080"
+      - "127.0.0.1:8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -106,7 +114,7 @@ services:
       - VITE_API_URL=/api
       - VITE_APP_ENV=development
     ports:
-      - "0.0.0.0:3000:8080"
+      - "127.0.0.1:3000:8080"
     depends_on:
       api:
         condition: service_healthy

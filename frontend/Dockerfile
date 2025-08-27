@@ -1,5 +1,5 @@
 # Build stage
-FROM node:24 AS builder
+FROM node:26 AS builder
 
 # Set working directory
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Development stage - nginx with debug tools
-FROM nginx:stable
+FROM nginx:1.28-alpine
 
 # Install debug tools
 RUN apt-get update && apt-get install -y \
